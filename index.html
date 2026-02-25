@@ -3,1852 +3,1377 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WorkWeek OS — Système de Décision Vestimentaire</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>WorkWeek OS — Avatar System v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a08;
-    --surface: #111110;
-    --surface2: #1a1a17;
-    --border: #2a2a25;
-    --accent: #d4a853;
-    --accent2: #c17f3a;
-    --accent3: #8fbe6a;
-    --text: #f0ede6;
-    --text-muted: #7a7a6e;
-    --text-dim: #4a4a42;
-    --red: #e05c5c;
-    --blue: #5c9de0;
-    --r: 6px;
-    --r-lg: 12px;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-    cursor: default;
-  }
-
-  /* ─── NOISE OVERLAY ─── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.4;
-  }
-
-  /* ─── SCREENS ─── */
-  .screen { display: none; min-height: 100vh; }
-  .screen.active { display: flex; flex-direction: column; }
-
-  /* ─── SPLASH ─── */
-  #splash {
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 0;
-    background: var(--bg);
-    position: relative;
-    overflow: hidden;
-  }
-
-  #splash::after {
-    content: '';
-    position: absolute;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(212,168,83,0.12) 0%, transparent 70%);
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    animation: pulse 4s ease-in-out infinite;
-  }
-
-  @keyframes pulse { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.5} 50%{transform:translate(-50%,-50%) scale(1.2);opacity:1} }
-
-  .splash-eyebrow {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.4em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 24px;
-    opacity: 0;
-    animation: fadeUp 0.8s 0.3s forwards;
-    z-index: 1;
-  }
-
-  .splash-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(72px, 12vw, 140px);
-    line-height: 0.9;
-    letter-spacing: 0.02em;
-    text-align: center;
-    z-index: 1;
-    opacity: 0;
-    animation: fadeUp 0.8s 0.5s forwards;
-  }
-
-  .splash-logo span { color: var(--accent); }
-
-  .splash-tagline {
-    font-size: 14px;
-    font-weight: 300;
-    color: var(--text-muted);
-    margin-top: 20px;
-    letter-spacing: 0.05em;
-    z-index: 1;
-    opacity: 0;
-    animation: fadeUp 0.8s 0.7s forwards;
-  }
-
-  .splash-btn {
-    margin-top: 60px;
-    padding: 16px 48px;
-    background: var(--accent);
-    color: #0a0a08;
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    border: none;
-    cursor: pointer;
-    z-index: 1;
-    opacity: 0;
-    animation: fadeUp 0.8s 1s forwards;
-    transition: background 0.2s, transform 0.15s;
-    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-  }
-
-  .splash-btn:hover { background: var(--accent2); transform: translateY(-2px); }
-
-  .splash-grid {
-    position: absolute;
-    inset: 0;
-    background-image: 
-      linear-gradient(rgba(212,168,83,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(212,168,83,0.04) 1px, transparent 1px);
-    background-size: 60px 60px;
-    z-index: 0;
-  }
-
-  /* ─── ONBOARDING ─── */
-  #onboarding {
-    flex-direction: row;
-    min-height: 100vh;
-  }
-
-  .onboard-sidebar {
-    width: 300px;
-    min-height: 100vh;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 40px 32px;
-    display: flex;
-    flex-direction: column;
-    position: sticky;
-    top: 0;
-    flex-shrink: 0;
-  }
-
-  .sidebar-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px;
-    letter-spacing: 0.05em;
-    margin-bottom: 60px;
-  }
-
-  .sidebar-logo span { color: var(--accent); }
-
-  .step-list { display: flex; flex-direction: column; gap: 4px; }
-
-  .step-item {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 12px 16px;
-    border-radius: var(--r);
-    cursor: pointer;
-    transition: background 0.2s;
-    position: relative;
-  }
-
-  .step-item.active { background: rgba(212,168,83,0.12); }
-  .step-item.done .step-num { background: var(--accent3); color: #0a0a08; }
-
-  .step-num {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    flex-shrink: 0;
-    transition: all 0.3s;
-  }
-
-  .step-item.active .step-num { background: var(--accent); color: #0a0a08; border-color: var(--accent); }
-
-  .step-label { font-size: 13px; color: var(--text-muted); transition: color 0.2s; }
-  .step-item.active .step-label { color: var(--text); font-weight: 500; }
-
-  .sidebar-foot {
-    margin-top: auto;
-    padding-top: 32px;
-    border-top: 1px solid var(--border);
-  }
-
-  .progress-bar-wrap { margin-top: 12px; background: var(--surface2); border-radius: 99px; height: 4px; }
-  .progress-bar { height: 4px; background: var(--accent); border-radius: 99px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
-  .progress-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-muted); margin-top: 8px; }
-
-  .onboard-content {
-    flex: 1;
-    padding: 60px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .step-panel { display: none; flex-direction: column; gap: 32px; animation: fadeUp 0.4s forwards; }
-  .step-panel.active { display: flex; }
-
-  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-
-  .panel-header { margin-bottom: 8px; }
-  .panel-eyebrow {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.3em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .panel-title { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 0.02em; line-height: 1; }
-  .panel-subtitle { font-size: 14px; color: var(--text-muted); margin-top: 8px; font-weight: 300; }
-
-  /* MORPHOLOGY SELECTOR */
-  .morpho-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
-
-  .morpho-card {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 20px 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .morpho-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .morpho-card.selected { border-color: var(--accent); background: rgba(212,168,83,0.08); }
-  .morpho-card.selected::after {
-    content: '✓';
-    position: absolute; top: 8px; right: 8px;
-    width: 18px; height: 18px;
-    background: var(--accent);
-    color: #0a0a08;
-    border-radius: 50%;
-    font-size: 10px;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .morpho-icon { font-size: 40px; line-height: 1; margin-bottom: 8px; }
-  .morpho-letter { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--accent); }
-  .morpho-desc { font-size: 10px; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.02em; }
-
-  /* SKIN TONE */
-  .skin-grid { display: flex; gap: 12px; flex-wrap: wrap; }
-
-  .skin-btn {
-    width: 52px; height: 52px;
-    border-radius: 50%;
-    border: 3px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-  }
-
-  .skin-btn:hover { transform: scale(1.1); }
-  .skin-btn.selected { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212,168,83,0.3); }
-
-  /* SLIDERS */
-  .field-group { display: flex; flex-direction: column; gap: 20px; }
-
-  .field-label {
-    font-size: 11px;
-    font-family: 'Space Mono', monospace;
-    letter-spacing: 0.15em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .field-value {
-    font-size: 20px;
-    font-family: 'Bebas Neue', sans-serif;
-    color: var(--accent);
-    letter-spacing: 0.05em;
-  }
-
-  input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 4px;
-    background: var(--surface2);
-    border-radius: 99px;
-    outline: none;
-    cursor: pointer;
-  }
-
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-    border: 3px solid var(--bg);
-    box-shadow: 0 0 8px rgba(212,168,83,0.5);
-    transition: box-shadow 0.2s;
-  }
-
-  input[type="range"]::-webkit-slider-thumb:hover { box-shadow: 0 0 16px rgba(212,168,83,0.8); }
-
-  /* JOB GRID */
-  .job-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-
-  .job-card {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 20px 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .job-card:hover { border-color: var(--accent); }
-  .job-card.selected { border-color: var(--accent); background: rgba(212,168,83,0.08); }
-
-  .job-icon { font-size: 24px; flex-shrink: 0; }
-  .job-name { font-size: 13px; font-weight: 500; }
-  .job-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-  /* BUDGET */
-  .budget-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-
-  .budget-card {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 20px 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-
-  .budget-card:hover { border-color: var(--accent); }
-  .budget-card.selected { border-color: var(--accent); background: rgba(212,168,83,0.08); }
-
-  .budget-amount { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); }
-  .budget-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-  .budget-tag {
-    display: inline-block;
-    margin-top: 8px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 9px;
-    font-family: 'Space Mono', monospace;
-    letter-spacing: 0.1em;
-  }
-
-  .budget-tag.smart { background: rgba(143,190,106,0.2); color: var(--accent3); }
-  .budget-tag.premium { background: rgba(212,168,83,0.2); color: var(--accent); }
-
-  /* NAV BUTTONS */
-  .nav-btns { display: flex; gap: 12px; margin-top: 40px; }
-
-  .btn-primary {
-    padding: 14px 36px;
-    background: var(--accent);
-    color: #0a0a08;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    border: none;
-    cursor: pointer;
-    border-radius: var(--r);
-    transition: all 0.2s;
-  }
-
-  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
-
-  .btn-secondary {
-    padding: 14px 24px;
-    background: transparent;
-    color: var(--text-muted);
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    border-radius: var(--r);
-    transition: all 0.2s;
-  }
-
-  .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
-
-  /* ─── DASHBOARD ─── */
-  #dashboard {
-    flex-direction: column;
-    background: var(--bg);
-    min-height: 100vh;
-  }
-
-  .dash-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 40px;
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    background: rgba(10,10,8,0.95);
-    backdrop-filter: blur(12px);
-    z-index: 100;
-  }
-
-  .dash-logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.05em; }
-  .dash-logo span { color: var(--accent); }
-
-  .dash-nav { display: flex; gap: 4px; }
-
-  .nav-tab {
-    padding: 8px 20px;
-    border-radius: var(--r);
-    font-size: 12px;
-    font-family: 'Space Mono', monospace;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    transition: all 0.2s;
-  }
-
-  .nav-tab.active { background: var(--surface); color: var(--text); }
-  .nav-tab:hover:not(.active) { color: var(--text); }
-
-  .dash-user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-
-  .user-avatar {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px;
-    color: #0a0a08;
-  }
-
-  .dash-body {
-    display: flex;
-    flex: 1;
-    gap: 0;
-  }
-
-  .dash-main { flex: 1; padding: 40px; overflow-y: auto; }
-  .dash-side { width: 320px; border-left: 1px solid var(--border); padding: 32px 28px; }
-
-  /* SCORE CARD */
-  .score-hero {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 32px;
-    margin-bottom: 24px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .score-hero::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(212,168,83,0.15) 0%, transparent 70%);
-  }
-
-  .score-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
-  .score-title { font-size: 11px; font-family: 'Space Mono', monospace; letter-spacing: 0.2em; color: var(--text-muted); text-transform: uppercase; }
-  .score-badge {
-    padding: 4px 12px;
-    background: rgba(143,190,106,0.15);
-    color: var(--accent3);
-    border-radius: 99px;
-    font-size: 11px;
-    font-family: 'Space Mono', monospace;
-    letter-spacing: 0.05em;
-  }
-
-  .score-big {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 96px;
-    line-height: 1;
-    color: var(--accent);
-    letter-spacing: 0.02em;
-  }
-
-  .score-sub { font-size: 14px; color: var(--text-muted); font-weight: 300; margin-top: 4px; }
-
-  .score-bars { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
-
-  .score-bar-row { display: flex; align-items: center; gap: 12px; }
-  .score-bar-label { font-size: 11px; color: var(--text-muted); width: 140px; font-family: 'Space Mono', monospace; font-size: 10px; }
-  .score-bar-track { flex: 1; height: 4px; background: var(--surface2); border-radius: 99px; }
-  .score-bar-fill { height: 4px; border-radius: 99px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
-  .score-bar-val { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-muted); width: 32px; text-align: right; }
-
-  /* WEEK VIEW */
-  .week-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-
-  .section-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 32px;
-    letter-spacing: 0.02em;
-  }
-
-  .week-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
-  }
-
-  .day-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 0;
-    cursor: pointer;
-    transition: all 0.25s;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .day-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
-  .day-card.selected { border-color: var(--accent); }
-
-  .day-card-top {
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .day-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.05em; }
-
-  .day-score-pill {
-    padding: 3px 10px;
-    border-radius: 99px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    font-weight: 700;
-  }
-
-  .pill-gold { background: rgba(212,168,83,0.2); color: var(--accent); }
-  .pill-green { background: rgba(143,190,106,0.2); color: var(--accent3); }
-
-  .day-visual {
-    height: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 64px;
-    background: var(--surface2);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .day-visual::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, var(--surface) 0%, transparent 50%);
-  }
-
-  .outfit-emoji { position: relative; z-index: 1; }
-
-  .day-card-body { padding: 16px; }
-
-  .outfit-pieces { display: flex; flex-direction: column; gap: 6px; }
-
-  .outfit-piece {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  .piece-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .piece-name { flex: 1; }
-
-  .reuse-tag {
-    font-size: 9px;
-    font-family: 'Space Mono', monospace;
-    padding: 2px 6px;
-    border-radius: 4px;
-    background: rgba(212,168,83,0.1);
-    color: var(--accent);
-    white-space: nowrap;
-  }
-
-  .day-tags {
-    display: flex;
-    gap: 6px;
-    margin-top: 12px;
-    flex-wrap: wrap;
-  }
-
-  .tag-small {
-    font-size: 9px;
-    font-family: 'Space Mono', monospace;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: var(--surface2);
-    color: var(--text-dim);
-    letter-spacing: 0.05em;
-  }
-
-  /* DETAIL PANEL */
-  .detail-panel {
-    position: fixed;
-    right: 0; top: 0; bottom: 0;
-    width: 420px;
-    background: var(--surface);
-    border-left: 1px solid var(--border);
-    z-index: 200;
-    transform: translateX(100%);
-    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .detail-panel.open { transform: translateX(0); }
-
-  .detail-head {
-    padding: 24px 28px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .detail-close {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    color: var(--text-muted);
-    transition: all 0.2s;
-  }
-
-  .detail-close:hover { color: var(--text); border-color: var(--text-muted); }
-
-  .detail-body { padding: 28px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 24px; }
-
-  .detail-outfit-hero {
-    background: var(--surface2);
-    border-radius: var(--r-lg);
-    padding: 48px;
-    text-align: center;
-    font-size: 80px;
-    border: 1px solid var(--border);
-  }
-
-  .index-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  .index-card {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 16px;
-    text-align: center;
-  }
-
-  .index-val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; }
-  .index-label { font-size: 10px; font-family: 'Space Mono', monospace; color: var(--text-muted); letter-spacing: 0.1em; margin-top: 4px; }
-
-  .rule-list { display: flex; flex-direction: column; gap: 8px; }
-
-  .rule-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 12px;
-    background: var(--surface2);
-    border-radius: var(--r);
-    font-size: 12px;
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-  }
-
-  .rule-icon { flex-shrink: 0; font-size: 14px; }
-
-  /* SIDE PANEL */
-  .side-section { margin-bottom: 32px; }
-
-  .side-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.25em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .stat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    font-size: 13px;
-  }
-
-  .stat-key { color: var(--text-muted); }
-  .stat-val { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text); }
-
-  .insight-card {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    font-size: 12px;
-    color: var(--text-muted);
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-  }
-
-  .insight-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-
-  /* WARDROBE VIEW */
-  #wardrobe-view { display: none; }
-  #wardrobe-view.tab-active { display: block; }
-  #week-view { display: block; }
-  #week-view.tab-hidden { display: none; }
-
-  .wardrobe-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
-  }
-
-  .wrd-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .wrd-item:hover { border-color: var(--accent); transform: translateY(-2px); }
-
-  .wrd-thumb {
-    height: 120px;
-    background: var(--surface2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 48px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .wrd-info { padding: 14px; }
-  .wrd-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
-  .wrd-meta { font-size: 11px; color: var(--text-muted); }
-
-  .wrd-usage {
-    margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .wrd-cpp {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--accent3);
-  }
-
-  .wrd-uses {
-    font-size: 10px;
-    color: var(--text-dim);
-  }
-
-  /* Misc */
-  .divider { height: 1px; background: var(--border); margin: 24px 0; }
-
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    border-radius: 99px;
-    font-size: 11px;
-    font-family: 'Space Mono', monospace;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .chip:hover, .chip.active { background: rgba(212,168,83,0.1); border-color: var(--accent); color: var(--accent); }
-
-  .tags-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
-
-  /* Overlay */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 150;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-    backdrop-filter: blur(4px);
-  }
-
-  .overlay.visible { opacity: 1; pointer-events: all; }
-
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 32px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--surface);
-    border: 1px solid var(--accent);
-    padding: 12px 24px;
-    border-radius: 99px;
-    font-size: 12px;
-    font-family: 'Space Mono', monospace;
-    color: var(--accent);
-    z-index: 9999;
-    opacity: 0;
-    transition: all 0.3s;
-    pointer-events: none;
-    letter-spacing: 0.05em;
-  }
-
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* Career Sim */
-  .career-track {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    margin: 20px 0;
-    position: relative;
-  }
-
-  .career-node {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    cursor: pointer;
-  }
-
-  .career-dot {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: var(--surface2);
-    border: 2px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    transition: all 0.3s;
-    position: relative;
-    z-index: 1;
-  }
-
-  .career-node.active .career-dot { background: var(--accent); border-color: var(--accent); }
-  .career-label { font-size: 10px; color: var(--text-muted); margin-top: 6px; font-family: 'Space Mono', monospace; text-align: center; }
-  .career-line { flex: 1; height: 2px; background: var(--border); margin-bottom: 22px; }
-  .career-node.active ~ .career-line { background: var(--accent); }
-
-  @media (max-width: 900px) {
-    .onboard-sidebar { display: none; }
-    .onboard-content { padding: 32px 24px; }
-    .week-grid { grid-template-columns: 1fr 1fr; }
-    .morpho-grid { grid-template-columns: repeat(3,1fr); }
-    .dash-side { display: none; }
-  }
+:root {
+  --bg:#0b0b09; --s1:#141412; --s2:#1e1e1a; --s3:#272722;
+  --b1:#2c2c26; --b2:#3a3a30;
+  --gold:#d4a843; --gold2:#b08830; --golddim:rgba(212,168,67,0.13); --goldglow:rgba(212,168,67,0.3);
+  --green:#79b554; --blue:#5191c9; --red:#c95a4a;
+  --t1:#eee9dd; --t2:#9e9a8a; --t3:#5e5a4e; --t4:#3a3830;
+  --r:8px; --r2:14px; --r3:22px;
+  --fh:DM Sans; --fmono:Space Mono; --ftitle:Bebas Neue;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{font-family:var(--fh),sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;opacity:.02;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ─── SCREENS ─── */
+.scr{display:none} .scr.on{display:flex;flex-direction:column}
+#ob.on{display:grid;grid-template-columns:272px 1fr}
+#db.on{display:flex;flex-direction:column}
+
+/* ════ SPLASH ════ */
+#splash{min-height:100vh;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.sp-grid{position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(212,168,67,.03) 60px),
+             repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(212,168,67,.03) 60px)}
+.sp-glow{position:absolute;width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,168,67,.09) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);animation:pulse 5s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6}50%{transform:translate(-50%,-50%) scale(1.15);opacity:1}}
+.sp-inner{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center}
+.sp-eyebrow{font-family:var(--fmono);font-size:9px;letter-spacing:.45em;color:var(--gold);text-transform:uppercase;
+  opacity:0;animation:rise .7s .2s forwards}
+.sp-logo{font-family:var(--ftitle);font-size:clamp(72px,12vw,148px);line-height:.88;letter-spacing:.03em;margin:18px 0 6px;
+  opacity:0;animation:rise .8s .4s forwards}
+.sp-logo em{color:var(--gold);font-style:normal}
+.sp-sub{font-size:13px;color:var(--t2);font-weight:300;letter-spacing:.06em;max-width:340px;line-height:1.6;
+  opacity:0;animation:rise .8s .55s forwards}
+.sp-avatars{display:flex;gap:16px;margin:48px 0 52px;opacity:0;animation:rise .8s .7s forwards}
+.sp-av-wrap{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);
+  padding:10px 14px 10px;text-align:center;transition:transform .2s,border-color .2s;cursor:default}
+.sp-av-wrap:hover{transform:translateY(-4px);border-color:var(--gold)}
+.sp-av-lbl{font-family:var(--fmono);font-size:8px;letter-spacing:.12em;color:var(--t3);margin-top:8px}
+.sp-cta{padding:15px 54px;background:var(--gold);color:#0b0b09;font-family:var(--fmono);font-size:11px;
+  font-weight:700;letter-spacing:.18em;text-transform:uppercase;border:none;cursor:pointer;
+  clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);
+  transition:background .2s,transform .15s,box-shadow .2s;
+  opacity:0;animation:rise .8s .85s forwards}
+.sp-cta:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 10px 28px var(--goldglow)}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ════ ONBOARDING ════ */
+#ob{display:none;min-height:100vh}
+#ob.on{display:grid;grid-template-columns:272px 1fr}
+.ob-side{background:var(--s1);border-right:1px solid var(--b1);padding:36px 26px;
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.ob-logo{font-family:var(--ftitle);font-size:21px;letter-spacing:.08em;margin-bottom:50px}
+.ob-logo em{color:var(--gold);font-style:normal}
+.ob-stps{display:flex;flex-direction:column;gap:2px}
+.ob-stp{display:flex;align-items:center;gap:12px;padding:10px 13px;border-radius:var(--r);transition:background .2s;cursor:default}
+.ob-stp.done{cursor:pointer}
+.ob-stp.done:hover{background:rgba(255,255,255,.04)}
+.ob-stp.cur{background:var(--golddim)}
+.ob-stp-n{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;font-family:var(--fmono);font-size:10px;
+  color:var(--t3);flex-shrink:0;transition:all .3s}
+.ob-stp.cur .ob-stp-n{border-color:var(--gold);color:var(--gold);background:var(--golddim)}
+.ob-stp.done .ob-stp-n{background:var(--green);border-color:var(--green);color:#0b0b09;font-size:12px}
+.ob-stp-l{font-size:12px;color:var(--t3);transition:color .2s}
+.ob-stp.cur .ob-stp-l{color:var(--t1)}
+.ob-foot{margin-top:auto;padding-top:24px;border-top:1px solid var(--b1)}
+.ob-prog-top{display:flex;justify-content:space-between;font-family:var(--fmono);font-size:9px;
+  color:var(--t3);letter-spacing:.1em;margin-bottom:9px}
+.ob-track{height:3px;background:var(--s3);border-radius:99px}
+.ob-fill{height:3px;background:var(--gold);border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.ob-main{padding:52px 60px;overflow-y:auto}
+.ob-panel{display:none}
+.ob-panel.on{display:block;animation:rise .35s forwards}
+.ob-eye{font-family:var(--fmono);font-size:9px;letter-spacing:.35em;color:var(--gold);
+  text-transform:uppercase;margin-bottom:13px}
+.ob-ttl{font-family:var(--ftitle);font-size:50px;letter-spacing:.02em;line-height:.93;margin-bottom:8px}
+.ob-sub{font-size:13px;color:var(--t2);font-weight:300;margin-bottom:38px;line-height:1.5}
+
+/* Genre toggle */
+.g-tog{display:inline-flex;background:var(--s2);border:1px solid var(--b1);
+  border-radius:99px;padding:4px;gap:4px;margin-bottom:36px}
+.g-btn{padding:8px 28px;border-radius:99px;font-family:var(--fmono);font-size:10px;
+  letter-spacing:.12em;cursor:pointer;border:none;background:transparent;color:var(--t2);transition:all .2s}
+.g-btn.on{background:var(--gold);color:#0b0b09;font-weight:700}
+
+/* Morpho grid */
+.m-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:36px}
+.m-card{border:2px solid var(--b1);border-radius:var(--r2);background:var(--s1);
+  cursor:pointer;transition:all .22s;overflow:hidden;position:relative;padding-bottom:14px}
+.m-card:hover{border-color:var(--gold2);transform:translateY(-3px)}
+.m-card.sel{border-color:var(--gold);background:rgba(212,168,67,.06)}
+.m-card.sel::after{content:'✓';position:absolute;top:8px;right:8px;width:18px;height:18px;
+  background:var(--gold);color:#0b0b09;border-radius:50%;font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center}
+.m-av{height:148px;display:flex;align-items:flex-end;justify-content:center;padding:8px 6px 0}
+.m-letter{font-family:var(--ftitle);font-size:26px;color:var(--gold);text-align:center;
+  margin:6px 0 3px;letter-spacing:.05em}
+.m-desc{font-size:9px;color:var(--t2);text-align:center;line-height:1.55;
+  padding:0 8px;font-family:var(--fmono)}
+
+/* Skin */
+.sk-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+.sk-sw{width:46px;height:46px;border-radius:50%;cursor:pointer;border:3px solid transparent;
+  transition:all .2s}
+.sk-sw:hover{transform:scale(1.12)}
+.sk-sw.sel{border-color:var(--gold);box-shadow:0 0 0 3px var(--golddim)}
+.sk-lbl{font-size:9px;color:var(--t3);font-family:var(--fmono);text-align:center;margin-top:5px;letter-spacing:.06em}
+
+/* Slider */
+.sl-blk{margin-bottom:28px}
+.sl-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
+.sl-n{font-size:10px;font-family:var(--fmono);letter-spacing:.15em;color:var(--t2);text-transform:uppercase}
+.sl-v{font-family:var(--ftitle);font-size:21px;color:var(--gold);letter-spacing:.05em}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--s3);
+  border-radius:99px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;
+  border-radius:50%;background:var(--gold);border:3px solid var(--bg);cursor:pointer;
+  box-shadow:0 0 10px var(--goldglow);transition:box-shadow .2s;margin-top:-8px}
+input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow)}
+
+/* Hier */
+.hi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:30px}
+.hi-item{background:var(--s1);border:1.5px solid var(--b1);border-radius:var(--r);
+  padding:14px 8px;cursor:pointer;text-align:center;transition:all .2s}
+.hi-item:hover{border-color:var(--gold2)} .hi-item.sel{border-color:var(--gold);background:var(--golddim)}
+.hi-ico{font-size:20px;margin-bottom:6px}
+.hi-lbl{font-size:9px;font-family:var(--fmono);color:var(--t2);letter-spacing:.05em}
+
+/* Job */
+.job-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:36px}
+.job-card{background:var(--s1);border:1.5px solid var(--b1);border-radius:var(--r2);
+  padding:18px 15px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px}
+.job-card:hover{border-color:var(--gold2)} .job-card.sel{border-color:var(--gold);background:var(--golddim)}
+.job-ico{font-size:22px;flex-shrink:0}
+.job-n{font-size:13px;font-weight:500}
+.job-c{font-size:10px;color:var(--t2);font-family:var(--fmono);margin-top:3px}
+
+/* Budget */
+.bud-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}
+.bud-card{background:var(--s1);border:1.5px solid var(--b1);border-radius:var(--r2);
+  padding:20px 12px 16px;cursor:pointer;transition:all .2s;text-align:center}
+.bud-card:hover{border-color:var(--gold2)} .bud-card.sel{border-color:var(--gold);background:var(--golddim)}
+.bud-amt{font-family:var(--ftitle);font-size:29px;color:var(--gold)}
+.bud-unit{font-size:9px;color:var(--t2);font-family:var(--fmono);margin-top:2px}
+.bud-tag{display:inline-block;margin-top:9px;padding:3px 8px;border-radius:4px;
+  font-size:8px;font-family:var(--fmono);letter-spacing:.1em}
+.tg{background:rgba(121,181,84,.15);color:var(--green)} .ta{background:var(--golddim);color:var(--gold)}
+
+/* Climat */
+.cl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:36px}
+.cl-card{background:var(--s1);border:1.5px solid var(--b1);border-radius:var(--r2);
+  padding:18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px}
+.cl-card:hover{border-color:var(--gold2)} .cl-card.sel{border-color:var(--gold);background:var(--golddim)}
+.cl-ico{font-size:28px}
+.cl-n{font-size:13px;font-weight:500}
+.cl-c{font-size:10px;color:var(--t2);font-family:var(--fmono);margin-top:3px}
+
+/* Recap */
+.rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:26px}
+.rc-item{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:15px 17px}
+.rc-lbl{font-size:9px;font-family:var(--fmono);letter-spacing:.2em;color:var(--t2);
+  text-transform:uppercase;margin-bottom:5px}
+.rc-val{font-family:var(--ftitle);font-size:21px;color:var(--gold);letter-spacing:.05em}
+.rules-box{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);
+  padding:20px 22px;margin-bottom:34px}
+.rl-title{font-family:var(--fmono);font-size:9px;letter-spacing:.25em;color:var(--t2);
+  text-transform:uppercase;margin-bottom:14px}
+.rl-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;color:var(--t2);line-height:1.5}
+.rl-row:last-child{border-bottom:none}
+.rl-i{flex-shrink:0;font-size:13px}
+
+/* Nav btns */
+.ob-nav{display:flex;gap:10px;padding-top:6px}
+.btn-p{padding:13px 36px;background:var(--gold);color:#0b0b09;font-family:var(--fmono);
+  font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  border:none;border-radius:var(--r);cursor:pointer;transition:all .2s}
+.btn-p:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 6px 18px var(--goldglow)}
+.btn-s{padding:13px 22px;background:transparent;border:1.5px solid var(--b2);color:var(--t2);
+  font-family:var(--fmono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:var(--r);cursor:pointer;transition:all .2s}
+.btn-s:hover{border-color:var(--t2);color:var(--t1)}
+.btn-launch{padding:15px 50px;background:linear-gradient(135deg,var(--green),#5a8f3a);color:#0b0b09;
+  font-family:var(--fmono);font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  border:none;border-radius:var(--r);cursor:pointer;transition:all .2s}
+.btn-launch:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(121,181,84,.3)}
+
+/* ════ DASHBOARD ════ */
+#db{display:none;flex-direction:column;min-height:100vh}
+#db.on{display:flex}
+.db-bar{display:flex;align-items:center;justify-content:space-between;padding:15px 36px;
+  border-bottom:1px solid var(--b1);background:rgba(11,11,9,.92);backdrop-filter:blur(16px);
+  position:sticky;top:0;z-index:100}
+.db-logo{font-family:var(--ftitle);font-size:21px;letter-spacing:.08em}
+.db-logo em{color:var(--gold);font-style:normal}
+.db-tabs{display:flex;gap:4px}
+.db-tab{padding:7px 18px;border-radius:99px;font-family:var(--fmono);font-size:10px;
+  letter-spacing:.08em;cursor:pointer;border:none;background:transparent;color:var(--t2);transition:all .2s}
+.db-tab.on{background:var(--s2);color:var(--t1);border:1px solid var(--b1)}
+.db-tab:hover:not(.on){color:var(--t1)}
+.db-usr{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--t2)}
+.db-av{width:33px;height:33px;border-radius:50%;background:var(--gold);color:#0b0b09;
+  display:flex;align-items:center;justify-content:center;font-family:var(--ftitle);font-size:15px}
+.db-body{flex:1;display:grid;grid-template-columns:1fr 336px;min-height:0}
+.db-main{padding:34px 40px;overflow-y:auto}
+.db-side{border-left:1px solid var(--b1);padding:26px 22px;overflow-y:auto}
+
+/* Score card */
+.sc-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);
+  padding:26px 30px;margin-bottom:26px;position:relative;overflow:hidden}
+.sc-card::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(212,168,67,.1),transparent 70%);pointer-events:none}
+.sc-lbl{font-size:9px;font-family:var(--fmono);letter-spacing:.22em;color:var(--t3);
+  text-transform:uppercase;margin-bottom:6px}
+.sc-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+.sc-n{font-family:var(--ftitle);font-size:86px;line-height:.9;color:var(--gold);letter-spacing:.02em}
+.sc-grade{padding:5px 14px;border-radius:99px;font-family:var(--fmono);font-size:10px;font-weight:700;align-self:flex-start}
+.sga{background:rgba(121,181,84,.15);color:var(--green)}
+.sgb{background:var(--golddim);color:var(--gold)}
+.sgc{background:rgba(81,145,201,.15);color:var(--blue)}
+.sc-axes{display:grid;grid-template-columns:1fr 1fr;gap:10px 30px}
+.ax{display:flex;flex-direction:column;gap:5px}
+.ax-top{display:flex;justify-content:space-between;font-size:10px}
+.ax-n{color:var(--t3);font-family:var(--fmono);letter-spacing:.04em}
+.ax-v{color:var(--t2);font-family:var(--fmono)}
+.ax-track{height:3px;background:var(--s3);border-radius:99px}
+.ax-fill{height:3px;border-radius:99px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+
+/* Section title */
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.sec-ttl{font-family:var(--ftitle);font-size:28px;letter-spacing:.03em}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{padding:5px 13px;border-radius:99px;font-size:10px;font-family:var(--fmono);
+  letter-spacing:.05em;cursor:pointer;border:1px solid var(--b2);background:transparent;
+  color:var(--t2);transition:all .2s}
+.chip:hover,.chip.on{background:var(--golddim);border-color:var(--gold);color:var(--gold)}
+
+/* Week grid */
+.wk-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.day-card{background:var(--s1);border:1.5px solid var(--b1);border-radius:var(--r2);
+  overflow:hidden;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1)}
+.day-card:hover{border-color:var(--gold);transform:translateY(-4px);
+  box-shadow:0 18px 44px rgba(0,0,0,.55)}
+.dc-head{padding:11px 13px;display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid var(--b1)}
+.dc-day{font-family:var(--ftitle);font-size:17px;letter-spacing:.06em}
+.dc-score{font-family:var(--fmono);font-size:9px;font-weight:700;padding:3px 8px;border-radius:99px}
+.dca{background:var(--golddim);color:var(--gold)}
+.dcg{background:rgba(121,181,84,.18);color:var(--green)}
+
+/* Avatar stage */
+.av-stage{height:195px;background:linear-gradient(175deg,var(--s2) 0%,var(--s3) 100%);
+  display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden}
+.av-stage::after{content:'';position:absolute;bottom:0;left:0;right:0;height:45px;
+  background:linear-gradient(to top,var(--s1) 0%,transparent 100%);z-index:2;pointer-events:none}
+.av-stage svg{position:relative;z-index:1}
+/* shadow under feet */
+.av-stage::before{content:'';position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  width:50px;height:8px;background:rgba(0,0,0,.35);border-radius:50%;z-index:1;filter:blur(4px)}
+
+.dc-body{padding:13px}
+.dc-outfit-name{font-size:11px;font-weight:600;margin-bottom:8px;letter-spacing:.02em}
+.dc-pieces{display:flex;flex-direction:column;gap:5px}
+.dc-piece{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--t2)}
+.dc-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.dc-txt{flex:1;font-size:10.5px}
+.dc-r{font-size:8px;font-family:var(--fmono);padding:1px 5px;border-radius:3px;
+  background:var(--golddim);color:var(--gold);white-space:nowrap}
+.dc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.dc-tag{font-size:8px;font-family:var(--fmono);padding:2px 7px;border-radius:4px;
+  background:var(--s3);color:var(--t3);letter-spacing:.05em}
+
+/* Sidebar */
+.ss-sec{margin-bottom:26px}
+.ss-t{font-family:var(--fmono);font-size:8px;letter-spacing:.3em;color:var(--t3);
+  text-transform:uppercase;padding-bottom:9px;border-bottom:1px solid var(--b1);margin-bottom:13px}
+.ss-row{display:flex;justify-content:space-between;align-items:center;
+  padding:7px 0;border-bottom:1px solid rgba(255,255,255,.025);font-size:12px}
+.ss-k{color:var(--t2)} .ss-v{font-family:var(--fmono);font-size:10px;color:var(--t1)}
+.insight{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);
+  padding:11px 13px;margin-bottom:7px;font-size:11.5px;color:var(--t2);
+  display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.in-i{font-size:13px;flex-shrink:0;margin-top:1px}
+
+/* Drawer */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;opacity:0;
+  pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px)}
+.overlay.on{opacity:1;pointer-events:all}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:440px;background:var(--s1);
+  border-left:1px solid var(--b1);z-index:201;transform:translateX(100%);
+  transition:transform .38s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.drawer.on{transform:translateX(0)}
+.dr-head{padding:20px 24px;border-bottom:1px solid var(--b1);display:flex;
+  justify-content:space-between;align-items:center;flex-shrink:0}
+.dr-close{width:29px;height:29px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;
+  color:var(--t2);transition:all .2s}
+.dr-close:hover{color:var(--t1);border-color:var(--t2)}
+.dr-body{flex:1;overflow-y:auto;padding:22px 24px;display:flex;flex-direction:column;gap:20px}
+.dr-av-stage{background:linear-gradient(170deg,var(--s2),var(--s3));border-radius:var(--r2);
+  border:1px solid var(--b1);height:280px;display:flex;align-items:flex-end;
+  justify-content:center;overflow:hidden;position:relative}
+.dr-av-stage::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,var(--s2) 0%,transparent 45%);pointer-events:none}
+.dr-av-stage::before{content:'';position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  width:60px;height:10px;background:rgba(0,0,0,.3);border-radius:50%;z-index:1;filter:blur(5px)}
+.dr-av-stage svg{position:relative;z-index:2}
+.dr-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dr-metric{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);
+  padding:14px;text-align:center}
+.dr-mv{font-family:var(--ftitle);font-size:32px}
+.dr-ml{font-size:9px;font-family:var(--fmono);color:var(--t3);letter-spacing:.12em;margin-top:2px}
+
+/* Wardrobe */
+.wrd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px;margin-top:18px}
+.wrd-card{background:var(--s1);border:1.5px solid var(--b1);border-radius:var(--r2);
+  overflow:hidden;cursor:pointer;transition:all .2s}
+.wrd-card:hover{border-color:var(--gold2);transform:translateY(-2px)}
+.wrd-img{height:100px;background:var(--s2);display:flex;align-items:center;
+  justify-content:center;border-bottom:1px solid var(--b1);font-size:44px}
+.wrd-info{padding:11px 13px}
+.wrd-n{font-size:12px;font-weight:500;margin-bottom:2px}
+.wrd-t{font-size:9px;color:var(--t3);font-family:var(--fmono)}
+.wrd-st{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.wrd-cpp{font-size:10px;font-family:var(--fmono);color:var(--green)}
+.wrd-uses{font-size:9px;color:var(--t3)}
+
+/* Toast */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--s1);border:1px solid var(--gold);color:var(--gold);padding:10px 22px;
+  border-radius:99px;font-family:var(--fmono);font-size:10px;letter-spacing:.08em;
+  z-index:9001;opacity:0;pointer-events:none;transition:all .3s}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:1100px){
+  #ob.on{grid-template-columns:1fr} .ob-side{display:none} .ob-main{padding:36px 26px}
+  .m-grid{grid-template-columns:repeat(3,1fr)} .wk-grid{grid-template-columns:1fr 1fr}
+  .db-body{grid-template-columns:1fr} .db-side{display:none}
+}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════ SPLASH ═══════════════════════════════════════ -->
-<div class="screen active" id="splash">
-  <div class="splash-grid"></div>
-  <p class="splash-eyebrow">v1.0 — Afrique Urbaine</p>
-  <h1 class="splash-logo">WORK<span>WEEK</span><br>OS</h1>
-  <p class="splash-tagline">Système intelligent de décision vestimentaire professionnelle</p>
-  <button class="splash-btn" onclick="goTo('onboarding')">Initialiser le système →</button>
-</div>
-
-<!-- ═══════════════════════════════════════ ONBOARDING ═══════════════════════════════════════ -->
-<div class="screen" id="onboarding">
-  <div class="onboard-sidebar">
-    <div class="sidebar-logo">Work<span>Week</span> OS</div>
-    <div class="step-list" id="stepList"></div>
-    <div class="sidebar-foot">
-      <div class="progress-label" id="progressLabel">0 / 5 complété</div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar" id="progressBar" style="width:0%"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="onboard-content">
-
-    <!-- STEP 1: MORPHOLOGIE -->
-    <div class="step-panel active" id="panel-1">
-      <div class="panel-header">
-        <div class="panel-eyebrow">Step 01 — Profil Morphologique</div>
-        <h2 class="panel-title">Quelle est ta<br>morphologie ?</h2>
-        <p class="panel-subtitle">Ce paramètre influence 30% du scoring de tes tenues</p>
-      </div>
-      <div class="morpho-grid">
-        <div class="morpho-card" onclick="selectMorpho(this,'V')">
-          <div class="morpho-icon">🔼</div>
-          <div class="morpho-letter">V</div>
-          <div class="morpho-desc">Épaules larges<br>hanches étroites</div>
-        </div>
-        <div class="morpho-card" onclick="selectMorpho(this,'A')">
-          <div class="morpho-icon">🔽</div>
-          <div class="morpho-letter">A</div>
-          <div class="morpho-desc">Hanches larges<br>épaules étroites</div>
-        </div>
-        <div class="morpho-card" onclick="selectMorpho(this,'H')">
-          <div class="morpho-icon">▭</div>
-          <div class="morpho-letter">H</div>
-          <div class="morpho-desc">Épaules et hanches<br>similaires</div>
-        </div>
-        <div class="morpho-card" onclick="selectMorpho(this,'X')">
-          <div class="morpho-icon">⬥</div>
-          <div class="morpho-letter">X</div>
-          <div class="morpho-desc">Sablier<br>taille marquée</div>
-        </div>
-        <div class="morpho-card" onclick="selectMorpho(this,'O')">
-          <div class="morpho-icon">⬭</div>
-          <div class="morpho-letter">O</div>
-          <div class="morpho-desc">Taille ronde<br>bien répartie</div>
-        </div>
-      </div>
-      <div class="nav-btns">
-        <button class="btn-primary" onclick="nextStep()">Continuer →</button>
-      </div>
-    </div>
-
-    <!-- STEP 2: TEINT & TAILLE -->
-    <div class="step-panel" id="panel-2">
-      <div class="panel-header">
-        <div class="panel-eyebrow">Step 02 — Apparence Physique</div>
-        <h2 class="panel-title">Teint &<br>Stature</h2>
-        <p class="panel-subtitle">Affine les recommandations chromatiques et de coupe</p>
-      </div>
-
-      <div>
-        <div class="field-label">Teint de peau <span style="color:var(--text);font-size:13px">Sélectionne le plus proche</span></div>
-        <div class="skin-grid">
-          <div class="skin-btn" style="background:#FDDBB4" onclick="selectSkin(this,'clair')" title="Clair"></div>
-          <div class="skin-btn" style="background:#EDB98A" onclick="selectSkin(this,'beige')" title="Beige"></div>
-          <div class="skin-btn" style="background:#D08B5B" onclick="selectSkin(this,'moyen')" title="Moyen"></div>
-          <div class="skin-btn" style="background:#AE5D29" onclick="selectSkin(this,'olive')" title="Olive"></div>
-          <div class="skin-btn" style="background:#694D3D" onclick="selectSkin(this,'brun')" title="Brun"></div>
-          <div class="skin-btn" style="background:#3C2315" onclick="selectSkin(this,'fonce')" title="Foncé"></div>
-        </div>
-      </div>
-
-      <div class="field-group">
-        <div>
-          <div class="field-label">
-            Taille
-            <span class="field-value" id="tailleVal">175 cm</span>
-          </div>
-          <input type="range" min="150" max="200" value="175" oninput="document.getElementById('tailleVal').textContent=this.value+' cm'; profile.taille=+this.value">
-        </div>
-        <div>
-          <div class="field-label">
-            Niveau hiérarchique
-            <span class="field-value" id="hierVal">Junior</span>
-          </div>
-          <input type="range" min="0" max="3" value="0" oninput="updateHier(this.value)">
-          <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--text-dim);font-family:'Space Mono',monospace">
-            <span>Junior</span><span>Manager</span><span>Directeur</span><span>C-Level</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="nav-btns">
-        <button class="btn-secondary" onclick="prevStep()">← Retour</button>
-        <button class="btn-primary" onclick="nextStep()">Continuer →</button>
-      </div>
-    </div>
-
-    <!-- STEP 3: PROFESSION -->
-    <div class="step-panel" id="panel-3">
-      <div class="panel-header">
-        <div class="panel-eyebrow">Step 03 — Contexte Professionnel</div>
-        <h2 class="panel-title">Ton secteur<br>d'activité</h2>
-        <p class="panel-subtitle">25% du scoring — détermine les codes vestimentaires applicables</p>
-      </div>
-      <div class="job-grid">
-        <div class="job-card" onclick="selectJob(this,'Finance/Banque')">
-          <div class="job-icon">🏦</div>
-          <div>
-            <div class="job-name">Finance / Banque</div>
-            <div class="job-sub">Code strict — formelle obligatoire</div>
-          </div>
-        </div>
-        <div class="job-card" onclick="selectJob(this,'Tech/Startup')">
-          <div class="job-icon">💻</div>
-          <div>
-            <div class="job-name">Tech / Startup</div>
-            <div class="job-sub">Business casual acceptable</div>
-          </div>
-        </div>
-        <div class="job-card" onclick="selectJob(this,'Consulting')">
-          <div class="job-icon">📊</div>
-          <div>
-            <div class="job-name">Consulting</div>
-            <div class="job-sub">Smart formal — flexible</div>
-          </div>
-        </div>
-        <div class="job-card" onclick="selectJob(this,'Santé')">
-          <div class="job-icon">🏥</div>
-          <div>
-            <div class="job-name">Santé</div>
-            <div class="job-sub">Fonctionnel + propre</div>
-          </div>
-        </div>
-        <div class="job-card" onclick="selectJob(this,'Enseignement')">
-          <div class="job-icon">🎓</div>
-          <div>
-            <div class="job-name">Enseignement</div>
-            <div class="job-sub">Respectable + accessible</div>
-          </div>
-        </div>
-        <div class="job-card" onclick="selectJob(this,'Droit')">
-          <div class="job-icon">⚖️</div>
-          <div>
-            <div class="job-name">Droit / Juridique</div>
-            <div class="job-sub">Formelle stricte</div>
-          </div>
-        </div>
-        <div class="job-card" onclick="selectJob(this,'Communication')">
-          <div class="job-icon">📢</div>
-          <div>
-            <div class="job-name">Communication</div>
-            <div class="job-sub">Créatif — expresssif ok</div>
-          </div>
-        </div>
-        <div class="job-card" onclick="selectJob(this,'Gouvernement')">
-          <div class="job-icon">🏛️</div>
-          <div>
-            <div class="job-name">Gouvernement</div>
-            <div class="job-sub">Formelle + sobre</div>
-          </div>
-        </div>
-        <div class="job-card" onclick="selectJob(this,'Commerce')">
-          <div class="job-icon">🛒</div>
-          <div>
-            <div class="job-name">Commerce</div>
-            <div class="job-sub">Présentable + mobile</div>
-          </div>
-        </div>
-      </div>
-      <div class="nav-btns">
-        <button class="btn-secondary" onclick="prevStep()">← Retour</button>
-        <button class="btn-primary" onclick="nextStep()">Continuer →</button>
-      </div>
-    </div>
-
-    <!-- STEP 4: BUDGET & CLIMAT -->
-    <div class="step-panel" id="panel-4">
-      <div class="panel-header">
-        <div class="panel-eyebrow">Step 04 — Contexte & Contraintes</div>
-        <h2 class="panel-title">Budget &<br>Climat</h2>
-        <p class="panel-subtitle">Optimisation réelle selon tes ressources et ton environnement</p>
-      </div>
-
-      <div>
-        <div class="field-label" style="margin-bottom:16px">Budget mensuel tenues <span class="field-value">Sélectionner</span></div>
-        <div class="budget-grid">
-          <div class="budget-card" onclick="selectBudget(this,15000)">
-            <div class="budget-amount">15K</div>
-            <div class="budget-label">FCFA / mois</div>
-            <span class="budget-tag smart">ESSENTIEL</span>
-          </div>
-          <div class="budget-card" onclick="selectBudget(this,35000)">
-            <div class="budget-amount">35K</div>
-            <div class="budget-label">FCFA / mois</div>
-            <span class="budget-tag smart">SMART</span>
-          </div>
-          <div class="budget-card" onclick="selectBudget(this,75000)">
-            <div class="budget-amount">75K</div>
-            <div class="budget-label">FCFA / mois</div>
-            <span class="budget-tag premium">PREMIUM</span>
-          </div>
-          <div class="budget-card" onclick="selectBudget(this,150000)">
-            <div class="budget-amount">150K+</div>
-            <div class="budget-label">FCFA / mois</div>
-            <span class="budget-tag premium">LUXE</span>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="field-label" style="margin-bottom:16px">Climat de ta ville <span class="field-value" id="climatVal">—</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="budget-card" onclick="selectClimat(this,'tropical_chaud')">
-            <div style="font-size:32px">☀️</div>
-            <div class="budget-label">Tropical chaud<br>Abidjan, Dakar, Lomé</div>
-          </div>
-          <div class="budget-card" onclick="selectClimat(this,'semi_aride')">
-            <div style="font-size:32px">🌵</div>
-            <div class="budget-label">Semi-aride<br>Bamako, Niamey, Ouaga</div>
-          </div>
-          <div class="budget-card" onclick="selectClimat(this,'equatorial')">
-            <div style="font-size:32px">🌧️</div>
-            <div class="budget-label">Équatorial<br>Douala, Kinshasa</div>
-          </div>
-          <div class="budget-card" onclick="selectClimat(this,'altitude')">
-            <div style="font-size:32px">⛰️</div>
-            <div class="budget-label">Altitude<br>Nairobi, Kigali, Addis</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="nav-btns">
-        <button class="btn-secondary" onclick="prevStep()">← Retour</button>
-        <button class="btn-primary" onclick="nextStep()">Continuer →</button>
-      </div>
-    </div>
-
-    <!-- STEP 5: RECAP -->
-    <div class="step-panel" id="panel-5">
-      <div class="panel-header">
-        <div class="panel-eyebrow">Step 05 — Initialisation Système</div>
-        <h2 class="panel-title">Profil<br>Configuré</h2>
-        <p class="panel-subtitle">Le moteur va calculer ton score et générer ta semaine optimisée</p>
-      </div>
-
-      <div id="recapCards" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
-
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;margin-top:8px">
-        <div class="side-title" style="margin-bottom:16px">Règles moteur activées</div>
-        <div id="activeRules"></div>
-      </div>
-
-      <div class="nav-btns">
-        <button class="btn-secondary" onclick="prevStep()">← Retour</button>
-        <button class="btn-primary" onclick="launch()" style="background:var(--accent3);padding:16px 48px;font-size:13px">
-          ⚡ Lancer WorkWeek OS
-        </button>
-      </div>
-    </div>
-
+<!-- ══════════ SPLASH ══════════ -->
+<div id="splash" class="scr on">
+  <div class="sp-grid"></div>
+  <div class="sp-glow"></div>
+  <div class="sp-inner">
+    <p class="sp-eyebrow">Système Vestimentaire — Afrique Urbaine</p>
+    <h1 class="sp-logo">WORK<em>WEEK</em><br>OS</h1>
+    <p class="sp-sub">Moteur de décision vestimentaire professionnelle intelligent</p>
+    <div class="sp-avatars" id="spAv"></div>
+    <button class="sp-cta" onclick="go('ob')">Initialiser le système →</button>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════ DASHBOARD ═══════════════════════════════════════ -->
-<div class="screen" id="dashboard">
-  <div class="dash-header">
-    <div class="dash-logo">Work<span>Week</span> OS</div>
-    <div class="dash-nav">
-      <button class="nav-tab active" onclick="switchTab('week',this)">Semaine</button>
-      <button class="nav-tab" onclick="switchTab('wardrobe',this)">Garde-robe</button>
-      <button class="nav-tab" onclick="switchTab('career',this)">Carrière</button>
+<!-- ══════════ ONBOARDING ══════════ -->
+<div id="ob" class="scr">
+  <div class="ob-side">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:50px">
+      <button onclick="backToSplash()" title="Retour à l'accueil"
+        style="width:28px;height:28px;border-radius:50%;background:transparent;border:1.5px solid var(--b2);
+               color:var(--t3);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+               transition:all .2s;flex-shrink:0;line-height:1"
+        onmouseover="this.style.borderColor='var(--t2)';this.style.color='var(--t1)'"
+        onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--t3)'">←</button>
+      <div class="ob-logo" style="margin-bottom:0">Work<em>Week</em> OS</div>
     </div>
-    <div class="dash-user">
-      <span id="userNameDisplay"></span>
-      <div class="user-avatar" id="userAvatarInitial"></div>
+    <div class="ob-stps" id="obStps"></div>
+    <div class="ob-foot">
+      <div class="ob-prog-top"><span>PROGRESSION</span><span id="obPct">0%</span></div>
+      <div class="ob-track"><div class="ob-fill" id="obFill" style="width:0%"></div></div>
     </div>
   </div>
+  <div class="ob-main">
 
-  <div class="dash-body">
-    <div class="dash-main">
-
-      <!-- WEEK TAB -->
-      <div id="week-view">
-        <div style="margin-bottom:32px">
-          <div class="score-hero">
-            <div class="score-header">
-              <div>
-                <div class="score-title">INDICE DE CRÉDIBILITÉ VISUELLE</div>
-                <div class="score-big" id="mainScore">—</div>
-                <div class="score-sub">Score global semaine</div>
-              </div>
-              <div class="score-badge" id="scoreBadge">CALCUL...</div>
-            </div>
-            <div class="score-bars" id="scoreBars"></div>
-          </div>
-        </div>
-
-        <div class="week-header">
-          <div class="section-title">Semaine Optimisée</div>
-          <div class="tags-row" style="margin:0">
-            <div class="chip active">5 jours</div>
-            <div class="chip">3 pièces réutilisées</div>
-            <div class="chip">Coût/port optimal</div>
-          </div>
-        </div>
-
-        <div class="week-grid" id="weekGrid"></div>
+    <!-- P1: Genre + Morphologie -->
+    <div class="ob-panel on" id="p1">
+      <div class="ob-eye">Étape 01 — Profil Morphologique</div>
+      <h2 class="ob-ttl">Genre &<br>Morphologie</h2>
+      <p class="ob-sub">Poids 30% · Les coupes et silhouettes adaptées à ton corps</p>
+      <div class="g-tog" id="gTog">
+        <button class="g-btn on" onclick="setG('M',this)">MASCULIN</button>
+        <button class="g-btn" onclick="setG('F',this)">FÉMININ</button>
       </div>
+      <div class="m-grid" id="mGrid"></div>
+      <div class="ob-nav"><button class="btn-p" onclick="nxt()">Continuer →</button></div>
+    </div>
 
-      <!-- WARDROBE TAB -->
-      <div id="wardrobe-view" style="display:none">
-        <div class="week-header">
-          <div class="section-title">Garde-robe Intelligente</div>
-          <div class="tags-row" style="margin:0">
-            <div class="chip active" onclick="filterWardrobe('all',this)">Tout</div>
-            <div class="chip" onclick="filterWardrobe('haut',this)">Hauts</div>
-            <div class="chip" onclick="filterWardrobe('bas',this)">Bas</div>
-            <div class="chip" onclick="filterWardrobe('chaussures',this)">Chaussures</div>
-          </div>
-        </div>
-        <div class="wardrobe-grid" id="wardrobeGrid"></div>
+    <!-- P2: Teint + Taille + Niveau -->
+    <div class="ob-panel" id="p2">
+      <div class="ob-eye">Étape 02 — Apparence & Stature</div>
+      <h2 class="ob-ttl">Teint &<br>Taille</h2>
+      <p class="ob-sub">Personnalise les recommandations chromatiques et de coupe</p>
+      <div style="margin-bottom:30px">
+        <div class="sl-n" style="margin-bottom:13px">Teint de peau</div>
+        <div class="sk-row" id="skRow"></div>
       </div>
-
-      <!-- CAREER TAB -->
-      <div id="career-view" style="display:none">
-        <div class="week-header">
-          <div class="section-title">Simulation Évolution</div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:32px;margin-bottom:24px">
-          <div class="side-title" style="margin-bottom:24px">Trajectoire de style par niveau</div>
-          <div class="career-track" id="careerTrack"></div>
-          <div id="careerOutfit" style="margin-top:32px"></div>
-        </div>
+      <div class="sl-blk">
+        <div class="sl-hd"><span class="sl-n">Taille</span><span class="sl-v" id="tlDisp">175 cm</span></div>
+        <input type="range" min="150" max="200" value="175" oninput="S.taille=+this.value;document.getElementById('tlDisp').textContent=this.value+' cm'">
+      </div>
+      <div class="sl-n" style="margin-bottom:11px">Niveau hiérarchique</div>
+      <div class="hi-grid" id="hiGrid"></div>
+      <div class="ob-nav">
+        <button class="btn-s" onclick="prv()">← Retour</button>
+        <button class="btn-p" onclick="nxt()">Continuer →</button>
       </div>
     </div>
 
-    <div class="dash-side">
-      <div class="side-section">
-        <div class="side-title">Profil Actif</div>
-        <div id="profileSummary"></div>
+    <!-- P3: Profession -->
+    <div class="ob-panel" id="p3">
+      <div class="ob-eye">Étape 03 — Contexte Professionnel</div>
+      <h2 class="ob-ttl">Secteur<br>d'activité</h2>
+      <p class="ob-sub">Poids 25% · Détermine les codes vestimentaires applicables</p>
+      <div class="job-grid" id="jGrid"></div>
+      <div class="ob-nav">
+        <button class="btn-s" onclick="prv()">← Retour</button>
+        <button class="btn-p" onclick="nxt()">Continuer →</button>
       </div>
-      <div class="side-section">
-        <div class="side-title">Insights Moteur</div>
-        <div id="insightsList"></div>
+    </div>
+
+    <!-- P4: Budget + Climat -->
+    <div class="ob-panel" id="p4">
+      <div class="ob-eye">Étape 04 — Contraintes</div>
+      <h2 class="ob-ttl">Budget &<br>Climat</h2>
+      <p class="ob-sub">Optimisation réelle selon tes ressources et ton environnement</p>
+      <div style="margin-bottom:28px">
+        <div class="sl-n" style="margin-bottom:12px">Budget mensuel tenues</div>
+        <div class="bud-grid" id="bGrid"></div>
       </div>
-      <div class="side-section">
-        <div class="side-title">Optimisation Garde-robe</div>
-        <div id="optStats"></div>
+      <div class="sl-n" style="margin-bottom:12px">Climat de ta ville</div>
+      <div class="cl-grid" id="cGrid"></div>
+      <div class="ob-nav">
+        <button class="btn-s" onclick="prv()">← Retour</button>
+        <button class="btn-p" onclick="nxt()">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- P5: Recap -->
+    <div class="ob-panel" id="p5">
+      <div class="ob-eye">Étape 05 — Initialisation</div>
+      <h2 class="ob-ttl">Profil<br>Configuré</h2>
+      <p class="ob-sub">Le moteur calcule ton score et génère ta semaine optimisée</p>
+      <div class="rc-grid" id="rcGrid"></div>
+      <div class="rules-box"><div class="rl-title">Règles moteur activées</div><div id="rlList"></div></div>
+      <div class="ob-nav">
+        <button class="btn-s" onclick="prv()">← Retour</button>
+        <button class="btn-launch" onclick="launch()">⚡ Lancer WorkWeek OS</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- DETAIL PANEL -->
-<div class="overlay" id="overlay" onclick="closeDetail()"></div>
-<div class="detail-panel" id="detailPanel">
-  <div class="detail-head">
+<!-- ══════════ DASHBOARD ══════════ -->
+<div id="db" class="scr">
+  <div class="db-bar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onclick="backToOnboarding()" title="Modifier le profil"
+        style="display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:99px;
+               background:transparent;border:1.5px solid var(--b2);color:var(--t2);
+               font-family:var(--fmono);font-size:9px;letter-spacing:.1em;cursor:pointer;
+               transition:all .2s"
+        onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'"
+        onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--t2)'">
+        <span>←</span> PROFIL
+      </button>
+      <div class="db-logo">Work<em>Week</em> OS</div>
+    </div>
+    <div class="db-tabs">
+      <button class="db-tab on" onclick="dTab('week',this)">Semaine</button>
+      <button class="db-tab" onclick="dTab('wardrobe',this)">Garde-robe</button>
+      <button class="db-tab" onclick="dTab('career',this)">Carrière</button>
+    </div>
+    <div class="db-usr"><span id="dbUL"></span><div class="db-av" id="dbAv"></div></div>
+  </div>
+  <div class="db-body">
+    <div class="db-main">
+      <div id="t-week">
+        <div class="sc-card">
+          <div class="sc-lbl">Indice de Crédibilité Visuelle</div>
+          <div class="sc-top">
+            <div class="sc-n" id="scN">—</div>
+            <div class="sc-grade" id="scG"></div>
+          </div>
+          <div class="sc-axes" id="scAx"></div>
+        </div>
+        <div class="sec-hd">
+          <div class="sec-ttl">Semaine Optimisée</div>
+          <div class="chips"><div class="chip on">5 jours</div><div class="chip" id="rChip">— réutilisées</div></div>
+        </div>
+        <div class="wk-grid" id="wGrid"></div>
+      </div>
+      <div id="t-wardrobe" style="display:none">
+        <div class="sec-hd">
+          <div class="sec-ttl">Garde-robe</div>
+          <div class="chips" id="wrdChips">
+            <div class="chip on" onclick="wrdF('all',this)">Tout</div>
+            <div class="chip" onclick="wrdF('haut',this)">Hauts</div>
+            <div class="chip" onclick="wrdF('bas',this)">Bas</div>
+            <div class="chip" onclick="wrdF('chaussures',this)">Chaussures</div>
+          </div>
+        </div>
+        <div class="wrd-grid" id="wrdGrid"></div>
+      </div>
+      <div id="t-career" style="display:none">
+        <div class="sec-ttl" style="margin-bottom:22px">Évolution de Style</div>
+        <div id="careerCont"></div>
+      </div>
+    </div>
+    <div class="db-side">
+      <div class="ss-sec"><div class="ss-t">Profil actif</div><div id="ssProf"></div></div>
+      <div class="ss-sec"><div class="ss-t">Insights moteur</div><div id="ssIns"></div></div>
+      <div class="ss-sec"><div class="ss-t">Stats garde-robe</div><div id="ssSt"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="ov" onclick="closeD()"></div>
+<div class="drawer" id="drw">
+  <div class="dr-head">
     <div>
-      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:4px" id="detailDay"></div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.05em" id="detailTitle"></div>
+      <div style="font-family:var(--fmono);font-size:9px;color:var(--t3);letter-spacing:.25em;text-transform:uppercase;margin-bottom:3px" id="drDay"></div>
+      <div style="font-family:var(--ftitle);font-size:24px;letter-spacing:.05em" id="drTitle"></div>
     </div>
-    <div class="detail-close" onclick="closeDetail()">×</div>
+    <div class="dr-close" onclick="closeD()">×</div>
   </div>
-  <div class="detail-body" id="detailBody"></div>
+  <div class="dr-body" id="drBody"></div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════
-const profile = {
-  morphologie: null,
-  teint: null,
-  taille: 175,
-  hierarchie: 0,
-  profession: null,
-  budget: null,
-  climat: null
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+const S = { genre:'M', morpho:'H', teint:'brown', taille:175, hier:1, prof:null, budget:null, climat:null };
+let curStep = 1;
+const STEPS = 5;
+
+// ════════════════════════════════════════════════════════
+//  SKIN PALETTE
+// ════════════════════════════════════════════════════════
+const SKINS = [
+  {id:'s1', hex:'#FDDBB4', stroke:'#e8b88a', label:'Clair'},
+  {id:'s2', hex:'#E8A87C', stroke:'#d09060', label:'Beige'},
+  {id:'s3', hex:'#C97A45', stroke:'#a85e30', label:'Moyen'},
+  {id:'s4', hex:'#A05C2A', stroke:'#844a20', label:'Olive'},
+  {id:'s5', hex:'#7A3F1A', stroke:'#60300e', label:'Brun'},
+  {id:'s6', hex:'#3E1E0A', stroke:'#2a1406', label:'Foncé'},
+];
+const skinHex = id => (SKINS.find(s=>s.id===id)||SKINS[4]).hex;
+const skinStroke = id => (SKINS.find(s=>s.id===id)||SKINS[4]).stroke;
+
+// ════════════════════════════════════════════════════════
+//  ██████████  AVATAR ENGINE  ██████████
+//  Cartoon épuré — corps entier
+//  ViewBox: 0 0 80 180, tête grande, proportions stylisées
+// ════════════════════════════════════════════════════════
+
+/*
+  Architecture en couches:
+  1. Jambes / chaussures
+  2. Corps / torse (vêtement bas)
+  3. Bras (skin)
+  4. Torse haut (vêtement)
+  5. Tête + cheveux
+  6. Détails visage
+
+  Morphologie → modifie épaules (sw), hanches (hw), taille (tw)
+*/
+
+const MORPH = {
+  V: {sw:1.28, hw:0.82, tw:0.90},
+  A: {sw:0.82, hw:1.25, tw:0.95},
+  H: {sw:1.05, hw:1.05, tw:1.05},
+  X: {sw:1.18, hw:1.15, tw:0.74},
+  O: {sw:1.00, hw:1.00, tw:1.22},
 };
 
-const steps = [
-  { label: 'Morphologie', desc: 'Corps' },
-  { label: 'Teint & Stature', desc: 'Physique' },
-  { label: 'Profession', desc: 'Contexte' },
-  { label: 'Budget & Climat', desc: 'Contraintes' },
-  { label: 'Confirmation', desc: 'Récap' }
-];
+// Couleur de cheveux selon teint (naturellement foncée pour teints africains)
+const HAIR_C = { s1:'#4a2e12', s2:'#2e1808', s3:'#1a0c04', s4:'#120802', s5:'#0a0402', s6:'#080402' };
 
-let currentStep = 1;
+// Teintes shadow pour vêtements
+const shade=(hex,n)=>{if(!hex||hex[0]!='#')return hex||'#888';const r=parseInt(hex.slice(1),16);const R=Math.min(255,Math.max(0,(r>>16)+n)),G=Math.min(255,Math.max(0,((r>>8)&255)+n)),B=Math.min(255,Math.max(0,(r&255)+n));return '#'+((R<<16)|(G<<8)|B).toString(16).padStart(6,'0')};
 
-// ══════════════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════════════
-function goTo(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (id === 'onboarding') initSidebar();
+/**
+ * buildAvatar(morpho, skinId, outfit, genre, pxH)
+ * Returns SVG string — cartoon épuré
+ */
+function buildAvatar(morpho, skinId, outfit, genre='M', pxH=180) {
+  const m = MORPH[morpho] || MORPH.H;
+  const skin = skinHex(skinId);
+  const sk   = skinStroke(skinId);
+  const hair = HAIR_C[skinId] || '#1a0c04';
+  const o    = OUTFITS[outfit] || OUTFITS.smart_kaki;
+
+  // Viewbox constants — tout est relatif à cela
+  const VW=80, VH=180;
+  const cx=40;
+
+  // Corps — mesures de base
+  const headR=14;      // rayon tête
+  const headCY=18;     // centre tête Y
+  const neckH=8;
+  const neckW=7;
+  const shoulderY=headCY+headR+neckH; // ~40
+
+  // Torse
+  const sw = m.sw*20; // demi-largeur épaule depuis cx
+  const tw = m.tw*12; // demi-largeur taille
+  const hw = m.hw*16; // demi-largeur hanche
+  const torsoB = shoulderY+55; // bas torse/ceinture ~95
+
+  // Jambes
+  const legTop = torsoB;
+  const kneeY  = legTop+38; // ~133
+  const ankleY = legTop+62; // ~157
+  const fH=10; // pied hauteur
+
+  const lLegX = cx-hw+4; // x ext jambe gauche
+  const rLegX = cx+hw-4; // x ext jambe droite
+  const iLeg  = cx-7;    // séparation intérieure jambe gauche
+  const iLegR = cx+7;
+
+  const svgW = Math.round(pxH * VW/VH);
+  const svgH = pxH;
+
+  const layers = [];
+
+  // ── 1. CHAUSSURES ──
+  layers.push(buildShoes(o.shoes, cx, hw, ankleY, fH, VW));
+
+  // ── 2. JAMBES (pantalon) ──
+  layers.push(buildPants(o, cx, hw, tw, legTop, kneeY, ankleY));
+
+  // ── 3. BRAS (derrière torse) ──
+  layers.push(buildArms(skin, sk, o, cx, sw, tw, shoulderY, torsoB, o.type));
+
+  // ── 4. TORSE (chemise/veste) ──
+  layers.push(buildTorso(o, cx, sw, tw, hw, shoulderY, torsoB, neckW, skin));
+
+  // ── 5. TÊTE ──
+  layers.push(buildHead(skin, sk, hair, cx, headCY, headR, genre));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VW} ${VH}" width="${svgW}" height="${svgH}">
+    ${layers.join('')}
+  </svg>`;
 }
 
-function initSidebar() {
-  const list = document.getElementById('stepList');
-  list.innerHTML = steps.map((s, i) => `
-    <div class="step-item ${i === 0 ? 'active' : ''}" id="step-item-${i+1}" onclick="jumpStep(${i+1})">
-      <div class="step-num">${i+1}</div>
-      <div>
-        <div class="step-label">${s.label}</div>
-      </div>
-    </div>
-  `).join('');
-  updateProgress();
+function buildShoes(color, cx, hw, ankleY, fH, VW) {
+  const lx = cx-hw+4;
+  const rx = cx+4;
+  const lw = 16, rw = 16;
+  const sc = shade(color,-15);
+  return `
+  <!-- Chaussures -->
+  <path d="M${lx},${ankleY} L${lx-2},${ankleY+fH} Q${lx+lw/2},${ankleY+fH+3} ${lx+lw},${ankleY+fH} L${lx+lw},${ankleY}Z"
+        fill="${color}" stroke="${sc}" stroke-width=".6"/>
+  <path d="M${rx},${ankleY} L${rx-2},${ankleY+fH} Q${rx+rw/2},${ankleY+fH+3} ${rx+rw},${ankleY+fH} L${rx+rw},${ankleY}Z"
+        fill="${color}" stroke="${sc}" stroke-width=".6"/>
+  <!-- Reflet chaussure -->
+  <path d="M${lx+1},${ankleY+1} Q${lx+lw/2},${ankleY+2} ${lx+lw-2},${ankleY+2}" stroke="rgba(255,255,255,.18)" stroke-width=".8" fill="none" stroke-linecap="round"/>
+  <path d="M${rx+1},${ankleY+1} Q${rx+rw/2},${ankleY+2} ${rx+rw-2},${ankleY+2}" stroke="rgba(255,255,255,.18)" stroke-width=".8" fill="none" stroke-linecap="round"/>`;
 }
 
-function jumpStep(n) {
-  if (n > currentStep) return;
-  showStep(n);
+function buildPants(o, cx, hw, tw, legTop, kneeY, ankleY) {
+  const pc = o.pants;
+  const ps = shade(pc,-20);
+  // forme pantalon : trapèze hanche→genou→cheville
+  // jambe gauche
+  const llx  = cx-hw+3, llix = cx-7;
+  // jambe droite
+  const rlx  = cx+7,   rrx  = cx+hw-3;
+  // cheville
+  const lavX  = cx-hw+6, lavXi = cx-5;
+  const ravX  = cx+5,   ravXo  = cx+hw-6;
+
+  return `
+  <!-- Pantalon -->
+  <!-- Jambe G -->
+  <path d="M${llx},${legTop} L${lavX},${ankleY} L${lavXi},${ankleY} L${llix},${legTop}Z" fill="${pc}"/>
+  <!-- Jambe D -->
+  <path d="M${rlx},${legTop} L${ravX},${ankleY} L${ravXo},${ankleY} L${rrx},${legTop}Z" fill="${pc}"/>
+  <!-- Entre-jambes -->
+  <path d="M${llix},${legTop} Q${cx},${legTop+10} ${rlx},${legTop}L${llix},${legTop}Z" fill="${shade(pc,-10)}"/>
+  <!-- Pli central -->
+  <line x1="${cx-2}" y1="${legTop+6}" x2="${cx-4}" y2="${ankleY-2}" stroke="${ps}" stroke-width=".7" opacity=".5"/>
+  <line x1="${cx+2}" y1="${legTop+6}" x2="${cx+4}" y2="${ankleY-2}" stroke="${ps}" stroke-width=".7" opacity=".5"/>
+  <!-- Ceinture -->
+  <rect x="${cx-hw+3}" y="${legTop-4}" width="${(hw-3)*2}" height="6" rx="2" fill="${shade(pc,-30)}"/>`;
 }
 
-function nextStep() {
-  if (currentStep < 5) {
-    if (currentStep === 5 - 1) buildRecap();
-    showStep(currentStep + 1);
+function buildArms(skin, sk, o, cx, sw, tw, shoulderY, torsoB, type) {
+  // Bras en couche arrière — simplifiés
+  const armC = type==='casual' ? o.shirt : (o.jacket || o.shirt);
+  const armSk= shade(armC,-18);
+
+  // Point épaule G/D
+  const lgSx = cx-sw+2, lgSy = shoulderY+4;
+  const rgSx = cx+sw-2, rgSy = shoulderY+4;
+
+  // Coude
+  const lgEx = cx-sw-7, lgEy = shoulderY+30;
+  const rgEx = cx+sw+7, rgEy = shoulderY+30;
+
+  // Main
+  const lgMx = cx-sw-5, lgMy = torsoB-6;
+  const rgMx = cx+sw+5, rgMy = torsoB-6;
+
+  const sleeveType = type==='casual'?'short':'long';
+
+  if (sleeveType==='short') {
+    // Manche courte : juste jusqu'au coude milieu
+    const lgEsX=cx-sw-4, lgEsY=shoulderY+22;
+    const rgEsX=cx+sw+4, rgEsY=shoulderY+22;
+    const skinC=skin, skinSk=sk;
+    return `
+    <!-- Bras (manches courtes) -->
+    <path d="M${lgSx},${lgSy} L${lgEsX},${lgEsY} L${lgEsX+4},${lgEsY} L${lgSx+6},${lgSy}Z" fill="${armC}" stroke="${armSk}" stroke-width=".6"/>
+    <path d="M${rgSx},${rgSy} L${rgEsX},${rgEsY} L${rgEsX-4},${rgEsY} L${rgSx-6},${rgSy}Z" fill="${armC}" stroke="${armSk}" stroke-width=".6"/>
+    <!-- Avant-bras skin -->
+    <path d="M${lgEsX-1},${lgEsY} L${lgMx-2},${lgMy} L${lgMx+3},${lgMy} L${lgEsX+5},${lgEsY}Z" fill="${skinC}" stroke="${skinSk}" stroke-width=".5"/>
+    <path d="M${rgEsX-5},${rgEsY} L${rgMx-3},${rgMy} L${rgMx+2},${rgMy} L${rgEsX+1},${rgEsY}Z" fill="${skinC}" stroke="${skinSk}" stroke-width=".5"/>
+    <!-- Mains -->
+    <ellipse cx="${lgMx}" cy="${lgMy+4}" rx="5" ry="5.5" fill="${skinC}" stroke="${skinSk}" stroke-width=".5"/>
+    <ellipse cx="${rgMx}" cy="${rgMy+4}" rx="5" ry="5.5" fill="${skinC}" stroke="${skinSk}" stroke-width=".5"/>`;
+  } else {
+    // Manche longue
+    const puC = type==='costume' ? o.shirt : o.shirt; // poignet chemise visible
+    return `
+    <!-- Bras (manches longues) -->
+    <path d="M${lgSx},${lgSy} L${lgMx-4},${lgMy} L${lgMx+2},${lgMy} L${lgSx+6},${lgSy}Z" fill="${armC}" stroke="${armSk}" stroke-width=".7"/>
+    <path d="M${rgSx},${rgSy} L${rgMx-2},${rgMy} L${rgMx+4},${rgMy} L${rgSx-6},${rgSy}Z" fill="${armC}" stroke="${armSk}" stroke-width=".7"/>
+    <!-- Poignets -->
+    <rect x="${lgMx-5}" y="${lgMy-1}" width="9" height="6" rx="2" fill="${puC}" stroke="${shade(puC,-15)}" stroke-width=".5"/>
+    <rect x="${rgMx-4}" y="${rgMy-1}" width="9" height="6" rx="2" fill="${puC}" stroke="${shade(puC,-15)}" stroke-width=".5"/>
+    <!-- Mains skin -->
+    <ellipse cx="${lgMx}" cy="${lgMy+8}" rx="4.5" ry="5" fill="${skin}" stroke="${sk}" stroke-width=".5"/>
+    <ellipse cx="${rgMx}" cy="${rgMy+8}" rx="4.5" ry="5" fill="${skin}" stroke="${sk}" stroke-width=".5"/>`;
   }
 }
 
-function prevStep() {
-  if (currentStep > 1) showStep(currentStep - 1);
+function buildTorso(o, cx, sw, tw, hw, shoulderY, torsoB, neckW, skin) {
+  const hasJacket = !!o.jacket;
+  const nW = neckW, nY = shoulderY-8, nH=10;
+  const layers=[];
+
+  // COL / COU
+  layers.push(`<rect x="${cx-nW/2}" y="${nY}" width="${nW}" height="${nH+2}" rx="2" fill="${skin}"/>`);
+
+  if (hasJacket) {
+    // ─ COSTUME ─
+    const jC = o.jacket, jS=shade(jC,-22);
+    const shC= o.shirt,  shS=shade(shC,-15);
+    const tC = o.tie;
+
+    // Corps veste — forme trapèze
+    layers.push(`
+    <!-- CHEMISE visible (centre) -->
+    <path d="M${cx-nW/2-2},${shoulderY+2} L${cx-tw+2},${torsoB+2} L${cx+tw-2},${torsoB+2} L${cx+nW/2+2},${shoulderY+2}Z" fill="${shC}"/>
+    <!-- VESTE corps G -->
+    <path d="M${cx-sw+2},${shoulderY} L${cx-tw},${torsoB+3} L${cx-6},${torsoB+3} L${cx-8},${shoulderY+18} L${cx-4},${shoulderY+14}Z" fill="${jC}" stroke="${jS}" stroke-width=".5"/>
+    <!-- VESTE corps D -->
+    <path d="M${cx+sw-2},${shoulderY} L${cx+tw},${torsoB+3} L${cx+6},${torsoB+3} L${cx+8},${shoulderY+18} L${cx+4},${shoulderY+14}Z" fill="${jC}" stroke="${jS}" stroke-width=".5"/>
+    <!-- REVERS G -->
+    <path d="M${cx-4},${shoulderY+14} L${cx},${shoulderY+18} L${cx-10},${shoulderY+30} L${cx-12},${shoulderY+28}Z" fill="${shade(jC,-12)}"/>
+    <!-- REVERS D -->
+    <path d="M${cx+4},${shoulderY+14} L${cx},${shoulderY+18} L${cx+10},${shoulderY+30} L${cx+12},${shoulderY+28}Z" fill="${shade(jC,-12)}"/>
+    <!-- CRAVATE -->
+    ${tC?`<path d="M${cx-2},${shoulderY+17} L${cx-3.5},${torsoB-8} L${cx},${torsoB-4} L${cx+3.5},${torsoB-8} L${cx+2},${shoulderY+17}Z" fill="${tC}"/>
+    <polygon points="${cx},${shoulderY+15} ${cx-3},${shoulderY+19} ${cx},${shoulderY+17} ${cx+3},${shoulderY+19}" fill="${shade(tC,-15)}"/>`:''}
+    <!-- Boutton veste -->
+    <circle cx="${cx}" cy="${torsoB-14}" r="1.5" fill="${shade(jC,-28)}"/>
+    <!-- Col chemise visible -->
+    <path d="M${cx-nW/2},${shoulderY+2} L${cx-8},${shoulderY+11} L${cx},${shoulderY+16} L${cx+8},${shoulderY+11} L${cx+nW/2},${shoulderY+2}Z" fill="${shC}" stroke="${shS}" stroke-width=".4"/>
+    <!-- Épaules bombées -->
+    <ellipse cx="${cx-sw+4}" cy="${shoulderY+4}" rx="6" ry="3.5" fill="${shade(jC,-8)}"/>
+    <ellipse cx="${cx+sw-4}" cy="${shoulderY+4}" rx="6" ry="3.5" fill="${shade(jC,-8)}"/>`);
+
+  } else if (o.type==='smart') {
+    // ─ CHEMISE ─
+    const shC=o.shirt, shS=shade(shC,-18);
+    layers.push(`
+    <!-- CHEMISE corps -->
+    <path d="M${cx-sw+3},${shoulderY} L${cx-tw+2},${torsoB+2} L${cx+tw-2},${torsoB+2} L${cx+sw-3},${shoulderY}Z" fill="${shC}" stroke="${shS}" stroke-width=".6"/>
+    <!-- Col -->
+    <path d="M${cx-nW/2},${shoulderY+2} L${cx-9},${shoulderY+11} L${cx},${shoulderY+16} L${cx+9},${shoulderY+11} L${cx+nW/2},${shoulderY+2}Z" fill="${shade(shC,-10)}" stroke="${shS}" stroke-width=".4"/>
+    <!-- Boutonnage -->
+    <line x1="${cx}" y1="${shoulderY+16}" x2="${cx}" y2="${torsoB}" stroke="${shS}" stroke-width=".6" stroke-dasharray="2,2.5"/>
+    ${[shoulderY+20,shoulderY+29,shoulderY+38].map(y=>`<circle cx="${cx}" cy="${y}" r="1.2" fill="${shS}"/>`).join('')}
+    <!-- Épaules -->
+    <ellipse cx="${cx-sw+4}" cy="${shoulderY+4}" rx="5" ry="3" fill="${shade(shC,-16)}"/>
+    <ellipse cx="${cx+sw-4}" cy="${shoulderY+4}" rx="5" ry="3" fill="${shade(shC,-16)}"/>`);
+
+  } else {
+    // ─ POLO / T-SHIRT ─
+    const shC=o.shirt, shS=shade(shC,-18);
+    layers.push(`
+    <!-- POLO corps -->
+    <path d="M${cx-sw+4},${shoulderY} L${cx-tw+3},${torsoB+2} L${cx+tw-3},${torsoB+2} L${cx+sw-4},${shoulderY}Z" fill="${shC}" stroke="${shS}" stroke-width=".6"/>
+    <!-- Col polo rond -->
+    <path d="M${cx-nW/2+1},${shoulderY+3} Q${cx},${shoulderY+14} ${cx+nW/2-1},${shoulderY+3}" stroke="${shS}" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <!-- Épaules -->
+    <ellipse cx="${cx-sw+5}" cy="${shoulderY+4}" rx="4.5" ry="2.8" fill="${shade(shC,-20)}"/>
+    <ellipse cx="${cx+sw-5}" cy="${shoulderY+4}" rx="4.5" ry="2.8" fill="${shade(shC,-20)}"/>`);
+  }
+
+  return layers.join('');
 }
 
-function showStep(n) {
-  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.step-item').forEach((item, i) => {
-    item.classList.remove('active');
-    if (i + 1 < n) item.classList.add('done');
-    else item.classList.remove('done');
-  });
-  const panel = document.getElementById(`panel-${n}`);
-  if (panel) panel.classList.add('active');
-  const item = document.getElementById(`step-item-${n}`);
-  if (item) item.classList.add('active');
-  currentStep = n;
-  updateProgress();
+function buildHead(skin, sk, hair, cx, headCY, headR, genre) {
+  const HW = headR*1.05; // légèrement ovale
+
+  // Forme tête — légèrement arrondie en bas (menton)
+  const chinY = headCY + headR*1.15;
+
+  const layers=[];
+
+  // Cheveux arrière
+  if (genre==='F') {
+    layers.push(`
+    <!-- Cheveux arrière F -->
+    <path d="M${cx-headR+1},${headCY+2} Q${cx-headR-6},${headCY+20} ${cx-headR-4},${chinY+18}" stroke="${hair}" stroke-width="8" fill="none" stroke-linecap="round" opacity=".9"/>
+    <path d="M${cx+headR-1},${headCY+2} Q${cx+headR+6},${headCY+20} ${cx+headR+4},${chinY+18}" stroke="${hair}" stroke-width="8" fill="none" stroke-linecap="round" opacity=".9"/>
+    <path d="M${cx-headR+3},${headCY+4} Q${cx-headR-4},${headCY+22} ${cx-headR-2},${chinY+20}" stroke="${shade(hair,8)}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".5"/>`);
+  }
+
+  // Tête (forme)
+  layers.push(`
+  <!-- Tête -->
+  <path d="M${cx-HW},${headCY} Q${cx-HW},${headCY+headR} ${cx-headR*0.5},${chinY} Q${cx},${chinY+2} ${cx+headR*0.5},${chinY} Q${cx+HW},${headCY+headR} ${cx+HW},${headCY} Q${cx+HW},${headCY-headR} ${cx},${headCY-headR*1.05} Q${cx-HW},${headCY-headR} ${cx-HW},${headCY}Z" fill="${skin}" stroke="${sk}" stroke-width=".7"/>`);
+
+  // Oreilles
+  layers.push(`
+  <ellipse cx="${cx-HW+1}" cy="${headCY+2}" rx="3" ry="4" fill="${skin}" stroke="${sk}" stroke-width=".5"/>
+  <ellipse cx="${cx+HW-1}" cy="${headCY+2}" rx="3" ry="4" fill="${skin}" stroke="${sk}" stroke-width=".5"/>`);
+
+  // Cheveux dessus
+  if (genre==='M') {
+    layers.push(`
+    <!-- Cheveux M court -->
+    <path d="M${cx-HW+1},${headCY-2} Q${cx-HW+2},${headCY-headR*1.1} ${cx},${headCY-headR*1.1} Q${cx+HW-2},${headCY-headR*1.1} ${cx+HW-1},${headCY-2}Z" fill="${hair}"/>
+    <ellipse cx="${cx}" cy="${headCY-headR*1.05}" rx="${HW-1}" ry="${headR*0.35}" fill="${hair}"/>`);
+  } else {
+    layers.push(`
+    <!-- Cheveux F haut -->
+    <path d="M${cx-HW+1},${headCY-2} Q${cx-HW},${headCY-headR*1.1} ${cx},${headCY-headR*1.12} Q${cx+HW},${headCY-headR*1.1} ${cx+HW-1},${headCY-2}Z" fill="${hair}"/>
+    <ellipse cx="${cx}" cy="${headCY-headR*1.05}" rx="${HW}" ry="${headR*0.42}" fill="${hair}"/>`);
+  }
+
+  // Sourcils
+  layers.push(`
+  <path d="M${cx-9},${headCY-5} Q${cx-6},${headCY-7} ${cx-2},${headCY-5.5}" stroke="${hair}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M${cx+2},${headCY-5.5} Q${cx+6},${headCY-7} ${cx+9},${headCY-5}" stroke="${hair}" stroke-width="1.4" fill="none" stroke-linecap="round"/>`);
+
+  // Yeux
+  layers.push(`
+  <!-- Yeux -->
+  <ellipse cx="${cx-5.5}" cy="${headCY-1.5}" rx="3.2" ry="2.5" fill="white"/>
+  <ellipse cx="${cx+5.5}" cy="${headCY-1.5}" rx="3.2" ry="2.5" fill="white"/>
+  <!-- Iris -->
+  <circle cx="${cx-5.5}" cy="${headCY-1.5}" r="1.8" fill="${shade(skin,-60)}"/>
+  <circle cx="${cx+5.5}" cy="${headCY-1.5}" r="1.8" fill="${shade(skin,-60)}"/>
+  <!-- Pupille -->
+  <circle cx="${cx-5.5}" cy="${headCY-1.5}" r=".8" fill="#0a0805"/>
+  <circle cx="${cx+5.5}" cy="${headCY-1.5}" r=".8" fill="#0a0805"/>
+  <!-- Reflet -->
+  <circle cx="${cx-4.8}" cy="${headCY-2.2}" r=".55" fill="rgba(255,255,255,.9)"/>
+  <circle cx="${cx+6.2}" cy="${headCY-2.2}" r=".55" fill="rgba(255,255,255,.9)"/>
+  <!-- Cils bas -->
+  <path d="M${cx-8},${headCY+.5} Q${cx-5.5},${headCY+1.5} ${cx-3},${headCY+.5}" stroke="${hair}" stroke-width=".7" fill="none" opacity=".5"/>
+  <path d="M${cx+3},${headCY+.5} Q${cx+5.5},${headCY+1.5} ${cx+8},${headCY+.5}" stroke="${hair}" stroke-width=".7" fill="none" opacity=".5"/>`);
+
+  // Nez
+  layers.push(`
+  <path d="M${cx},${headCY+3} L${cx-2.5},${headCY+8} Q${cx},${headCY+9.5} ${cx+2.5},${headCY+8}" stroke="${shade(skin,-25)}" stroke-width="1" fill="none" stroke-linecap="round"/>`);
+
+  // Bouche
+  layers.push(`
+  <path d="M${cx-4},${headCY+12} Q${cx},${headCY+15} ${cx+4},${headCY+12}" stroke="${shade(skin,-40)}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`);
+
+  // Joues légères
+  layers.push(`
+  <circle cx="${cx-8}" cy="${headCY+8}" r="4" fill="rgba(255,100,80,.08)"/>
+  <circle cx="${cx+8}" cy="${headCY+8}" r="4" fill="rgba(255,100,80,.08)"/>`);
+
+  return layers.join('');
 }
 
-function updateProgress() {
-  const pct = ((currentStep - 1) / 4) * 100;
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressLabel').textContent = `${currentStep - 1} / 5 complété`;
-}
-
-// ══════════════════════════════════════════════════════
-// SELECTORS
-// ══════════════════════════════════════════════════════
-function selectMorpho(el, val) {
-  document.querySelectorAll('.morpho-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  profile.morphologie = val;
-}
-
-function selectSkin(el, val) {
-  document.querySelectorAll('.skin-btn').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  profile.teint = val;
-}
-
-function selectJob(el, val) {
-  document.querySelectorAll('.job-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  profile.profession = val;
-}
-
-function selectBudget(el, val) {
-  document.querySelectorAll('.budget-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  profile.budget = val;
-}
-
-function selectClimat(el, val) {
-  document.querySelectorAll('.budget-card').forEach(c => {
-    if (c.parentElement.parentElement.contains(el)) c.classList.remove('selected');
-  });
-  el.classList.add('selected');
-  profile.climat = val;
-  const labels = { tropical_chaud:'Tropical Chaud', semi_aride:'Semi-Aride', equatorial:'Équatorial', altitude:'Altitude' };
-  document.getElementById('climatVal').textContent = labels[val];
-}
-
-const hierLabels = ['Junior', 'Manager', 'Directeur', 'C-Level'];
-function updateHier(val) {
-  profile.hierarchie = +val;
-  document.getElementById('hierVal').textContent = hierLabels[+val];
-}
-
-// ══════════════════════════════════════════════════════
-// SCORING ENGINE
-// ══════════════════════════════════════════════════════
-function computeScore() {
-  const morphoW = 0.30;
-  const profW = 0.25;
-  const climatW = 0.20;
-  const budgetW = 0.15;
-  const esthW = 0.10;
-
-  const morphoScore = profile.morphologie ? 85 : 50;
-  const profScore = profile.profession ? ({ 'Finance/Banque': 95, 'Droit': 92, 'Gouvernement': 90, 'Consulting': 88, 'Santé': 82, 'Enseignement': 80, 'Commerce': 75, 'Communication': 78, 'Tech/Startup': 72 }[profile.profession] || 80) : 50;
-  const climatScore = profile.climat ? ({ tropical_chaud: 78, semi_aride: 72, equatorial: 75, altitude: 88 }[profile.climat] || 75) : 50;
-  const budgetScore = profile.budget ? Math.min(95, 50 + (profile.budget / 3000)) : 50;
-  const esthScore = profile.teint ? 85 : 60;
-  const hierBonus = profile.hierarchie * 3;
-
-  const total = Math.round(
-    morphoScore * morphoW +
-    profScore * profW +
-    climatScore * climatW +
-    budgetScore * budgetW +
-    esthScore * esthW +
-    hierBonus
-  );
-
-  return {
-    total: Math.min(99, total),
-    morpho: morphoScore,
-    prof: profScore,
-    climat: climatScore,
-    budget: budgetScore,
-    esth: esthScore
-  };
-}
-
-// ══════════════════════════════════════════════════════
-// RULES ENGINE
-// ══════════════════════════════════════════════════════
-function getActiveRules() {
-  const rules = [];
-  if (profile.morphologie === 'V') rules.push({ icon: '⚠️', text: 'Morphologie V → Éviter épaules structurées excessives' });
-  if (profile.morphologie === 'O') rules.push({ icon: '✓', text: 'Morphologie O → Privilégier coupes droites et longueurs intermédiaires' });
-  if (profile.morphologie === 'A') rules.push({ icon: '✓', text: 'Morphologie A → Valoriser le haut du corps, pantalons droits' });
-  if (profile.climat === 'tropical_chaud') rules.push({ icon: '🌡️', text: 'Clima chaud → Exclure matières synthétiques épaisses, préférer lin/coton' });
-  if (profile.climat === 'equatorial') rules.push({ icon: '🌧️', text: 'Climat équatorial → Inclure vêtements imperméables légers' });
-  if (profile.profession === 'Finance/Banque') rules.push({ icon: '🏦', text: 'Finance → Exclure sneakers visibles, chemise obligatoire' });
-  if (profile.profession === 'Tech/Startup') rules.push({ icon: '💻', text: 'Tech → Business casual autorisé, pas de cravate imposée' });
-  if (profile.profession === 'Droit') rules.push({ icon: '⚖️', text: 'Droit → Costume complet recommandé, couleurs sobres exclusivement' });
-  if (profile.hierarchie >= 3) rules.push({ icon: '👑', text: 'C-Level → Costume complet ou dashiki premium en contexte africain' });
-  if (profile.budget <= 15000) rules.push({ icon: '💡', text: 'Budget serré → Rotation capsule 5 pièces, maximiser réutilisation' });
-  if (profile.teint === 'fonce') rules.push({ icon: '🎨', text: 'Teint foncé → Valoriser couleurs vives et contrastes nets' });
-  if (profile.teint === 'clair') rules.push({ icon: '🎨', text: 'Teint clair → Couleurs neutres et pastels clairs avantageux' });
-  return rules;
-}
-
-// ══════════════════════════════════════════════════════
-// WEEK GENERATOR
-// ══════════════════════════════════════════════════════
-const weekData = {
-  formal: [
-    { day: 'LUNDI', emoji: '👔', score: 94, label: 'Réunion stratégique',
-      pieces: [{dot:'#4a7fd4',name:'Costume bleu nuit',reuse:false},{dot:'#e8e4d9',name:'Chemise blanche',reuse:false},{dot:'#1a1a1a',name:'Derby noirs',reuse:false}],
-      tags: ['FORMELLE','HAUTE CRÉDIBILITÉ'],
-      credibility: 94, comfort: 65, cpp: '3,200 FCFA/port' },
-    { day: 'MARDI', emoji: '👗', score: 88, label: 'Présentation client',
-      pieces: [{dot:'#8b6914',name:'Pantalon kaki',reuse:true},{dot:'#d4a853',name:'Chemise crème',reuse:false},{dot:'#3a3a3a',name:'Oxford camel',reuse:false}],
-      tags: ['SMART','VARIATION'],
-      credibility: 88, comfort: 72, cpp: '2,100 FCFA/port' },
-    { day: 'MERCREDI', emoji: '🧥', score: 91, label: 'Milieu de semaine',
-      pieces: [{dot:'#2d4a2d',name:'Costume vert kaki',reuse:false},{dot:'#f5f0e8',name:'Col rond blanc',reuse:true},{dot:'#1a1a1a',name:'Derby noirs',reuse:true}],
-      tags: ['RÉUTILISATION','ÉCONOMIQUE'],
-      credibility: 91, comfort: 70, cpp: '1,800 FCFA/port' },
-    { day: 'JEUDI', emoji: '👘', score: 85, label: 'Réunion interne',
-      pieces: [{dot:'#4a7fd4',name:'Pantalon costume bleu',reuse:true},{dot:'#e05c5c',name:'Chemise bordeaux',reuse:false},{dot:'#8b6914',name:'Mocassins camel',reuse:false}],
-      tags: ['BOLD','LEADERSHIP'],
-      credibility: 85, comfort: 78, cpp: '2,500 FCFA/port' },
-    { day: 'VENDREDI', emoji: '🌟', score: 89, label: 'Fin de semaine',
-      pieces: [{dot:'#4a4a4a',name:'Chino gris',reuse:false},{dot:'#2d4a2d',name:'Polo vert discret',reuse:false},{dot:'#8b6914',name:'Mocassins camel',reuse:true}],
-      tags: ['CASUAL SMART','BIEN-ÊTRE'],
-      credibility: 89, comfort: 88, cpp: '1,600 FCFA/port' }
-  ],
-  smart_casual: [
-    { day: 'LUNDI', emoji: '💼', score: 88, label: 'Launch de semaine',
-      pieces: [{dot:'#2d2d4a',name:'Chino marine',reuse:false},{dot:'#e8e4d9',name:'Chemise oversize',reuse:false},{dot:'#4a4a4a',name:'Sneakers blanches',reuse:false}],
-      tags: ['BUSINESS CASUAL','MODERNE'], credibility: 88, comfort: 85, cpp: '2,000 FCFA/port' },
-    { day: 'MARDI', emoji: '🎯', score: 82, label: 'Focus créatif',
-      pieces: [{dot:'#2d2d4a',name:'Jean indigo',reuse:false},{dot:'#d4a853',name:'Polo oxford',reuse:false},{dot:'#4a4a4a',name:'Derby brun',reuse:false}],
-      tags: ['SMART','DYNAMIQUE'], credibility: 82, comfort: 88, cpp: '1,800 FCFA/port' },
-    { day: 'MERCREDI', emoji: '⚡', score: 85, label: 'Mi-semaine',
-      pieces: [{dot:'#4a4a4a',name:'Chino gris',reuse:true},{dot:'#e8e4d9',name:'T-shirt premium',reuse:false},{dot:'#4a4a4a',name:'Sneakers blanches',reuse:true}],
-      tags: ['RÉUTILISATION','MINIMALISTE'], credibility: 85, comfort: 90, cpp: '1,200 FCFA/port' },
-    { day: 'JEUDI', emoji: '🔥', score: 80, label: 'Créativité',
-      pieces: [{dot:'#2d2d4a',name:'Jean indigo',reuse:true},{dot:'#e05c5c',name:'Shirt graphique discret',reuse:false},{dot:'#8b6914',name:'Loafers camel',reuse:false}],
-      tags: ['EXPRESSION','CONFIANCE'], credibility: 80, comfort: 92, cpp: '1,500 FCFA/port' },
-    { day: 'VENDREDI', emoji: '🚀', score: 78, label: 'Liberté vendredi',
-      pieces: [{dot:'#2d4a2d',name:'Short chino',reuse:false},{dot:'#d4a853',name:'Linen shirt',reuse:false},{dot:'#4a4a4a',name:'Sneakers blanches',reuse:true}],
-      tags: ['DÉCONTRACTÉ','CONFORT'], credibility: 78, comfort: 95, cpp: '900 FCFA/port' }
-  ]
+// ════════════════════════════════════════════════════════
+//  OUTFIT DEFINITIONS
+// ════════════════════════════════════════════════════════
+const OUTFITS = {
+  costume_bleu:  {shirt:'#d0d8e8',jacket:'#1e3460',pants:'#1e3460',shoes:'#1a1a18',tie:'#8c1f1f',type:'costume'},
+  smart_kaki:    {shirt:'#eae0cc',jacket:null,     pants:'#7a7044',shoes:'#6a4c1e',tie:null,     type:'smart'},
+  costume_vert:  {shirt:'#f2ede0',jacket:'#2e4122',pants:'#2e4122',shoes:'#1a1a18',tie:'#c9973e',type:'costume'},
+  shirt_bold:    {shirt:'#8e1e26',jacket:null,     pants:'#1e3460',shoes:'#8a6320',tie:null,     type:'smart'},
+  casual_friday: {shirt:'#2c4c3e',jacket:null,     pants:'#4c4c40',shoes:'#8a6320',tie:null,     type:'casual'},
+  sc_navy:       {shirt:'#e8dec8',jacket:null,     pants:'#1e2d50',shoes:'#f0eeec',tie:null,     type:'casual'},
+  sc_gold:       {shirt:'#c9973e',jacket:null,     pants:'#2a2a70',shoes:'#4a4a48',tie:null,     type:'casual'},
+  sc_grey:       {shirt:'#e8e4d8',jacket:null,     pants:'#5c5c52',shoes:'#f0eeec',tie:null,     type:'casual'},
+  sc_terra:      {shirt:'#e05c2a',jacket:null,     pants:'#2a2a70',shoes:'#7a5a22',tie:null,     type:'casual'},
+  sc_sage:       {shirt:'#d8e0c8',jacket:null,     pants:'#4c5222',shoes:'#f0eeec',tie:null,     type:'casual'},
 };
 
-function getWeekStyle() {
-  const formalJobs = ['Finance/Banque','Droit','Gouvernement','Consulting'];
-  return formalJobs.includes(profile.profession) || profile.hierarchie >= 2 ? 'formal' : 'smart_casual';
-}
-
-const wardrobeItems = [
-  { id:1, emoji:'👔', name:'Costume Bleu Nuit', type:'haut', cpp:'3,200 FCFA', uses:'15x', category:'haut' },
-  { id:2, emoji:'👗', name:'Pantalon Kaki', type:'bas', cpp:'1,800 FCFA', uses:'22x', category:'bas' },
-  { id:3, emoji:'👕', name:'Chemise Blanche', type:'haut', cpp:'900 FCFA', uses:'40x', category:'haut' },
-  { id:4, emoji:'👠', name:'Derby Noirs', type:'chaussures', cpp:'1,100 FCFA', uses:'18x', category:'chaussures' },
-  { id:5, emoji:'🥼', name:'Costume Vert Kaki', type:'haut', cpp:'2,500 FCFA', uses:'12x', category:'haut' },
-  { id:6, emoji:'👒', name:'Mocassins Camel', type:'chaussures', cpp:'800 FCFA', uses:'24x', category:'chaussures' },
-  { id:7, emoji:'🧴', name:'Chemise Bordeaux', type:'haut', cpp:'1,200 FCFA', uses:'8x', category:'haut' },
-  { id:8, emoji:'👚', name:'Polo Oxford', type:'haut', cpp:'700 FCFA', uses:'30x', category:'haut' },
-  { id:9, emoji:'🩳', name:'Chino Gris', type:'bas', cpp:'1,000 FCFA', uses:'20x', category:'bas' },
-  { id:10, emoji:'👟', name:'Sneakers Blanches', type:'chaussures', cpp:'600 FCFA', uses:'28x', category:'chaussures' },
-  { id:11, emoji:'👖', name:'Jean Indigo', type:'bas', cpp:'950 FCFA', uses:'25x', category:'bas' },
-  { id:12, emoji:'🥾', name:'Derby Brun', type:'chaussures', cpp:'1,400 FCFA', uses:'14x', category:'chaussures' },
+// ════════════════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════════════════
+const JOBS=[
+  {id:'finance',ico:'🏦',n:'Finance / Banque',   c:'STRICT — costume obligatoire'},
+  {id:'tech',   ico:'💻',n:'Tech / Startup',     c:'CASUAL — business casual ok'},
+  {id:'conseil',ico:'📊',n:'Consulting',          c:'SMART — smart formal flexible'},
+  {id:'sante',  ico:'🏥',n:'Santé',               c:'FONCTIONNEL — propre & mobile'},
+  {id:'educ',   ico:'🎓',n:'Enseignement',        c:'RESPECTABLE — accessible'},
+  {id:'droit',  ico:'⚖️',n:'Droit / Juridique',  c:'STRICT — formelle uniquement'},
+  {id:'comm',   ico:'📢',n:'Communication',       c:'CRÉATIF — expressif accepté'},
+  {id:'gouv',   ico:'🏛️',n:'Gouvernement',       c:'FORMEL — sobre & stricte'},
+  {id:'commerce',ico:'🛒',n:'Commerce',           c:'MOBILE — présentable'},
+];
+const HIER=[{i:'🌱',l:'Junior'},{i:'📈',l:'Manager'},{i:'💎',l:'Directeur'},{i:'👑',l:'C-Level'}];
+const BUDGETS=[{v:15000,a:'15K',t:'ESSENTIEL',tc:'tg'},{v:35000,a:'35K',t:'SMART',tc:'tg'},{v:75000,a:'75K',t:'PREMIUM',tc:'ta'},{v:150000,a:'150K+',t:'LUXE',tc:'ta'}];
+const CLIMATS=[
+  {id:'tropical', ico:'☀️',n:'Tropical Chaud',  c:'Abidjan · Dakar · Lomé · Accra'},
+  {id:'semiaride',ico:'🌵',n:'Semi-Aride',       c:'Bamako · Niamey · Ouagadougou'},
+  {id:'equatorial',ico:'🌧️',n:'Équatorial',     c:'Douala · Kinshasa · Libreville'},
+  {id:'altitude', ico:'⛰️',n:'Altitude',         c:'Nairobi · Kigali · Addis-Abeba'},
 ];
 
-const careerLevels = [
-  { label: 'Stagiaire', icon: '🌱', emoji: '👕', style: 'Propre & accessible', desc: 'Chemise simple, pantalon chino, chaussures propres. Budget capsule 3 pièces.' },
-  { label: 'Junior', icon: '📈', emoji: '👔', style: 'Smart casual → formelle', desc: 'Début de construction de garde-robe. 1 costume de base, chemises variées.' },
-  { label: 'Manager', icon: '⭐', emoji: '🤵', style: 'Formelle maîtrisée', desc: 'Costume adapté obligatoire. Accessoires soignés. Budget 50K+ FCFA/mois.' },
-  { label: 'Directeur', icon: '💎', emoji: '🎩', style: 'Authority dressing', desc: 'Costumes premium, matières nobles. Cohérence totale. Signal de pouvoir conscient.' },
-  { label: 'C-Level', icon: '👑', emoji: '🦁', style: 'Signature style', desc: 'Style personnel affirmé. Dashiki premium en contexte africain. Au-dessus des codes.' }
+const WEEK_F = [
+  {day:'LUN',lbl:'Réunion stratégique',outfit:'costume_bleu',sc:94,cr:94,co:62,cpp:'3 200 FCFA',
+   pcs:[{c:'#1e3460',n:'Costume bleu nuit',r:false},{c:'#d0d8e8',n:'Chemise bleue pâle',r:false},{c:'#8c1f1f',n:'Cravate bordeaux',r:false},{c:'#1a1a18',n:'Derby noirs',r:false}],
+   tags:['HAUTE CRÉDIBILITÉ','FORMELLE']},
+  {day:'MAR',lbl:'Présentation client',outfit:'smart_kaki',sc:88,cr:88,co:72,cpp:'2 100 FCFA',
+   pcs:[{c:'#7a7044',n:'Pantalon kaki',r:false},{c:'#eae0cc',n:'Chemise écru',r:false},{c:'#6a4c1e',n:'Oxford camel',r:false}],
+   tags:['SMART','VARIATION']},
+  {day:'MER',lbl:'Mi-semaine',outfit:'costume_vert',sc:91,cr:91,co:68,cpp:'1 800 FCFA',
+   pcs:[{c:'#2e4122',n:'Costume vert kaki',r:false},{c:'#f2ede0',n:'Chemise blanche',r:true},{c:'#c9973e',n:'Cravate dorée',r:false},{c:'#1a1a18',n:'Derby noirs',r:true}],
+   tags:['RÉUTILISATION','ÉCONOMIQUE']},
+  {day:'JEU',lbl:'Leadership',outfit:'shirt_bold',sc:85,cr:85,co:76,cpp:'2 500 FCFA',
+   pcs:[{c:'#1e3460',n:'Pantalon costume',r:true},{c:'#8e1e26',n:'Chemise bordeaux',r:false},{c:'#8a6320',n:'Mocassins camel',r:false}],
+   tags:['BOLD','AUTORITÉ']},
+  {day:'VEN',lbl:'Casual Friday',outfit:'casual_friday',sc:89,cr:89,co:88,cpp:'1 600 FCFA',
+   pcs:[{c:'#4c4c40',n:'Chino gris foncé',r:false},{c:'#2c4c3e',n:'Polo vert forêt',r:false},{c:'#8a6320',n:'Mocassins camel',r:true}],
+   tags:['CASUAL SMART','BIEN-ÊTRE']},
+];
+const WEEK_C = [
+  {day:'LUN',lbl:'Launch semaine',outfit:'sc_navy',sc:86,cr:86,co:84,cpp:'1 900 FCFA',
+   pcs:[{c:'#1e2d50',n:'Chino marine',r:false},{c:'#e8dec8',n:'Chemise oversize',r:false},{c:'#f0eeec',n:'Sneakers blanches',r:false}],
+   tags:['BUSINESS CASUAL','MODERNE']},
+  {day:'MAR',lbl:'Focus créatif',outfit:'sc_gold',sc:82,cr:82,co:88,cpp:'1 700 FCFA',
+   pcs:[{c:'#2a2a70',n:'Jean indigo',r:false},{c:'#c9973e',n:'Polo oxford doré',r:false},{c:'#4a4a48',n:'Derby brun',r:false}],
+   tags:['SMART','DYNAMIQUE']},
+  {day:'MER',lbl:'Mi-semaine',outfit:'sc_grey',sc:84,cr:84,co:88,cpp:'1 200 FCFA',
+   pcs:[{c:'#5c5c52',n:'Chino gris',r:true},{c:'#e8e4d8',n:'T-shirt premium',r:false},{c:'#f0eeec',n:'Sneakers blanches',r:true}],
+   tags:['RÉUTILISATION','MINIMAL']},
+  {day:'JEU',lbl:'Confiance',outfit:'sc_terra',sc:80,cr:80,co:90,cpp:'1 500 FCFA',
+   pcs:[{c:'#2a2a70',n:'Jean indigo',r:true},{c:'#e05c2a',n:'Shirt terracotta',r:false},{c:'#7a5a22',n:'Loafers camel',r:false}],
+   tags:['EXPRESSION','CONFIANCE']},
+  {day:'VEN',lbl:'Vendredi libre',outfit:'sc_sage',sc:78,cr:78,co:94,cpp:'900 FCFA',
+   pcs:[{c:'#4c5222',n:'Short chino kaki',r:false},{c:'#d8e0c8',n:'Linen shirt sage',r:false},{c:'#f0eeec',n:'Sneakers blanches',r:true}],
+   tags:['DÉCONTRACTÉ','CONFORT']},
+];
+const WARDROBE=[
+  {id:1,ico:'👔',n:'Costume Bleu Nuit',cat:'haut',cpp:'3 200',uses:15},
+  {id:2,ico:'🥼',n:'Pantalon Kaki',cat:'bas',cpp:'1 800',uses:22},
+  {id:3,ico:'👕',n:'Chemise Blanche',cat:'haut',cpp:'900',uses:40},
+  {id:4,ico:'👞',n:'Derby Noirs',cat:'chaussures',cpp:'1 100',uses:18},
+  {id:5,ico:'🥼',n:'Costume Vert Kaki',cat:'haut',cpp:'2 500',uses:12},
+  {id:6,ico:'🩴',n:'Mocassins Camel',cat:'chaussures',cpp:'800',uses:24},
+  {id:7,ico:'👕',n:'Chemise Bordeaux',cat:'haut',cpp:'1 200',uses:8},
+  {id:8,ico:'👕',n:'Polo Oxford',cat:'haut',cpp:'700',uses:30},
+  {id:9,ico:'👖',n:'Chino Gris',cat:'bas',cpp:'1 000',uses:20},
+  {id:10,ico:'👟',n:'Sneakers Blanches',cat:'chaussures',cpp:'600',uses:28},
+  {id:11,ico:'👖',n:'Jean Indigo',cat:'bas',cpp:'950',uses:25},
+  {id:12,ico:'👞',n:'Derby Brun',cat:'chaussures',cpp:'1 400',uses:14},
+];
+const CAREER=[
+  {l:'Stagiaire',ico:'🌱',outfit:'sc_navy', style:'Propre & accessible',  desc:'3 pièces capsule. Chemise simple, chino, chaussures de ville propres. Budget ≤ 15K/mois.'},
+  {l:'Junior',   ico:'📈',outfit:'smart_kaki',style:'Smart casual maîtrisé',desc:'Introduction du costume. 1 blazer minimum. Chemises variées. Budget 25–40K/mois.'},
+  {l:'Manager',  ico:'⭐',outfit:'costume_bleu',style:'Formelle assumée',   desc:'Costume adapté obligatoire. Accessoires soignés. Signal d\'ascension claire.'},
+  {l:'Directeur',ico:'💎',outfit:'costume_vert',style:'Authority dressing', desc:'Costumes premium, matières nobles. Cohérence totale. Signal de pouvoir conscient.'},
+  {l:'C-Level',  ico:'👑',outfit:'shirt_bold', style:'Signature personnelle',desc:'Style affirmé et distinctif. Dashiki premium en contexte africain. Au-dessus des codes.'},
 ];
 
-// ══════════════════════════════════════════════════════
-// RECAP & LAUNCH
-// ══════════════════════════════════════════════════════
-function buildRecap() {
-  const rules = getActiveRules();
-  document.getElementById('recapCards').innerHTML = [
-    { label: 'Morphologie', val: profile.morphologie || '—', icon: '⬥' },
-    { label: 'Profession', val: profile.profession || '—', icon: '💼' },
-    { label: 'Budget / mois', val: profile.budget ? (profile.budget.toLocaleString() + ' FCFA') : '—', icon: '💰' },
-    { label: 'Climat', val: profile.climat ? ({ tropical_chaud:'Tropical Chaud', semi_aride:'Semi-Aride', equatorial:'Équatorial', altitude:'Altitude' }[profile.climat]) : '—', icon: '🌡️' },
-    { label: 'Niveau', val: hierLabels[profile.hierarchie], icon: '📊' },
-    { label: 'Teint', val: profile.teint || '—', icon: '🎨' }
-  ].map(r => `
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:16px">
-      <div style="font-size:10px;font-family:'Space Mono',monospace;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:6px">${r.label}</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:0.05em;color:var(--accent)">${r.val}</div>
-    </div>
-  `).join('');
-
-  document.getElementById('activeRules').innerHTML = rules.length
-    ? rules.map(r => `<div class="rule-item"><span class="rule-icon">${r.icon}</span>${r.text}</div>`).join('')
-    : '<div class="rule-item"><span class="rule-icon">✓</span>Profil incomplet — compléter pour activer les règles</div>';
+// ════════════════════════════════════════════════════════
+//  SCORING ENGINE
+// ════════════════════════════════════════════════════════
+function score(){
+  const mS=S.morpho?84:50;
+  const pS={finance:95,droit:92,gouv:90,conseil:88,sante:82,educ:80,commerce:76,comm:78,tech:72}[S.prof]||70;
+  const cS={tropical:76,semiaride:70,equatorial:73,altitude:88}[S.climat]||70;
+  const bS=S.budget?Math.min(95,48+S.budget/3200):50;
+  const eS=S.teint?84:60;
+  const hB=S.hier*3;
+  return{total:Math.min(99,Math.round(mS*.3+pS*.25+cS*.2+bS*.15+eS*.1+hB)),m:mS,p:pS,c:cS,b:bS,e:eS};
 }
 
-function launch() {
-  goTo('dashboard');
-  renderDashboard();
-  showToast('⚡ Système initialisé — Semaine générée');
+function rules(){
+  const r=[];
+  if(S.morpho==='V') r.push({i:'⚠️',t:'Morphologie V → Éviter épaules structurées excessives'});
+  if(S.morpho==='A') r.push({i:'✓',t:'Morphologie A → Valoriser le haut, pantalons droits conseillés'});
+  if(S.morpho==='X') r.push({i:'✓',t:'Morphologie X → Toutes coupes valorisantes, ceinture recommandée'});
+  if(S.morpho==='O') r.push({i:'✓',t:'Morphologie O → Coupes droites, longueurs intermédiaires'});
+  if(S.climat==='tropical') r.push({i:'🌡️',t:'Climat chaud → Lin et coton exclusivement, coupes aérées'});
+  if(S.climat==='equatorial') r.push({i:'🌧️',t:'Équatorial → Prévoir imperméable léger en rotation'});
+  if(['finance','droit'].includes(S.prof)) r.push({i:'🏦',t:S.prof==='finance'?'Finance → Sneakers exclues, costume+chemise obligatoire':'Droit → Costume complet, couleurs sobres uniquement'});
+  if(S.prof==='tech') r.push({i:'💻',t:'Tech → Business casual autorisé, cravate non imposée'});
+  if(S.hier>=3) r.push({i:'👑',t:'C-Level → Style signature, dashiki premium en contexte africain'});
+  if(S.budget&&S.budget<=15000) r.push({i:'💡',t:'Budget serré → Capsule 5 pièces, maximiser réutilisation'});
+  if(['s5','s6'].includes(S.teint)) r.push({i:'🎨',t:'Teint foncé → Couleurs vives et contrastes nets avantageux'});
+  if(['s1','s2'].includes(S.teint)) r.push({i:'🎨',t:'Teint clair → Neutres et pastels clairs valorisants'});
+  return r;
 }
 
-// ══════════════════════════════════════════════════════
-// DASHBOARD RENDER
-// ══════════════════════════════════════════════════════
-function renderDashboard() {
-  const scores = computeScore();
-  const name = profile.profession ? profile.profession.split('/')[0] : 'Pro';
+function getWeek(){
+  return(['finance','droit','gouv','conseil'].includes(S.prof)||S.hier>=2)?WEEK_F:WEEK_C;
+}
 
-  // User display
-  document.getElementById('userNameDisplay').textContent = name;
-  document.getElementById('userAvatarInitial').textContent = name[0];
+// ════════════════════════════════════════════════════════
+//  INIT UI
+// ════════════════════════════════════════════════════════
+function initUI(){
+  // Splash avatars
+  const combos=[{m:'V',s:'s5',o:'costume_bleu',g:'M'},{m:'X',s:'s3',o:'smart_kaki',g:'F'},{m:'H',s:'s6',o:'sc_navy',g:'M'}];
+  const labels=['Morphologie V · Formel','Morphologie X · Smart','Morphologie H · Casual'];
+  document.getElementById('spAv').innerHTML=combos.map((c,i)=>
+    `<div class="sp-av-wrap" style="animation:rise .7s ${.7+i*.15}s both">
+      ${buildAvatar(c.m,c.s,c.o,c.g,138)}
+      <div class="sp-av-lbl">${labels[i]}</div>
+    </div>`).join('');
 
+  // Steps
+  const stpLbls=['Genre & Morphologie','Teint & Stature','Profession','Budget & Climat','Confirmation'];
+  document.getElementById('obStps').innerHTML=stpLbls.map((l,i)=>
+    `<div class="ob-stp ${i===0?'cur':''}" id="os${i+1}" onclick="jumpStep(${i+1})" title="${i===0?'':i+1+'ère étape — cliquer pour y retourner'}">
+      <div class="ob-stp-n">${i+1}</div>
+      <div class="ob-stp-l">${l}</div>
+    </div>`).join('');
+
+  // Morpho grid
+  buildMGrid();
+
+  // Skin
+  document.getElementById('skRow').innerHTML=SKINS.map(sk=>
+    `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <div class="sk-sw${sk.id==='s5'?' sel':''}" style="background:${sk.hex}"
+           onclick="setSkin('${sk.id}',this)" title="${sk.label}"></div>
+      <div class="sk-lbl">${sk.label}</div>
+    </div>`).join('');
+
+  // Hier
+  document.getElementById('hiGrid').innerHTML=HIER.map((h,i)=>
+    `<div class="hi-item${i===1?' sel':''}" onclick="setHier(${i},this)">
+      <div class="hi-ico">${h.i}</div>
+      <div class="hi-lbl">${h.l}</div>
+    </div>`).join('');
+
+  // Jobs
+  document.getElementById('jGrid').innerHTML=JOBS.map(j=>
+    `<div class="job-card" onclick="setJob('${j.id}',this)">
+      <div class="job-ico">${j.ico}</div>
+      <div><div class="job-n">${j.n}</div><div class="job-c">${j.c}</div></div>
+    </div>`).join('');
+
+  // Budget
+  document.getElementById('bGrid').innerHTML=BUDGETS.map(b=>
+    `<div class="bud-card" onclick="setBud(${b.v},this)">
+      <div class="bud-amt">${b.a}</div>
+      <div class="bud-unit">FCFA / mois</div>
+      <div class="bud-tag ${b.tc}">${b.t}</div>
+    </div>`).join('');
+
+  // Climat
+  document.getElementById('cGrid').innerHTML=CLIMATS.map(c=>
+    `<div class="cl-card" onclick="setCl('${c.id}',this)">
+      <div class="cl-ico">${c.ico}</div>
+      <div><div class="cl-n">${c.n}</div><div class="cl-c">${c.c}</div></div>
+    </div>`).join('');
+}
+
+function buildMGrid(){
+  const descs={V:'Épaules larges\nHanches étroites',A:'Hanches larges\nÉpaules étroites',H:'Épaules & hanches\nSimilaires',X:'Sablier\nTaille marquée',O:'Silhouette ronde\nBien répartie'};
+  document.getElementById('mGrid').innerHTML=Object.keys(MORPH).map(k=>
+    `<div class="m-card${S.morpho===k?' sel':''}" onclick="setMorpho('${k}',this)">
+      <div class="m-av">${buildAvatar(k,'s4','smart_kaki',S.genre,138)}</div>
+      <div class="m-letter">${k}</div>
+      <div class="m-desc">${descs[k].replace('\n','<br>')}</div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  SELECTORS
+// ════════════════════════════════════════════════════════
+function setG(g,btn){
+  S.genre=g;
+  document.querySelectorAll('.g-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  buildMGrid();
+}
+function setMorpho(k,el){
+  document.querySelectorAll('.m-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel'); S.morpho=k;
+}
+function setSkin(id,el){
+  document.querySelectorAll('.sk-sw').forEach(s=>s.classList.remove('sel'));
+  el.classList.add('sel'); S.teint=id;
+}
+function setHier(i,el){
+  document.querySelectorAll('.hi-item').forEach(h=>h.classList.remove('sel'));
+  el.classList.add('sel'); S.hier=i;
+}
+function setJob(id,el){
+  document.querySelectorAll('.job-card').forEach(j=>j.classList.remove('sel'));
+  el.classList.add('sel'); S.prof=id;
+}
+function setBud(v,el){
+  document.querySelectorAll('.bud-card').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel'); S.budget=v;
+}
+function setCl(id,el){
+  document.querySelectorAll('.cl-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel'); S.climat=id;
+}
+
+// ════════════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════════════
+function go(id){
+  document.querySelectorAll('.scr').forEach(s=>{s.classList.remove('on');s.style.display='';});
+  const el=document.getElementById(id);
+  if(id==='ob'){el.classList.add('on');}
+  else if(id==='db'){el.classList.add('on');}
+  else el.classList.add('on');
+  updProgress();
+}
+
+function nxt(){if(curStep<STEPS){if(curStep===STEPS-1)buildRecap();showStep(curStep+1);}}
+function prv(){if(curStep>1)showStep(curStep-1);}
+
+// Clic sur un step de la sidebar — retour arrière seulement
+function jumpStep(n){
+  if(n < curStep) showStep(n);
+}
+
+// Retour splash depuis onboarding
+function backToSplash(){
+  go('splash');
+  curStep=1;
+  showStep(1);
+}
+
+// Retour onboarding depuis dashboard (modifier profil)
+function backToOnboarding(){
+  go('ob');
+  buildRecap(); // rafraîchit le récap avec l'état actuel
+  showStep(curStep); // revient à la dernière étape (5 = recap par défaut)
+}
+
+function showStep(n){
+  document.querySelectorAll('.ob-panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById(`p${n}`).classList.add('on');
+  document.querySelectorAll('.ob-stp').forEach((s,i)=>{
+    s.classList.remove('cur','done');
+    const num=s.querySelector('.ob-stp-n');
+    if(i+1===n){s.classList.add('cur');num.textContent=i+1;}
+    else if(i+1<n){s.classList.add('done');num.textContent='✓';}
+    else num.textContent=i+1;
+  });
+  curStep=n; updProgress();
+}
+
+function updProgress(){
+  const pct=Math.round(((curStep-1)/(STEPS-1))*100);
+  const fill=document.getElementById('obFill');
+  const pctEl=document.getElementById('obPct');
+  if(fill) fill.style.width=pct+'%';
+  if(pctEl) pctEl.textContent=pct+'%';
+}
+
+function buildRecap(){
+  const rls=rules();
+  const pL=JOBS.find(j=>j.id===S.prof)?.n||'—';
+  const cL=CLIMATS.find(c=>c.id===S.climat)?.n||'—';
+  document.getElementById('rcGrid').innerHTML=[
+    {l:'Morphologie',v:S.morpho||'—'},{l:'Genre',v:S.genre==='M'?'Masculin':'Féminin'},
+    {l:'Profession',v:pL},{l:'Budget/mois',v:S.budget?S.budget.toLocaleString('fr')+' FCFA':'—'},
+    {l:'Climat',v:cL},{l:'Niveau',v:HIER[S.hier]?.l||'—'},
+  ].map(r=>`<div class="rc-item"><div class="rc-lbl">${r.l}</div><div class="rc-val">${r.v}</div></div>`).join('');
+  document.getElementById('rlList').innerHTML=rls.length
+    ?rls.map(r=>`<div class="rl-row"><span class="rl-i">${r.i}</span>${r.t}</div>`).join('')
+    :'<div class="rl-row"><span class="rl-i">ℹ️</span>Complète ton profil pour activer les règles</div>';
+}
+
+function launch(){
+  document.getElementById('ob').classList.remove('on');
+  document.getElementById('db').classList.add('on');
+  renderDB(); toast('⚡ Système initialisé — Semaine générée');
+}
+
+// ════════════════════════════════════════════════════════
+//  DASHBOARD RENDER
+// ════════════════════════════════════════════════════════
+function renderDB(){
+  const sc=score();
+  const pL=JOBS.find(j=>j.id===S.prof)?.n?.split('/')[0]?.trim()||'Pro';
+  document.getElementById('dbUL').textContent=pL;
+  document.getElementById('dbAv').textContent=pL[0];
+  
   // Score
-  animateScore(scores.total);
-  document.getElementById('scoreBadge').textContent = scores.total >= 85 ? 'EXCELLENT' : scores.total >= 75 ? 'BON NIVEAU' : 'À AMÉLIORER';
+  animN('scN',sc.total);
+  const gr=sc.total>=88?'A+':sc.total>=80?'A':sc.total>=72?'B+':'B';
+  const gc=sc.total>=88?'sga':sc.total>=75?'sgb':'sgc';
+  document.getElementById('scG').textContent=`GRADE ${gr}`;
+  document.getElementById('scG').className=`sc-grade ${gc}`;
+  document.getElementById('scAx').innerHTML=[
+    {n:'Morphologie',v:sc.m,c:'#d4a843'},{n:'Profession',v:sc.p,c:'#79b554'},
+    {n:'Climat',v:sc.c,c:'#5191c9'},{n:'Budget',v:sc.b,c:'#c95a4a'},{n:'Esthétique',v:sc.e,c:'#b08830'},
+  ].map(a=>`<div class="ax"><div class="ax-top"><span class="ax-n">${a.n}</span><span class="ax-v">${Math.round(a.v)}</span></div>
+    <div class="ax-track"><div class="ax-fill" style="width:${a.v}%;background:${a.c}"></div></div></div>`).join('');
 
-  document.getElementById('scoreBars').innerHTML = [
-    { label: 'Compatibilité morphologie', val: scores.morpho, color: '#d4a853' },
-    { label: 'Adéquation profession', val: scores.prof, color: '#8fbe6a' },
-    { label: 'Confort climatique', val: scores.climat, color: '#5c9de0' },
-    { label: 'Optimisation budget', val: scores.budget, color: '#e05c5c' },
-    { label: 'Cohérence esthétique', val: scores.esth, color: '#c17f3a' }
-  ].map(b => `
-    <div class="score-bar-row">
-      <div class="score-bar-label">${b.label}</div>
-      <div class="score-bar-track">
-        <div class="score-bar-fill" style="width:${b.val}%;background:${b.color}"></div>
+  // Week
+  const week=getWeek();
+  const rc=week.flatMap(d=>d.pcs).filter(p=>p.r).length;
+  document.getElementById('rChip').textContent=`${rc} pièces réutilisées`;
+  document.getElementById('wGrid').innerHTML=week.map((d,i)=>
+    `<div class="day-card" onclick="openD(${i})">
+      <div class="dc-head">
+        <div class="dc-day">${d.day}</div>
+        <div class="dc-score ${d.sc>=88?'dca':'dcg'}">${d.sc}</div>
       </div>
-      <div class="score-bar-val">${Math.round(b.val)}</div>
-    </div>
-  `).join('');
-
-  // Week grid
-  const style = getWeekStyle();
-  const days = weekData[style];
-  document.getElementById('weekGrid').innerHTML = days.map((d, i) => `
-    <div class="day-card" onclick="openDetail(${i})">
-      <div class="day-card-top">
-        <div class="day-name">${d.day}</div>
-        <div class="day-score-pill ${d.score >= 88 ? 'pill-gold' : 'pill-green'}">${d.score}</div>
-      </div>
-      <div class="day-visual">
-        <div class="outfit-emoji">${d.emoji}</div>
-      </div>
-      <div class="day-card-body">
-        <div style="font-size:11px;color:var(--text-muted);font-family:'Space Mono',monospace;margin-bottom:10px">${d.label}</div>
-        <div class="outfit-pieces">
-          ${d.pieces.map(p => `
-            <div class="outfit-piece">
-              <div class="piece-dot" style="background:${p.dot}"></div>
-              <div class="piece-name">${p.name}</div>
-              ${p.reuse ? '<span class="reuse-tag">↩ RÉUTIL.</span>' : ''}
-            </div>
-          `).join('')}
+      <div class="av-stage">${buildAvatar(S.morpho||'H',S.teint,d.outfit,S.genre,193)}</div>
+      <div class="dc-body">
+        <div class="dc-outfit-name">${d.lbl}</div>
+        <div class="dc-pieces">
+          ${d.pcs.map(p=>`<div class="dc-piece">
+            <div class="dc-dot" style="background:${p.c}"></div>
+            <div class="dc-txt">${p.n}</div>
+            ${p.r?'<span class="dc-r">↩ RÉUTIL.</span>':''}
+          </div>`).join('')}
         </div>
-        <div class="day-tags">
-          ${d.tags.map(t => `<div class="tag-small">${t}</div>`).join('')}
-        </div>
+        <div class="dc-tags">${d.tags.map(t=>`<div class="dc-tag">${t}</div>`).join('')}</div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 
   // Wardrobe
-  document.getElementById('wardrobeGrid').innerHTML = wardrobeItems.map(item => `
-    <div class="wrd-item" data-cat="${item.category}">
-      <div class="wrd-thumb">${item.emoji}</div>
+  document.getElementById('wrdGrid').innerHTML=WARDROBE.map(w=>
+    `<div class="wrd-card" data-cat="${w.cat}">
+      <div class="wrd-img">${w.ico}</div>
       <div class="wrd-info">
-        <div class="wrd-name">${item.name}</div>
-        <div class="wrd-meta">${item.type}</div>
-        <div class="wrd-usage">
-          <div class="wrd-cpp">${item.cpp}/port</div>
-          <div class="wrd-uses">Porté ${item.uses}</div>
-        </div>
+        <div class="wrd-n">${w.n}</div>
+        <div class="wrd-t">${w.cat}</div>
+        <div class="wrd-st"><div class="wrd-cpp">${w.cpp} FCFA/port</div><div class="wrd-uses">×${w.uses}</div></div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 
   // Career
-  document.getElementById('careerTrack').innerHTML = careerLevels.map((c, i) => `
-    <div class="career-node ${i === profile.hierarchie ? 'active' : ''}" onclick="showCareerLevel(${i})">
-      <div class="career-dot">${c.icon}</div>
-      <div class="career-label">${c.label}</div>
-    </div>
-    ${i < careerLevels.length - 1 ? '<div class="career-line"></div>' : ''}
-  `).join('');
-
-  showCareerLevel(profile.hierarchie);
+  document.getElementById('careerCont').innerHTML=CAREER.map((c,i)=>
+    `<div style="display:grid;grid-template-columns:88px 1fr;gap:18px;align-items:start;
+          padding:18px;background:var(--s1);border:1.5px solid ${S.hier===i?'var(--gold)':'var(--b1)'};
+          border-radius:var(--r2);margin-bottom:10px;cursor:pointer;
+          background:${S.hier===i?'rgba(212,168,67,.07)':'var(--s1)'};"
+          onclick="highlightCareer(this)">
+      <div style="background:var(--s2);border-radius:var(--r2);padding:8px 4px;
+                  border:1px solid var(--b1);text-align:center">
+        ${buildAvatar(S.morpho||'H',S.teint,c.outfit,S.genre,96)}
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:5px">
+          <span style="font-size:16px">${c.ico}</span>
+          <span style="font-family:var(--ftitle);font-size:21px;letter-spacing:.05em">${c.l}</span>
+          ${S.hier===i?'<span style="font-size:8px;font-family:var(--fmono);padding:2px 8px;background:var(--golddim);color:var(--gold);border-radius:99px">ACTUEL</span>':''}
+        </div>
+        <div style="color:var(--gold);font-family:var(--fmono);font-size:9px;letter-spacing:.1em;margin-bottom:7px">${c.style}</div>
+        <div style="font-size:12px;color:var(--t2);font-weight:300;line-height:1.65">${c.desc}</div>
+      </div>
+    </div>`).join('');
 
   // Side
-  document.getElementById('profileSummary').innerHTML = [
-    { k: 'Morphologie', v: profile.morphologie || '—' },
-    { k: 'Profession', v: profile.profession || '—' },
-    { k: 'Niveau', v: hierLabels[profile.hierarchie] },
-    { k: 'Budget', v: profile.budget ? profile.budget.toLocaleString() + ' FCFA' : '—' },
-    { k: 'Climat', v: profile.climat ? profile.climat.replace('_', ' ') : '—' }
-  ].map(s => `
-    <div class="stat-row">
-      <div class="stat-key">${s.k}</div>
-      <div class="stat-val">${s.v}</div>
-    </div>
-  `).join('');
+  const pL2=JOBS.find(j=>j.id===S.prof)?.n||'—';
+  const cL=CLIMATS.find(c=>c.id===S.climat)?.n||'—';
+  document.getElementById('ssProf').innerHTML=[
+    {k:'Morphologie',v:S.morpho||'—'},{k:'Profession',v:pL2},
+    {k:'Niveau',v:HIER[S.hier]?.l||'—'},{k:'Budget/mois',v:S.budget?S.budget.toLocaleString('fr')+' FCFA':'—'},
+    {k:'Climat',v:cL},{k:'Genre',v:S.genre==='M'?'Masculin':'Féminin'},
+  ].map(s=>`<div class="ss-row"><div class="ss-k">${s.k}</div><div class="ss-v">${s.v}</div></div>`).join('');
 
-  const insights = getActiveRules().slice(0, 4);
-  document.getElementById('insightsList').innerHTML = insights.length
-    ? insights.map(r => `
-        <div class="insight-card">
-          <div class="insight-icon">${r.icon}</div>
-          <div>${r.text}</div>
-        </div>
-      `).join('')
-    : '<div class="insight-card"><div class="insight-icon">📌</div><div>Complète ton profil pour voir les insights</div></div>';
+  const rls=rules();
+  document.getElementById('ssIns').innerHTML=rls.slice(0,4).map(r=>
+    `<div class="insight"><div class="in-i">${r.i}</div>${r.t}</div>`).join('')
+    ||'<div class="insight"><div class="in-i">📌</div>Complète ton profil</div>';
 
-  const reuseCount = weekData[style].flatMap(d => d.pieces).filter(p => p.reuse).length;
-  document.getElementById('optStats').innerHTML = `
-    <div class="stat-row"><div class="stat-key">Pièces réutilisées</div><div class="stat-val">${reuseCount} / semaine</div></div>
-    <div class="stat-row"><div class="stat-key">Coût moyen / jour</div><div class="stat-val">2,100 FCFA</div></div>
-    <div class="stat-row"><div class="stat-key">Articles garde-robe</div><div class="stat-val">${wardrobeItems.length} pièces</div></div>
-    <div class="stat-row"><div class="stat-key">Score global</div><div class="stat-val">${scores.total} / 100</div></div>
-  `;
+  document.getElementById('ssSt').innerHTML=[
+    {k:'Pièces réutilisées',v:`${rc}/semaine`},{k:'Coût moyen/jour',v:'2 100 FCFA'},
+    {k:'Total garde-robe',v:`${WARDROBE.length} pièces`},{k:'Score global',v:`${sc.total}/100`},
+  ].map(s=>`<div class="ss-row"><div class="ss-k">${s.k}</div><div class="ss-v">${s.v}</div></div>`).join('');
 }
 
-function animateScore(target) {
-  let current = 0;
-  const el = document.getElementById('mainScore');
-  const step = target / 60;
-  const timer = setInterval(() => {
-    current = Math.min(current + step, target);
-    el.textContent = Math.round(current);
-    if (current >= target) clearInterval(timer);
-  }, 16);
+function highlightCareer(el){
+  document.querySelectorAll('#careerCont>div').forEach(d=>{d.style.border='1.5px solid var(--b1)';d.style.background='var(--s1)'});
+  el.style.border='1.5px solid var(--gold)'; el.style.background='rgba(212,168,67,.07)';
 }
 
-function showCareerLevel(i) {
-  document.querySelectorAll('.career-node').forEach((n, idx) => {
-    n.classList.toggle('active', idx === i);
-  });
-  const c = careerLevels[i];
-  document.getElementById('careerOutfit').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 2fr;gap:24px;align-items:start">
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:32px;text-align:center;font-size:72px">${c.emoji}</div>
-      <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:0.05em;margin-bottom:8px">${c.label}</div>
-        <div style="color:var(--accent);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.1em;margin-bottom:16px">${c.style}</div>
-        <div style="color:var(--text-muted);font-size:13px;font-weight:300;line-height:1.7">${c.desc}</div>
-      </div>
+// ════════════════════════════════════════════════════════
+//  DRAWER
+// ════════════════════════════════════════════════════════
+function openD(idx){
+  const week=getWeek(); const d=week[idx];
+  document.getElementById('drDay').textContent=`${d.day}NDAY`;
+  document.getElementById('drTitle').textContent=d.lbl;
+  document.getElementById('drBody').innerHTML=`
+    <div class="dr-av-stage">${buildAvatar(S.morpho||'H',S.teint,d.outfit,S.genre,272)}</div>
+    <div class="dr-metrics">
+      <div class="dr-metric"><div class="dr-mv" style="color:var(--gold)">${d.cr}</div><div class="dr-ml">CRÉDIBILITÉ</div></div>
+      <div class="dr-metric"><div class="dr-mv" style="color:var(--green)">${d.co}</div><div class="dr-ml">CONFORT CLIM.</div></div>
+      <div class="dr-metric" style="grid-column:span 2"><div class="dr-mv" style="color:var(--blue);font-size:24px">${d.cpp}</div><div class="dr-ml">COÛT PAR PORT</div></div>
     </div>
-  `;
-}
-
-// ══════════════════════════════════════════════════════
-// DETAIL PANEL
-// ══════════════════════════════════════════════════════
-function openDetail(idx) {
-  const style = getWeekStyle();
-  const d = weekData[style][idx];
-
-  document.getElementById('detailDay').textContent = d.day;
-  document.getElementById('detailTitle').textContent = d.label;
-
-  document.getElementById('detailBody').innerHTML = `
-    <div class="detail-outfit-hero">${d.emoji}</div>
-
-    <div class="index-grid">
-      <div class="index-card">
-        <div class="index-val" style="color:var(--accent)">${d.credibility}</div>
-        <div class="index-label">CRÉDIBILITÉ</div>
-      </div>
-      <div class="index-card">
-        <div class="index-val" style="color:var(--accent3)">${d.comfort}</div>
-        <div class="index-label">CONFORT CLIM.</div>
-      </div>
-      <div class="index-card" style="grid-column:span 2">
-        <div class="index-val" style="color:var(--blue);font-size:24px">${d.cpp}</div>
-        <div class="index-label">COÛT PAR PORT</div>
-      </div>
-    </div>
-
     <div>
-      <div class="side-title">Composition</div>
-      <div class="outfit-pieces" style="gap:10px">
-        ${d.pieces.map(p => `
-          <div class="outfit-piece" style="padding:12px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border)">
-            <div class="piece-dot" style="background:${p.dot};width:12px;height:12px"></div>
-            <div class="piece-name" style="font-size:13px;color:var(--text)">${p.name}</div>
-            ${p.reuse ? '<span class="reuse-tag">↩ RÉUTILISÉ</span>' : '<span style="font-size:9px;color:var(--text-dim);font-family:Space Mono,monospace">NOUVEAU</span>'}
-          </div>
-        `).join('')}
-      </div>
+      <div style="font-family:var(--fmono);font-size:8px;letter-spacing:.3em;color:var(--t3);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--b1);margin-bottom:12px">Composition</div>
+      ${d.pcs.map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--s2);border-radius:var(--r);border:1px solid var(--b1);margin-bottom:6px">
+        <div style="width:11px;height:11px;border-radius:3px;background:${p.c};flex-shrink:0"></div>
+        <div style="flex:1;font-size:12px">${p.n}</div>
+        ${p.r?'<span style="font-size:8px;font-family:var(--fmono);padding:2px 7px;background:var(--golddim);color:var(--gold);border-radius:4px">↩ RÉUTIL.</span>':'<span style="font-size:8px;color:var(--t3);font-family:var(--fmono)">NEUF</span>'}
+      </div>`).join('')}
     </div>
-
     <div>
-      <div class="side-title">Règles appliquées</div>
-      <div class="rule-list">
-        ${getActiveRules().slice(0,3).map(r => `
-          <div class="rule-item"><span class="rule-icon">${r.icon}</span>${r.text}</div>
-        `).join('')}
-      </div>
+      <div style="font-family:var(--fmono);font-size:8px;letter-spacing:.3em;color:var(--t3);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--b1);margin-bottom:12px">Règles moteur</div>
+      ${rules().slice(0,3).map(r=>`<div class="insight"><div class="in-i">${r.i}</div>${r.t}</div>`).join('')}
     </div>
-
-    <div>
-      <div class="side-title">Tags contextuels</div>
-      <div class="day-tags">
-        ${d.tags.map(t => `<div class="chip active">${t}</div>`).join('')}
-      </div>
-    </div>
-  `;
-
-  document.getElementById('detailPanel').classList.add('open');
-  document.getElementById('overlay').classList.add('visible');
+    <div class="chips">${d.tags.map(t=>`<div class="chip on">${t}</div>`).join('')}</div>`;
+  document.getElementById('ov').classList.add('on');
+  document.getElementById('drw').classList.add('on');
 }
 
-function closeDetail() {
-  document.getElementById('detailPanel').classList.remove('open');
-  document.getElementById('overlay').classList.remove('visible');
+function closeD(){
+  document.getElementById('ov').classList.remove('on');
+  document.getElementById('drw').classList.remove('on');
 }
 
-// ══════════════════════════════════════════════════════
-// TABS
-// ══════════════════════════════════════════════════════
-function switchTab(tab, el) {
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  ['week-view','wardrobe-view','career-view'].forEach(id => {
-    document.getElementById(id).style.display = 'none';
-  });
-  document.getElementById(tab + '-view').style.display = 'block';
+// ════════════════════════════════════════════════════════
+//  TABS & FILTERS
+// ════════════════════════════════════════════════════════
+function dTab(t,el){
+  document.querySelectorAll('.db-tab').forEach(b=>b.classList.remove('on')); el.classList.add('on');
+  ['week','wardrobe','career'].forEach(n=>document.getElementById(`t-${n}`).style.display=n===t?'block':'none');
+}
+function wrdF(cat,el){
+  document.querySelectorAll('#wrdChips .chip').forEach(c=>c.classList.remove('on')); el.classList.add('on');
+  document.querySelectorAll('.wrd-card').forEach(c=>c.style.display=cat==='all'||c.dataset.cat===cat?'':'none');
 }
 
-function filterWardrobe(cat, el) {
-  document.querySelectorAll('.tags-row .chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  document.querySelectorAll('.wrd-item').forEach(item => {
-    item.style.display = (cat === 'all' || item.dataset.cat === cat) ? '' : 'none';
-  });
+// ════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════
+function animN(id,target){
+  let v=0;const el=document.getElementById(id);const s=target/55;
+  const t=setInterval(()=>{v=Math.min(v+s,target);el.textContent=Math.round(v);if(v>=target)clearInterval(t)},16);
+}
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),3000);
 }
 
-// ══════════════════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════════════════
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
+// Boot
+initUI();
 </script>
 </body>
 </html>
