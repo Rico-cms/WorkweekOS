@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkWeek OS — Système de Décision Vestimentaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a08;
+    --surface: #111110;
+    --surface2: #1a1a17;
+    --border: #2a2a25;
+    --accent: #d4a853;
+    --accent2: #c17f3a;
+    --accent3: #8fbe6a;
+    --text: #f0ede6;
+    --text-muted: #7a7a6e;
+    --text-dim: #4a4a42;
+    --red: #e05c5c;
+    --blue: #5c9de0;
+    --r: 6px;
+    --r-lg: 12px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ─── SPLASH ─── */
+  #splash {
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #splash::after {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(212,168,83,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.5} 50%{transform:translate(-50%,-50%) scale(1.2);opacity:1} }
+
+  .splash-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.3s forwards;
+    z-index: 1;
+  }
+
+  .splash-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 12vw, 140px);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    text-align: center;
+    z-index: 1;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s forwards;
+  }
+
+  .splash-logo span { color: var(--accent); }
+
+  .splash-tagline {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text-muted);
+    margin-top: 20px;
+    letter-spacing: 0.05em;
+    z-index: 1;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.7s forwards;
+  }
+
+  .splash-btn {
+    margin-top: 60px;
+    padding: 16px 48px;
+    background: var(--accent);
+    color: #0a0a08;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    z-index: 1;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+    transition: background 0.2s, transform 0.15s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  .splash-btn:hover { background: var(--accent2); transform: translateY(-2px); }
+
+  .splash-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(212,168,83,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,168,83,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+  }
+
+  /* ─── ONBOARDING ─── */
+  #onboarding {
+    flex-direction: row;
+    min-height: 100vh;
+  }
+
+  .onboard-sidebar {
+    width: 300px;
+    min-height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.05em;
+    margin-bottom: 60px;
+  }
+
+  .sidebar-logo span { color: var(--accent); }
+
+  .step-list { display: flex; flex-direction: column; gap: 4px; }
+
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    border-radius: var(--r);
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+  }
+
+  .step-item.active { background: rgba(212,168,83,0.12); }
+  .step-item.done .step-num { background: var(--accent3); color: #0a0a08; }
+
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+
+  .step-item.active .step-num { background: var(--accent); color: #0a0a08; border-color: var(--accent); }
+
+  .step-label { font-size: 13px; color: var(--text-muted); transition: color 0.2s; }
+  .step-item.active .step-label { color: var(--text); font-weight: 500; }
+
+  .sidebar-foot {
+    margin-top: auto;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .progress-bar-wrap { margin-top: 12px; background: var(--surface2); border-radius: 99px; height: 4px; }
+  .progress-bar { height: 4px; background: var(--accent); border-radius: 99px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+  .progress-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-muted); margin-top: 8px; }
+
+  .onboard-content {
+    flex: 1;
+    padding: 60px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .step-panel { display: none; flex-direction: column; gap: 32px; animation: fadeUp 0.4s forwards; }
+  .step-panel.active { display: flex; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  .panel-header { margin-bottom: 8px; }
+  .panel-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .panel-title { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 0.02em; line-height: 1; }
+  .panel-subtitle { font-size: 14px; color: var(--text-muted); margin-top: 8px; font-weight: 300; }
+
+  /* MORPHOLOGY SELECTOR */
+  .morpho-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+
+  .morpho-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 20px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .morpho-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .morpho-card.selected { border-color: var(--accent); background: rgba(212,168,83,0.08); }
+  .morpho-card.selected::after {
+    content: '✓';
+    position: absolute; top: 8px; right: 8px;
+    width: 18px; height: 18px;
+    background: var(--accent);
+    color: #0a0a08;
+    border-radius: 50%;
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .morpho-icon { font-size: 40px; line-height: 1; margin-bottom: 8px; }
+  .morpho-letter { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--accent); }
+  .morpho-desc { font-size: 10px; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.02em; }
+
+  /* SKIN TONE */
+  .skin-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .skin-btn {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .skin-btn:hover { transform: scale(1.1); }
+  .skin-btn.selected { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212,168,83,0.3); }
+
+  /* SLIDERS */
+  .field-group { display: flex; flex-direction: column; gap: 20px; }
+
+  .field-label {
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .field-value {
+    font-size: 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 99px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 8px rgba(212,168,83,0.5);
+    transition: box-shadow 0.2s;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover { box-shadow: 0 0 16px rgba(212,168,83,0.8); }
+
+  /* JOB GRID */
+  .job-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+  .job-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .job-card:hover { border-color: var(--accent); }
+  .job-card.selected { border-color: var(--accent); background: rgba(212,168,83,0.08); }
+
+  .job-icon { font-size: 24px; flex-shrink: 0; }
+  .job-name { font-size: 13px; font-weight: 500; }
+  .job-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* BUDGET */
+  .budget-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+  .budget-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .budget-card:hover { border-color: var(--accent); }
+  .budget-card.selected { border-color: var(--accent); background: rgba(212,168,83,0.08); }
+
+  .budget-amount { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); }
+  .budget-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .budget-tag {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+
+  .budget-tag.smart { background: rgba(143,190,106,0.2); color: var(--accent3); }
+  .budget-tag.premium { background: rgba(212,168,83,0.2); color: var(--accent); }
+
+  /* NAV BUTTONS */
+  .nav-btns { display: flex; gap: 12px; margin-top: 40px; }
+
+  .btn-primary {
+    padding: 14px 36px;
+    background: var(--accent);
+    color: #0a0a08;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--r);
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  .btn-secondary {
+    padding: 14px 24px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    border-radius: var(--r);
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
+
+  /* ─── DASHBOARD ─── */
+  #dashboard {
+    flex-direction: column;
+    background: var(--bg);
+    min-height: 100vh;
+  }
+
+  .dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,8,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .dash-logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.05em; }
+  .dash-logo span { color: var(--accent); }
+
+  .dash-nav { display: flex; gap: 4px; }
+
+  .nav-tab {
+    padding: 8px 20px;
+    border-radius: var(--r);
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+
+  .nav-tab.active { background: var(--surface); color: var(--text); }
+  .nav-tab:hover:not(.active) { color: var(--text); }
+
+  .dash-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .user-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    color: #0a0a08;
+  }
+
+  .dash-body {
+    display: flex;
+    flex: 1;
+    gap: 0;
+  }
+
+  .dash-main { flex: 1; padding: 40px; overflow-y: auto; }
+  .dash-side { width: 320px; border-left: 1px solid var(--border); padding: 32px 28px; }
+
+  /* SCORE CARD */
+  .score-hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 32px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .score-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(212,168,83,0.15) 0%, transparent 70%);
+  }
+
+  .score-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+  .score-title { font-size: 11px; font-family: 'Space Mono', monospace; letter-spacing: 0.2em; color: var(--text-muted); text-transform: uppercase; }
+  .score-badge {
+    padding: 4px 12px;
+    background: rgba(143,190,106,0.15);
+    color: var(--accent3);
+    border-radius: 99px;
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .score-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 96px;
+    line-height: 1;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+
+  .score-sub { font-size: 14px; color: var(--text-muted); font-weight: 300; margin-top: 4px; }
+
+  .score-bars { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+
+  .score-bar-row { display: flex; align-items: center; gap: 12px; }
+  .score-bar-label { font-size: 11px; color: var(--text-muted); width: 140px; font-family: 'Space Mono', monospace; font-size: 10px; }
+  .score-bar-track { flex: 1; height: 4px; background: var(--surface2); border-radius: 99px; }
+  .score-bar-fill { height: 4px; border-radius: 99px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+  .score-bar-val { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-muted); width: 32px; text-align: right; }
+
+  /* WEEK VIEW */
+  .week-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 0.02em;
+  }
+
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  .day-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.25s;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .day-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+  .day-card.selected { border-color: var(--accent); }
+
+  .day-card-top {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .day-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.05em; }
+
+  .day-score-pill {
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .pill-gold { background: rgba(212,168,83,0.2); color: var(--accent); }
+  .pill-green { background: rgba(143,190,106,0.2); color: var(--accent3); }
+
+  .day-visual {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .day-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, var(--surface) 0%, transparent 50%);
+  }
+
+  .outfit-emoji { position: relative; z-index: 1; }
+
+  .day-card-body { padding: 16px; }
+
+  .outfit-pieces { display: flex; flex-direction: column; gap: 6px; }
+
+  .outfit-piece {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .piece-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .piece-name { flex: 1; }
+
+  .reuse-tag {
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(212,168,83,0.1);
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .day-tags {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .tag-small {
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  /* DETAIL PANEL */
+  .detail-panel {
+    position: fixed;
+    right: 0; top: 0; bottom: 0;
+    width: 420px;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 200;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .detail-panel.open { transform: translateX(0); }
+
+  .detail-head {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .detail-close {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+
+  .detail-close:hover { color: var(--text); border-color: var(--text-muted); }
+
+  .detail-body { padding: 28px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 24px; }
+
+  .detail-outfit-hero {
+    background: var(--surface2);
+    border-radius: var(--r-lg);
+    padding: 48px;
+    text-align: center;
+    font-size: 80px;
+    border: 1px solid var(--border);
+  }
+
+  .index-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .index-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 16px;
+    text-align: center;
+  }
+
+  .index-val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; }
+  .index-label { font-size: 10px; font-family: 'Space Mono', monospace; color: var(--text-muted); letter-spacing: 0.1em; margin-top: 4px; }
+
+  .rule-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    background: var(--surface2);
+    border-radius: var(--r);
+    font-size: 12px;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .rule-icon { flex-shrink: 0; font-size: 14px; }
+
+  /* SIDE PANEL */
+  .side-section { margin-bottom: 32px; }
+
+  .side-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+  }
+
+  .stat-key { color: var(--text-muted); }
+  .stat-val { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text); }
+
+  .insight-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .insight-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* WARDROBE VIEW */
+  #wardrobe-view { display: none; }
+  #wardrobe-view.tab-active { display: block; }
+  #week-view { display: block; }
+  #week-view.tab-hidden { display: none; }
+
+  .wardrobe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  .wrd-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .wrd-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+  .wrd-thumb {
+    height: 120px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .wrd-info { padding: 14px; }
+  .wrd-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .wrd-meta { font-size: 11px; color: var(--text-muted); }
+
+  .wrd-usage {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .wrd-cpp {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent3);
+  }
+
+  .wrd-uses {
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* Misc */
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .chip:hover, .chip.active { background: rgba(212,168,83,0.1); border-color: var(--accent); color: var(--accent); }
+
+  .tags-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+
+  /* Overlay */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(4px);
+  }
+
+  .overlay.visible { opacity: 1; pointer-events: all; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    padding: 12px 24px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    z-index: 9999;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    letter-spacing: 0.05em;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Career Sim */
+  .career-track {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .career-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    cursor: pointer;
+  }
+
+  .career-dot {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s;
+    position: relative;
+    z-index: 1;
+  }
+
+  .career-node.active .career-dot { background: var(--accent); border-color: var(--accent); }
+  .career-label { font-size: 10px; color: var(--text-muted); margin-top: 6px; font-family: 'Space Mono', monospace; text-align: center; }
+  .career-line { flex: 1; height: 2px; background: var(--border); margin-bottom: 22px; }
+  .career-node.active ~ .career-line { background: var(--accent); }
+
+  @media (max-width: 900px) {
+    .onboard-sidebar { display: none; }
+    .onboard-content { padding: 32px 24px; }
+    .week-grid { grid-template-columns: 1fr 1fr; }
+    .morpho-grid { grid-template-columns: repeat(3,1fr); }
+    .dash-side { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ SPLASH ═══════════════════════════════════════ -->
+<div class="screen active" id="splash">
+  <div class="splash-grid"></div>
+  <p class="splash-eyebrow">v1.0 — Afrique Urbaine</p>
+  <h1 class="splash-logo">WORK<span>WEEK</span><br>OS</h1>
+  <p class="splash-tagline">Système intelligent de décision vestimentaire professionnelle</p>
+  <button class="splash-btn" onclick="goTo('onboarding')">Initialiser le système →</button>
+</div>
+
+<!-- ═══════════════════════════════════════ ONBOARDING ═══════════════════════════════════════ -->
+<div class="screen" id="onboarding">
+  <div class="onboard-sidebar">
+    <div class="sidebar-logo">Work<span>Week</span> OS</div>
+    <div class="step-list" id="stepList"></div>
+    <div class="sidebar-foot">
+      <div class="progress-label" id="progressLabel">0 / 5 complété</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="onboard-content">
+
+    <!-- STEP 1: MORPHOLOGIE -->
+    <div class="step-panel active" id="panel-1">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Step 01 — Profil Morphologique</div>
+        <h2 class="panel-title">Quelle est ta<br>morphologie ?</h2>
+        <p class="panel-subtitle">Ce paramètre influence 30% du scoring de tes tenues</p>
+      </div>
+      <div class="morpho-grid">
+        <div class="morpho-card" onclick="selectMorpho(this,'V')">
+          <div class="morpho-icon">🔼</div>
+          <div class="morpho-letter">V</div>
+          <div class="morpho-desc">Épaules larges<br>hanches étroites</div>
+        </div>
+        <div class="morpho-card" onclick="selectMorpho(this,'A')">
+          <div class="morpho-icon">🔽</div>
+          <div class="morpho-letter">A</div>
+          <div class="morpho-desc">Hanches larges<br>épaules étroites</div>
+        </div>
+        <div class="morpho-card" onclick="selectMorpho(this,'H')">
+          <div class="morpho-icon">▭</div>
+          <div class="morpho-letter">H</div>
+          <div class="morpho-desc">Épaules et hanches<br>similaires</div>
+        </div>
+        <div class="morpho-card" onclick="selectMorpho(this,'X')">
+          <div class="morpho-icon">⬥</div>
+          <div class="morpho-letter">X</div>
+          <div class="morpho-desc">Sablier<br>taille marquée</div>
+        </div>
+        <div class="morpho-card" onclick="selectMorpho(this,'O')">
+          <div class="morpho-icon">⬭</div>
+          <div class="morpho-letter">O</div>
+          <div class="morpho-desc">Taille ronde<br>bien répartie</div>
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="btn-primary" onclick="nextStep()">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: TEINT & TAILLE -->
+    <div class="step-panel" id="panel-2">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Step 02 — Apparence Physique</div>
+        <h2 class="panel-title">Teint &<br>Stature</h2>
+        <p class="panel-subtitle">Affine les recommandations chromatiques et de coupe</p>
+      </div>
+
+      <div>
+        <div class="field-label">Teint de peau <span style="color:var(--text);font-size:13px">Sélectionne le plus proche</span></div>
+        <div class="skin-grid">
+          <div class="skin-btn" style="background:#FDDBB4" onclick="selectSkin(this,'clair')" title="Clair"></div>
+          <div class="skin-btn" style="background:#EDB98A" onclick="selectSkin(this,'beige')" title="Beige"></div>
+          <div class="skin-btn" style="background:#D08B5B" onclick="selectSkin(this,'moyen')" title="Moyen"></div>
+          <div class="skin-btn" style="background:#AE5D29" onclick="selectSkin(this,'olive')" title="Olive"></div>
+          <div class="skin-btn" style="background:#694D3D" onclick="selectSkin(this,'brun')" title="Brun"></div>
+          <div class="skin-btn" style="background:#3C2315" onclick="selectSkin(this,'fonce')" title="Foncé"></div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div>
+          <div class="field-label">
+            Taille
+            <span class="field-value" id="tailleVal">175 cm</span>
+          </div>
+          <input type="range" min="150" max="200" value="175" oninput="document.getElementById('tailleVal').textContent=this.value+' cm'; profile.taille=+this.value">
+        </div>
+        <div>
+          <div class="field-label">
+            Niveau hiérarchique
+            <span class="field-value" id="hierVal">Junior</span>
+          </div>
+          <input type="range" min="0" max="3" value="0" oninput="updateHier(this.value)">
+          <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--text-dim);font-family:'Space Mono',monospace">
+            <span>Junior</span><span>Manager</span><span>Directeur</span><span>C-Level</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-secondary" onclick="prevStep()">← Retour</button>
+        <button class="btn-primary" onclick="nextStep()">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: PROFESSION -->
+    <div class="step-panel" id="panel-3">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Step 03 — Contexte Professionnel</div>
+        <h2 class="panel-title">Ton secteur<br>d'activité</h2>
+        <p class="panel-subtitle">25% du scoring — détermine les codes vestimentaires applicables</p>
+      </div>
+      <div class="job-grid">
+        <div class="job-card" onclick="selectJob(this,'Finance/Banque')">
+          <div class="job-icon">🏦</div>
+          <div>
+            <div class="job-name">Finance / Banque</div>
+            <div class="job-sub">Code strict — formelle obligatoire</div>
+          </div>
+        </div>
+        <div class="job-card" onclick="selectJob(this,'Tech/Startup')">
+          <div class="job-icon">💻</div>
+          <div>
+            <div class="job-name">Tech / Startup</div>
+            <div class="job-sub">Business casual acceptable</div>
+          </div>
+        </div>
+        <div class="job-card" onclick="selectJob(this,'Consulting')">
+          <div class="job-icon">📊</div>
+          <div>
+            <div class="job-name">Consulting</div>
+            <div class="job-sub">Smart formal — flexible</div>
+          </div>
+        </div>
+        <div class="job-card" onclick="selectJob(this,'Santé')">
+          <div class="job-icon">🏥</div>
+          <div>
+            <div class="job-name">Santé</div>
+            <div class="job-sub">Fonctionnel + propre</div>
+          </div>
+        </div>
+        <div class="job-card" onclick="selectJob(this,'Enseignement')">
+          <div class="job-icon">🎓</div>
+          <div>
+            <div class="job-name">Enseignement</div>
+            <div class="job-sub">Respectable + accessible</div>
+          </div>
+        </div>
+        <div class="job-card" onclick="selectJob(this,'Droit')">
+          <div class="job-icon">⚖️</div>
+          <div>
+            <div class="job-name">Droit / Juridique</div>
+            <div class="job-sub">Formelle stricte</div>
+          </div>
+        </div>
+        <div class="job-card" onclick="selectJob(this,'Communication')">
+          <div class="job-icon">📢</div>
+          <div>
+            <div class="job-name">Communication</div>
+            <div class="job-sub">Créatif — expresssif ok</div>
+          </div>
+        </div>
+        <div class="job-card" onclick="selectJob(this,'Gouvernement')">
+          <div class="job-icon">🏛️</div>
+          <div>
+            <div class="job-name">Gouvernement</div>
+            <div class="job-sub">Formelle + sobre</div>
+          </div>
+        </div>
+        <div class="job-card" onclick="selectJob(this,'Commerce')">
+          <div class="job-icon">🛒</div>
+          <div>
+            <div class="job-name">Commerce</div>
+            <div class="job-sub">Présentable + mobile</div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="btn-secondary" onclick="prevStep()">← Retour</button>
+        <button class="btn-primary" onclick="nextStep()">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: BUDGET & CLIMAT -->
+    <div class="step-panel" id="panel-4">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Step 04 — Contexte & Contraintes</div>
+        <h2 class="panel-title">Budget &<br>Climat</h2>
+        <p class="panel-subtitle">Optimisation réelle selon tes ressources et ton environnement</p>
+      </div>
+
+      <div>
+        <div class="field-label" style="margin-bottom:16px">Budget mensuel tenues <span class="field-value">Sélectionner</span></div>
+        <div class="budget-grid">
+          <div class="budget-card" onclick="selectBudget(this,15000)">
+            <div class="budget-amount">15K</div>
+            <div class="budget-label">FCFA / mois</div>
+            <span class="budget-tag smart">ESSENTIEL</span>
+          </div>
+          <div class="budget-card" onclick="selectBudget(this,35000)">
+            <div class="budget-amount">35K</div>
+            <div class="budget-label">FCFA / mois</div>
+            <span class="budget-tag smart">SMART</span>
+          </div>
+          <div class="budget-card" onclick="selectBudget(this,75000)">
+            <div class="budget-amount">75K</div>
+            <div class="budget-label">FCFA / mois</div>
+            <span class="budget-tag premium">PREMIUM</span>
+          </div>
+          <div class="budget-card" onclick="selectBudget(this,150000)">
+            <div class="budget-amount">150K+</div>
+            <div class="budget-label">FCFA / mois</div>
+            <span class="budget-tag premium">LUXE</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="field-label" style="margin-bottom:16px">Climat de ta ville <span class="field-value" id="climatVal">—</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="budget-card" onclick="selectClimat(this,'tropical_chaud')">
+            <div style="font-size:32px">☀️</div>
+            <div class="budget-label">Tropical chaud<br>Abidjan, Dakar, Lomé</div>
+          </div>
+          <div class="budget-card" onclick="selectClimat(this,'semi_aride')">
+            <div style="font-size:32px">🌵</div>
+            <div class="budget-label">Semi-aride<br>Bamako, Niamey, Ouaga</div>
+          </div>
+          <div class="budget-card" onclick="selectClimat(this,'equatorial')">
+            <div style="font-size:32px">🌧️</div>
+            <div class="budget-label">Équatorial<br>Douala, Kinshasa</div>
+          </div>
+          <div class="budget-card" onclick="selectClimat(this,'altitude')">
+            <div style="font-size:32px">⛰️</div>
+            <div class="budget-label">Altitude<br>Nairobi, Kigali, Addis</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-secondary" onclick="prevStep()">← Retour</button>
+        <button class="btn-primary" onclick="nextStep()">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: RECAP -->
+    <div class="step-panel" id="panel-5">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Step 05 — Initialisation Système</div>
+        <h2 class="panel-title">Profil<br>Configuré</h2>
+        <p class="panel-subtitle">Le moteur va calculer ton score et générer ta semaine optimisée</p>
+      </div>
+
+      <div id="recapCards" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
+
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;margin-top:8px">
+        <div class="side-title" style="margin-bottom:16px">Règles moteur activées</div>
+        <div id="activeRules"></div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-secondary" onclick="prevStep()">← Retour</button>
+        <button class="btn-primary" onclick="launch()" style="background:var(--accent3);padding:16px 48px;font-size:13px">
+          ⚡ Lancer WorkWeek OS
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ DASHBOARD ═══════════════════════════════════════ -->
+<div class="screen" id="dashboard">
+  <div class="dash-header">
+    <div class="dash-logo">Work<span>Week</span> OS</div>
+    <div class="dash-nav">
+      <button class="nav-tab active" onclick="switchTab('week',this)">Semaine</button>
+      <button class="nav-tab" onclick="switchTab('wardrobe',this)">Garde-robe</button>
+      <button class="nav-tab" onclick="switchTab('career',this)">Carrière</button>
+    </div>
+    <div class="dash-user">
+      <span id="userNameDisplay"></span>
+      <div class="user-avatar" id="userAvatarInitial"></div>
+    </div>
+  </div>
+
+  <div class="dash-body">
+    <div class="dash-main">
+
+      <!-- WEEK TAB -->
+      <div id="week-view">
+        <div style="margin-bottom:32px">
+          <div class="score-hero">
+            <div class="score-header">
+              <div>
+                <div class="score-title">INDICE DE CRÉDIBILITÉ VISUELLE</div>
+                <div class="score-big" id="mainScore">—</div>
+                <div class="score-sub">Score global semaine</div>
+              </div>
+              <div class="score-badge" id="scoreBadge">CALCUL...</div>
+            </div>
+            <div class="score-bars" id="scoreBars"></div>
+          </div>
+        </div>
+
+        <div class="week-header">
+          <div class="section-title">Semaine Optimisée</div>
+          <div class="tags-row" style="margin:0">
+            <div class="chip active">5 jours</div>
+            <div class="chip">3 pièces réutilisées</div>
+            <div class="chip">Coût/port optimal</div>
+          </div>
+        </div>
+
+        <div class="week-grid" id="weekGrid"></div>
+      </div>
+
+      <!-- WARDROBE TAB -->
+      <div id="wardrobe-view" style="display:none">
+        <div class="week-header">
+          <div class="section-title">Garde-robe Intelligente</div>
+          <div class="tags-row" style="margin:0">
+            <div class="chip active" onclick="filterWardrobe('all',this)">Tout</div>
+            <div class="chip" onclick="filterWardrobe('haut',this)">Hauts</div>
+            <div class="chip" onclick="filterWardrobe('bas',this)">Bas</div>
+            <div class="chip" onclick="filterWardrobe('chaussures',this)">Chaussures</div>
+          </div>
+        </div>
+        <div class="wardrobe-grid" id="wardrobeGrid"></div>
+      </div>
+
+      <!-- CAREER TAB -->
+      <div id="career-view" style="display:none">
+        <div class="week-header">
+          <div class="section-title">Simulation Évolution</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:32px;margin-bottom:24px">
+          <div class="side-title" style="margin-bottom:24px">Trajectoire de style par niveau</div>
+          <div class="career-track" id="careerTrack"></div>
+          <div id="careerOutfit" style="margin-top:32px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-side">
+      <div class="side-section">
+        <div class="side-title">Profil Actif</div>
+        <div id="profileSummary"></div>
+      </div>
+      <div class="side-section">
+        <div class="side-title">Insights Moteur</div>
+        <div id="insightsList"></div>
+      </div>
+      <div class="side-section">
+        <div class="side-title">Optimisation Garde-robe</div>
+        <div id="optStats"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-head">
+    <div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:4px" id="detailDay"></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.05em" id="detailTitle"></div>
+    </div>
+    <div class="detail-close" onclick="closeDetail()">×</div>
+  </div>
+  <div class="detail-body" id="detailBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+const profile = {
+  morphologie: null,
+  teint: null,
+  taille: 175,
+  hierarchie: 0,
+  profession: null,
+  budget: null,
+  climat: null
+};
+
+const steps = [
+  { label: 'Morphologie', desc: 'Corps' },
+  { label: 'Teint & Stature', desc: 'Physique' },
+  { label: 'Profession', desc: 'Contexte' },
+  { label: 'Budget & Climat', desc: 'Contraintes' },
+  { label: 'Confirmation', desc: 'Récap' }
+];
+
+let currentStep = 1;
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'onboarding') initSidebar();
+}
+
+function initSidebar() {
+  const list = document.getElementById('stepList');
+  list.innerHTML = steps.map((s, i) => `
+    <div class="step-item ${i === 0 ? 'active' : ''}" id="step-item-${i+1}" onclick="jumpStep(${i+1})">
+      <div class="step-num">${i+1}</div>
+      <div>
+        <div class="step-label">${s.label}</div>
+      </div>
+    </div>
+  `).join('');
+  updateProgress();
+}
+
+function jumpStep(n) {
+  if (n > currentStep) return;
+  showStep(n);
+}
+
+function nextStep() {
+  if (currentStep < 5) {
+    if (currentStep === 5 - 1) buildRecap();
+    showStep(currentStep + 1);
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) showStep(currentStep - 1);
+}
+
+function showStep(n) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.step-item').forEach((item, i) => {
+    item.classList.remove('active');
+    if (i + 1 < n) item.classList.add('done');
+    else item.classList.remove('done');
+  });
+  const panel = document.getElementById(`panel-${n}`);
+  if (panel) panel.classList.add('active');
+  const item = document.getElementById(`step-item-${n}`);
+  if (item) item.classList.add('active');
+  currentStep = n;
+  updateProgress();
+}
+
+function updateProgress() {
+  const pct = ((currentStep - 1) / 4) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${currentStep - 1} / 5 complété`;
+}
+
+// ══════════════════════════════════════════════════════
+// SELECTORS
+// ══════════════════════════════════════════════════════
+function selectMorpho(el, val) {
+  document.querySelectorAll('.morpho-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  profile.morphologie = val;
+}
+
+function selectSkin(el, val) {
+  document.querySelectorAll('.skin-btn').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  profile.teint = val;
+}
+
+function selectJob(el, val) {
+  document.querySelectorAll('.job-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  profile.profession = val;
+}
+
+function selectBudget(el, val) {
+  document.querySelectorAll('.budget-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  profile.budget = val;
+}
+
+function selectClimat(el, val) {
+  document.querySelectorAll('.budget-card').forEach(c => {
+    if (c.parentElement.parentElement.contains(el)) c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  profile.climat = val;
+  const labels = { tropical_chaud:'Tropical Chaud', semi_aride:'Semi-Aride', equatorial:'Équatorial', altitude:'Altitude' };
+  document.getElementById('climatVal').textContent = labels[val];
+}
+
+const hierLabels = ['Junior', 'Manager', 'Directeur', 'C-Level'];
+function updateHier(val) {
+  profile.hierarchie = +val;
+  document.getElementById('hierVal').textContent = hierLabels[+val];
+}
+
+// ══════════════════════════════════════════════════════
+// SCORING ENGINE
+// ══════════════════════════════════════════════════════
+function computeScore() {
+  const morphoW = 0.30;
+  const profW = 0.25;
+  const climatW = 0.20;
+  const budgetW = 0.15;
+  const esthW = 0.10;
+
+  const morphoScore = profile.morphologie ? 85 : 50;
+  const profScore = profile.profession ? ({ 'Finance/Banque': 95, 'Droit': 92, 'Gouvernement': 90, 'Consulting': 88, 'Santé': 82, 'Enseignement': 80, 'Commerce': 75, 'Communication': 78, 'Tech/Startup': 72 }[profile.profession] || 80) : 50;
+  const climatScore = profile.climat ? ({ tropical_chaud: 78, semi_aride: 72, equatorial: 75, altitude: 88 }[profile.climat] || 75) : 50;
+  const budgetScore = profile.budget ? Math.min(95, 50 + (profile.budget / 3000)) : 50;
+  const esthScore = profile.teint ? 85 : 60;
+  const hierBonus = profile.hierarchie * 3;
+
+  const total = Math.round(
+    morphoScore * morphoW +
+    profScore * profW +
+    climatScore * climatW +
+    budgetScore * budgetW +
+    esthScore * esthW +
+    hierBonus
+  );
+
+  return {
+    total: Math.min(99, total),
+    morpho: morphoScore,
+    prof: profScore,
+    climat: climatScore,
+    budget: budgetScore,
+    esth: esthScore
+  };
+}
+
+// ══════════════════════════════════════════════════════
+// RULES ENGINE
+// ══════════════════════════════════════════════════════
+function getActiveRules() {
+  const rules = [];
+  if (profile.morphologie === 'V') rules.push({ icon: '⚠️', text: 'Morphologie V → Éviter épaules structurées excessives' });
+  if (profile.morphologie === 'O') rules.push({ icon: '✓', text: 'Morphologie O → Privilégier coupes droites et longueurs intermédiaires' });
+  if (profile.morphologie === 'A') rules.push({ icon: '✓', text: 'Morphologie A → Valoriser le haut du corps, pantalons droits' });
+  if (profile.climat === 'tropical_chaud') rules.push({ icon: '🌡️', text: 'Clima chaud → Exclure matières synthétiques épaisses, préférer lin/coton' });
+  if (profile.climat === 'equatorial') rules.push({ icon: '🌧️', text: 'Climat équatorial → Inclure vêtements imperméables légers' });
+  if (profile.profession === 'Finance/Banque') rules.push({ icon: '🏦', text: 'Finance → Exclure sneakers visibles, chemise obligatoire' });
+  if (profile.profession === 'Tech/Startup') rules.push({ icon: '💻', text: 'Tech → Business casual autorisé, pas de cravate imposée' });
+  if (profile.profession === 'Droit') rules.push({ icon: '⚖️', text: 'Droit → Costume complet recommandé, couleurs sobres exclusivement' });
+  if (profile.hierarchie >= 3) rules.push({ icon: '👑', text: 'C-Level → Costume complet ou dashiki premium en contexte africain' });
+  if (profile.budget <= 15000) rules.push({ icon: '💡', text: 'Budget serré → Rotation capsule 5 pièces, maximiser réutilisation' });
+  if (profile.teint === 'fonce') rules.push({ icon: '🎨', text: 'Teint foncé → Valoriser couleurs vives et contrastes nets' });
+  if (profile.teint === 'clair') rules.push({ icon: '🎨', text: 'Teint clair → Couleurs neutres et pastels clairs avantageux' });
+  return rules;
+}
+
+// ══════════════════════════════════════════════════════
+// WEEK GENERATOR
+// ══════════════════════════════════════════════════════
+const weekData = {
+  formal: [
+    { day: 'LUNDI', emoji: '👔', score: 94, label: 'Réunion stratégique',
+      pieces: [{dot:'#4a7fd4',name:'Costume bleu nuit',reuse:false},{dot:'#e8e4d9',name:'Chemise blanche',reuse:false},{dot:'#1a1a1a',name:'Derby noirs',reuse:false}],
+      tags: ['FORMELLE','HAUTE CRÉDIBILITÉ'],
+      credibility: 94, comfort: 65, cpp: '3,200 FCFA/port' },
+    { day: 'MARDI', emoji: '👗', score: 88, label: 'Présentation client',
+      pieces: [{dot:'#8b6914',name:'Pantalon kaki',reuse:true},{dot:'#d4a853',name:'Chemise crème',reuse:false},{dot:'#3a3a3a',name:'Oxford camel',reuse:false}],
+      tags: ['SMART','VARIATION'],
+      credibility: 88, comfort: 72, cpp: '2,100 FCFA/port' },
+    { day: 'MERCREDI', emoji: '🧥', score: 91, label: 'Milieu de semaine',
+      pieces: [{dot:'#2d4a2d',name:'Costume vert kaki',reuse:false},{dot:'#f5f0e8',name:'Col rond blanc',reuse:true},{dot:'#1a1a1a',name:'Derby noirs',reuse:true}],
+      tags: ['RÉUTILISATION','ÉCONOMIQUE'],
+      credibility: 91, comfort: 70, cpp: '1,800 FCFA/port' },
+    { day: 'JEUDI', emoji: '👘', score: 85, label: 'Réunion interne',
+      pieces: [{dot:'#4a7fd4',name:'Pantalon costume bleu',reuse:true},{dot:'#e05c5c',name:'Chemise bordeaux',reuse:false},{dot:'#8b6914',name:'Mocassins camel',reuse:false}],
+      tags: ['BOLD','LEADERSHIP'],
+      credibility: 85, comfort: 78, cpp: '2,500 FCFA/port' },
+    { day: 'VENDREDI', emoji: '🌟', score: 89, label: 'Fin de semaine',
+      pieces: [{dot:'#4a4a4a',name:'Chino gris',reuse:false},{dot:'#2d4a2d',name:'Polo vert discret',reuse:false},{dot:'#8b6914',name:'Mocassins camel',reuse:true}],
+      tags: ['CASUAL SMART','BIEN-ÊTRE'],
+      credibility: 89, comfort: 88, cpp: '1,600 FCFA/port' }
+  ],
+  smart_casual: [
+    { day: 'LUNDI', emoji: '💼', score: 88, label: 'Launch de semaine',
+      pieces: [{dot:'#2d2d4a',name:'Chino marine',reuse:false},{dot:'#e8e4d9',name:'Chemise oversize',reuse:false},{dot:'#4a4a4a',name:'Sneakers blanches',reuse:false}],
+      tags: ['BUSINESS CASUAL','MODERNE'], credibility: 88, comfort: 85, cpp: '2,000 FCFA/port' },
+    { day: 'MARDI', emoji: '🎯', score: 82, label: 'Focus créatif',
+      pieces: [{dot:'#2d2d4a',name:'Jean indigo',reuse:false},{dot:'#d4a853',name:'Polo oxford',reuse:false},{dot:'#4a4a4a',name:'Derby brun',reuse:false}],
+      tags: ['SMART','DYNAMIQUE'], credibility: 82, comfort: 88, cpp: '1,800 FCFA/port' },
+    { day: 'MERCREDI', emoji: '⚡', score: 85, label: 'Mi-semaine',
+      pieces: [{dot:'#4a4a4a',name:'Chino gris',reuse:true},{dot:'#e8e4d9',name:'T-shirt premium',reuse:false},{dot:'#4a4a4a',name:'Sneakers blanches',reuse:true}],
+      tags: ['RÉUTILISATION','MINIMALISTE'], credibility: 85, comfort: 90, cpp: '1,200 FCFA/port' },
+    { day: 'JEUDI', emoji: '🔥', score: 80, label: 'Créativité',
+      pieces: [{dot:'#2d2d4a',name:'Jean indigo',reuse:true},{dot:'#e05c5c',name:'Shirt graphique discret',reuse:false},{dot:'#8b6914',name:'Loafers camel',reuse:false}],
+      tags: ['EXPRESSION','CONFIANCE'], credibility: 80, comfort: 92, cpp: '1,500 FCFA/port' },
+    { day: 'VENDREDI', emoji: '🚀', score: 78, label: 'Liberté vendredi',
+      pieces: [{dot:'#2d4a2d',name:'Short chino',reuse:false},{dot:'#d4a853',name:'Linen shirt',reuse:false},{dot:'#4a4a4a',name:'Sneakers blanches',reuse:true}],
+      tags: ['DÉCONTRACTÉ','CONFORT'], credibility: 78, comfort: 95, cpp: '900 FCFA/port' }
+  ]
+};
+
+function getWeekStyle() {
+  const formalJobs = ['Finance/Banque','Droit','Gouvernement','Consulting'];
+  return formalJobs.includes(profile.profession) || profile.hierarchie >= 2 ? 'formal' : 'smart_casual';
+}
+
+const wardrobeItems = [
+  { id:1, emoji:'👔', name:'Costume Bleu Nuit', type:'haut', cpp:'3,200 FCFA', uses:'15x', category:'haut' },
+  { id:2, emoji:'👗', name:'Pantalon Kaki', type:'bas', cpp:'1,800 FCFA', uses:'22x', category:'bas' },
+  { id:3, emoji:'👕', name:'Chemise Blanche', type:'haut', cpp:'900 FCFA', uses:'40x', category:'haut' },
+  { id:4, emoji:'👠', name:'Derby Noirs', type:'chaussures', cpp:'1,100 FCFA', uses:'18x', category:'chaussures' },
+  { id:5, emoji:'🥼', name:'Costume Vert Kaki', type:'haut', cpp:'2,500 FCFA', uses:'12x', category:'haut' },
+  { id:6, emoji:'👒', name:'Mocassins Camel', type:'chaussures', cpp:'800 FCFA', uses:'24x', category:'chaussures' },
+  { id:7, emoji:'🧴', name:'Chemise Bordeaux', type:'haut', cpp:'1,200 FCFA', uses:'8x', category:'haut' },
+  { id:8, emoji:'👚', name:'Polo Oxford', type:'haut', cpp:'700 FCFA', uses:'30x', category:'haut' },
+  { id:9, emoji:'🩳', name:'Chino Gris', type:'bas', cpp:'1,000 FCFA', uses:'20x', category:'bas' },
+  { id:10, emoji:'👟', name:'Sneakers Blanches', type:'chaussures', cpp:'600 FCFA', uses:'28x', category:'chaussures' },
+  { id:11, emoji:'👖', name:'Jean Indigo', type:'bas', cpp:'950 FCFA', uses:'25x', category:'bas' },
+  { id:12, emoji:'🥾', name:'Derby Brun', type:'chaussures', cpp:'1,400 FCFA', uses:'14x', category:'chaussures' },
+];
+
+const careerLevels = [
+  { label: 'Stagiaire', icon: '🌱', emoji: '👕', style: 'Propre & accessible', desc: 'Chemise simple, pantalon chino, chaussures propres. Budget capsule 3 pièces.' },
+  { label: 'Junior', icon: '📈', emoji: '👔', style: 'Smart casual → formelle', desc: 'Début de construction de garde-robe. 1 costume de base, chemises variées.' },
+  { label: 'Manager', icon: '⭐', emoji: '🤵', style: 'Formelle maîtrisée', desc: 'Costume adapté obligatoire. Accessoires soignés. Budget 50K+ FCFA/mois.' },
+  { label: 'Directeur', icon: '💎', emoji: '🎩', style: 'Authority dressing', desc: 'Costumes premium, matières nobles. Cohérence totale. Signal de pouvoir conscient.' },
+  { label: 'C-Level', icon: '👑', emoji: '🦁', style: 'Signature style', desc: 'Style personnel affirmé. Dashiki premium en contexte africain. Au-dessus des codes.' }
+];
+
+// ══════════════════════════════════════════════════════
+// RECAP & LAUNCH
+// ══════════════════════════════════════════════════════
+function buildRecap() {
+  const rules = getActiveRules();
+  document.getElementById('recapCards').innerHTML = [
+    { label: 'Morphologie', val: profile.morphologie || '—', icon: '⬥' },
+    { label: 'Profession', val: profile.profession || '—', icon: '💼' },
+    { label: 'Budget / mois', val: profile.budget ? (profile.budget.toLocaleString() + ' FCFA') : '—', icon: '💰' },
+    { label: 'Climat', val: profile.climat ? ({ tropical_chaud:'Tropical Chaud', semi_aride:'Semi-Aride', equatorial:'Équatorial', altitude:'Altitude' }[profile.climat]) : '—', icon: '🌡️' },
+    { label: 'Niveau', val: hierLabels[profile.hierarchie], icon: '📊' },
+    { label: 'Teint', val: profile.teint || '—', icon: '🎨' }
+  ].map(r => `
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:16px">
+      <div style="font-size:10px;font-family:'Space Mono',monospace;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:6px">${r.label}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:0.05em;color:var(--accent)">${r.val}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('activeRules').innerHTML = rules.length
+    ? rules.map(r => `<div class="rule-item"><span class="rule-icon">${r.icon}</span>${r.text}</div>`).join('')
+    : '<div class="rule-item"><span class="rule-icon">✓</span>Profil incomplet — compléter pour activer les règles</div>';
+}
+
+function launch() {
+  goTo('dashboard');
+  renderDashboard();
+  showToast('⚡ Système initialisé — Semaine générée');
+}
+
+// ══════════════════════════════════════════════════════
+// DASHBOARD RENDER
+// ══════════════════════════════════════════════════════
+function renderDashboard() {
+  const scores = computeScore();
+  const name = profile.profession ? profile.profession.split('/')[0] : 'Pro';
+
+  // User display
+  document.getElementById('userNameDisplay').textContent = name;
+  document.getElementById('userAvatarInitial').textContent = name[0];
+
+  // Score
+  animateScore(scores.total);
+  document.getElementById('scoreBadge').textContent = scores.total >= 85 ? 'EXCELLENT' : scores.total >= 75 ? 'BON NIVEAU' : 'À AMÉLIORER';
+
+  document.getElementById('scoreBars').innerHTML = [
+    { label: 'Compatibilité morphologie', val: scores.morpho, color: '#d4a853' },
+    { label: 'Adéquation profession', val: scores.prof, color: '#8fbe6a' },
+    { label: 'Confort climatique', val: scores.climat, color: '#5c9de0' },
+    { label: 'Optimisation budget', val: scores.budget, color: '#e05c5c' },
+    { label: 'Cohérence esthétique', val: scores.esth, color: '#c17f3a' }
+  ].map(b => `
+    <div class="score-bar-row">
+      <div class="score-bar-label">${b.label}</div>
+      <div class="score-bar-track">
+        <div class="score-bar-fill" style="width:${b.val}%;background:${b.color}"></div>
+      </div>
+      <div class="score-bar-val">${Math.round(b.val)}</div>
+    </div>
+  `).join('');
+
+  // Week grid
+  const style = getWeekStyle();
+  const days = weekData[style];
+  document.getElementById('weekGrid').innerHTML = days.map((d, i) => `
+    <div class="day-card" onclick="openDetail(${i})">
+      <div class="day-card-top">
+        <div class="day-name">${d.day}</div>
+        <div class="day-score-pill ${d.score >= 88 ? 'pill-gold' : 'pill-green'}">${d.score}</div>
+      </div>
+      <div class="day-visual">
+        <div class="outfit-emoji">${d.emoji}</div>
+      </div>
+      <div class="day-card-body">
+        <div style="font-size:11px;color:var(--text-muted);font-family:'Space Mono',monospace;margin-bottom:10px">${d.label}</div>
+        <div class="outfit-pieces">
+          ${d.pieces.map(p => `
+            <div class="outfit-piece">
+              <div class="piece-dot" style="background:${p.dot}"></div>
+              <div class="piece-name">${p.name}</div>
+              ${p.reuse ? '<span class="reuse-tag">↩ RÉUTIL.</span>' : ''}
+            </div>
+          `).join('')}
+        </div>
+        <div class="day-tags">
+          ${d.tags.map(t => `<div class="tag-small">${t}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Wardrobe
+  document.getElementById('wardrobeGrid').innerHTML = wardrobeItems.map(item => `
+    <div class="wrd-item" data-cat="${item.category}">
+      <div class="wrd-thumb">${item.emoji}</div>
+      <div class="wrd-info">
+        <div class="wrd-name">${item.name}</div>
+        <div class="wrd-meta">${item.type}</div>
+        <div class="wrd-usage">
+          <div class="wrd-cpp">${item.cpp}/port</div>
+          <div class="wrd-uses">Porté ${item.uses}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Career
+  document.getElementById('careerTrack').innerHTML = careerLevels.map((c, i) => `
+    <div class="career-node ${i === profile.hierarchie ? 'active' : ''}" onclick="showCareerLevel(${i})">
+      <div class="career-dot">${c.icon}</div>
+      <div class="career-label">${c.label}</div>
+    </div>
+    ${i < careerLevels.length - 1 ? '<div class="career-line"></div>' : ''}
+  `).join('');
+
+  showCareerLevel(profile.hierarchie);
+
+  // Side
+  document.getElementById('profileSummary').innerHTML = [
+    { k: 'Morphologie', v: profile.morphologie || '—' },
+    { k: 'Profession', v: profile.profession || '—' },
+    { k: 'Niveau', v: hierLabels[profile.hierarchie] },
+    { k: 'Budget', v: profile.budget ? profile.budget.toLocaleString() + ' FCFA' : '—' },
+    { k: 'Climat', v: profile.climat ? profile.climat.replace('_', ' ') : '—' }
+  ].map(s => `
+    <div class="stat-row">
+      <div class="stat-key">${s.k}</div>
+      <div class="stat-val">${s.v}</div>
+    </div>
+  `).join('');
+
+  const insights = getActiveRules().slice(0, 4);
+  document.getElementById('insightsList').innerHTML = insights.length
+    ? insights.map(r => `
+        <div class="insight-card">
+          <div class="insight-icon">${r.icon}</div>
+          <div>${r.text}</div>
+        </div>
+      `).join('')
+    : '<div class="insight-card"><div class="insight-icon">📌</div><div>Complète ton profil pour voir les insights</div></div>';
+
+  const reuseCount = weekData[style].flatMap(d => d.pieces).filter(p => p.reuse).length;
+  document.getElementById('optStats').innerHTML = `
+    <div class="stat-row"><div class="stat-key">Pièces réutilisées</div><div class="stat-val">${reuseCount} / semaine</div></div>
+    <div class="stat-row"><div class="stat-key">Coût moyen / jour</div><div class="stat-val">2,100 FCFA</div></div>
+    <div class="stat-row"><div class="stat-key">Articles garde-robe</div><div class="stat-val">${wardrobeItems.length} pièces</div></div>
+    <div class="stat-row"><div class="stat-key">Score global</div><div class="stat-val">${scores.total} / 100</div></div>
+  `;
+}
+
+function animateScore(target) {
+  let current = 0;
+  const el = document.getElementById('mainScore');
+  const step = target / 60;
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = Math.round(current);
+    if (current >= target) clearInterval(timer);
+  }, 16);
+}
+
+function showCareerLevel(i) {
+  document.querySelectorAll('.career-node').forEach((n, idx) => {
+    n.classList.toggle('active', idx === i);
+  });
+  const c = careerLevels[i];
+  document.getElementById('careerOutfit').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:24px;align-items:start">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:32px;text-align:center;font-size:72px">${c.emoji}</div>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:0.05em;margin-bottom:8px">${c.label}</div>
+        <div style="color:var(--accent);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.1em;margin-bottom:16px">${c.style}</div>
+        <div style="color:var(--text-muted);font-size:13px;font-weight:300;line-height:1.7">${c.desc}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+// DETAIL PANEL
+// ══════════════════════════════════════════════════════
+function openDetail(idx) {
+  const style = getWeekStyle();
+  const d = weekData[style][idx];
+
+  document.getElementById('detailDay').textContent = d.day;
+  document.getElementById('detailTitle').textContent = d.label;
+
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-outfit-hero">${d.emoji}</div>
+
+    <div class="index-grid">
+      <div class="index-card">
+        <div class="index-val" style="color:var(--accent)">${d.credibility}</div>
+        <div class="index-label">CRÉDIBILITÉ</div>
+      </div>
+      <div class="index-card">
+        <div class="index-val" style="color:var(--accent3)">${d.comfort}</div>
+        <div class="index-label">CONFORT CLIM.</div>
+      </div>
+      <div class="index-card" style="grid-column:span 2">
+        <div class="index-val" style="color:var(--blue);font-size:24px">${d.cpp}</div>
+        <div class="index-label">COÛT PAR PORT</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="side-title">Composition</div>
+      <div class="outfit-pieces" style="gap:10px">
+        ${d.pieces.map(p => `
+          <div class="outfit-piece" style="padding:12px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border)">
+            <div class="piece-dot" style="background:${p.dot};width:12px;height:12px"></div>
+            <div class="piece-name" style="font-size:13px;color:var(--text)">${p.name}</div>
+            ${p.reuse ? '<span class="reuse-tag">↩ RÉUTILISÉ</span>' : '<span style="font-size:9px;color:var(--text-dim);font-family:Space Mono,monospace">NOUVEAU</span>'}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div>
+      <div class="side-title">Règles appliquées</div>
+      <div class="rule-list">
+        ${getActiveRules().slice(0,3).map(r => `
+          <div class="rule-item"><span class="rule-icon">${r.icon}</span>${r.text}</div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div>
+      <div class="side-title">Tags contextuels</div>
+      <div class="day-tags">
+        ${d.tags.map(t => `<div class="chip active">${t}</div>`).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('overlay').classList.add('visible');
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('visible');
+}
+
+// ══════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════
+function switchTab(tab, el) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['week-view','wardrobe-view','career-view'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById(tab + '-view').style.display = 'block';
+}
+
+function filterWardrobe(cat, el) {
+  document.querySelectorAll('.tags-row .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.wrd-item').forEach(item => {
+    item.style.display = (cat === 'all' || item.dataset.cat === cat) ? '' : 'none';
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
