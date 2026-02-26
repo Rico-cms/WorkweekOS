@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WorkWeek OS — Avatar System v3</title>
+<title>WorkWeek OS — Avatar System v6 (Infinite Engine)</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -214,7 +214,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
 .db-av{width:33px;height:33px;border-radius:50%;background:var(--gold);color:#0b0b09;
   display:flex;align-items:center;justify-content:center;font-family:var(--ftitle);font-size:15px}
 .db-body{flex:1;display:grid;grid-template-columns:1fr 336px;min-height:0}
-.db-main{padding:34px 40px;overflow-y:auto}
+.db-main{padding:34px 40px;overflow-y:auto;position:relative}
 .db-side{border-left:1px solid var(--b1);padding:26px 22px;overflow-y:auto}
 
 /* Score card */
@@ -240,7 +240,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
 
 /* Section title */
 .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.sec-ttl{font-family:var(--ftitle);font-size:28px;letter-spacing:.03em}
+.sec-ttl{font-family:var(--ftitle);font-size:28px;letter-spacing:.03em;display:flex;align-items:center;gap:10px}
 .chips{display:flex;gap:7px;flex-wrap:wrap}
 .chip{padding:5px 13px;border-radius:99px;font-size:10px;font-family:var(--fmono);
   letter-spacing:.05em;cursor:pointer;border:1px solid var(--b2);background:transparent;
@@ -248,7 +248,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
 .chip:hover,.chip.on{background:var(--golddim);border-color:var(--gold);color:var(--gold)}
 
 /* Week grid */
-.wk-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.wk-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
 .day-card{background:var(--s1);border:1.5px solid var(--b1);border-radius:var(--r2);
   overflow:hidden;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1)}
 .day-card:hover{border-color:var(--gold);transform:translateY(-4px);
@@ -271,11 +271,11 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
   width:50px;height:8px;background:rgba(0,0,0,.35);border-radius:50%;z-index:1;filter:blur(4px)}
 
 .dc-body{padding:13px}
-.dc-outfit-name{font-size:11px;font-weight:600;margin-bottom:8px;letter-spacing:.02em}
+.dc-outfit-name{font-size:11px;font-weight:600;margin-bottom:8px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dc-pieces{display:flex;flex-direction:column;gap:5px}
 .dc-piece{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--t2)}
 .dc-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
-.dc-txt{flex:1;font-size:10.5px}
+.dc-txt{flex:1;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dc-r{font-size:8px;font-family:var(--fmono);padding:1px 5px;border-radius:3px;
   background:var(--golddim);color:var(--gold);white-space:nowrap}
 .dc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
@@ -331,7 +331,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
 .wrd-img{height:100px;background:var(--s2);display:flex;align-items:center;
   justify-content:center;border-bottom:1px solid var(--b1);font-size:44px}
 .wrd-info{padding:11px 13px}
-.wrd-n{font-size:12px;font-weight:500;margin-bottom:2px}
+.wrd-n{font-size:12px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wrd-t{font-size:9px;color:var(--t3);font-family:var(--fmono)}
 .wrd-st{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
 .wrd-cpp{font-size:10px;font-family:var(--fmono);color:var(--green)}
@@ -343,6 +343,12 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
   border-radius:99px;font-family:var(--fmono);font-size:10px;letter-spacing:.08em;
   z-index:9001;opacity:0;pointer-events:none;transition:all .3s}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.btn-loadmore{width:100%;padding:18px;background:var(--s2);border:1px dashed var(--b2);
+  border-radius:var(--r2);color:var(--t2);font-family:var(--fmono);font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s;
+  margin-top:15px;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-loadmore:hover{border-color:var(--gold);color:var(--gold);background:var(--golddim)}
 
 @media(max-width:1100px){
   #ob.on{grid-template-columns:1fr} .ob-side{display:none} .ob-main{padding:36px 26px}
@@ -358,9 +364,9 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
   <div class="sp-grid"></div>
   <div class="sp-glow"></div>
   <div class="sp-inner">
-    <p class="sp-eyebrow">Système Vestimentaire — Afrique Urbaine</p>
+    <p class="sp-eyebrow">Générateur Procédural Infini</p>
     <h1 class="sp-logo">WORK<em>WEEK</em><br>OS</h1>
-    <p class="sp-sub">Moteur de décision vestimentaire professionnelle intelligent</p>
+    <p class="sp-sub">Le Styliste IA sans limite. Des milliards de tenues calculées en temps réel selon ton profil exact.</p>
     <div class="sp-avatars" id="spAv"></div>
     <button class="sp-cta" onclick="go('ob')">Initialiser le système →</button>
   </div>
@@ -390,7 +396,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
     <div class="ob-panel on" id="p1">
       <div class="ob-eye">Étape 01 — Profil Morphologique</div>
       <h2 class="ob-ttl">Genre &<br>Morphologie</h2>
-      <p class="ob-sub">Poids 30% · Les coupes et silhouettes adaptées à ton corps</p>
+      <p class="ob-sub">Ces choix altèrent physiquement les coupes générées par l'algorithme.</p>
       <div class="g-tog" id="gTog">
         <button class="g-btn on" onclick="setG('M',this)">MASCULIN</button>
         <button class="g-btn" onclick="setG('F',this)">FÉMININ</button>
@@ -424,7 +430,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
     <div class="ob-panel" id="p3">
       <div class="ob-eye">Étape 03 — Contexte Professionnel</div>
       <h2 class="ob-ttl">Secteur<br>d'activité</h2>
-      <p class="ob-sub">Poids 25% · Détermine les codes vestimentaires applicables</p>
+      <p class="ob-sub">Définit le "Dress Code" structurel de ta semaine (Strict, Smart, ou Casual).</p>
       <div class="job-grid" id="jGrid"></div>
       <div class="ob-nav">
         <button class="btn-s" onclick="prv()">← Retour</button>
@@ -436,12 +442,12 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
     <div class="ob-panel" id="p4">
       <div class="ob-eye">Étape 04 — Contraintes</div>
       <h2 class="ob-ttl">Budget &<br>Climat</h2>
-      <p class="ob-sub">Optimisation réelle selon tes ressources et ton environnement</p>
+      <p class="ob-sub">Le climat coupe les manches. Le budget modifie les matières (Couleurs sombres = Laine froide/Soie).</p>
       <div style="margin-bottom:28px">
         <div class="sl-n" style="margin-bottom:12px">Budget mensuel tenues</div>
         <div class="bud-grid" id="bGrid"></div>
       </div>
-      <div class="sl-n" style="margin-bottom:12px">Climat de ta ville</div>
+      <div class="sl-n" style="margin-bottom:12px">Climat dominant</div>
       <div class="cl-grid" id="cGrid"></div>
       <div class="ob-nav">
         <button class="btn-s" onclick="prv()">← Retour</button>
@@ -452,13 +458,13 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
     <!-- P5: Recap -->
     <div class="ob-panel" id="p5">
       <div class="ob-eye">Étape 05 — Initialisation</div>
-      <h2 class="ob-ttl">Profil<br>Configuré</h2>
-      <p class="ob-sub">Le moteur calcule ton score et génère ta semaine optimisée</p>
+      <h2 class="ob-ttl">Génération<br>Procédurale</h2>
+      <p class="ob-sub">Aucune base de données n'est utilisée. Le système va "dessiner" des tenues inédites basées sur tes choix.</p>
       <div class="rc-grid" id="rcGrid"></div>
-      <div class="rules-box"><div class="rl-title">Règles moteur activées</div><div id="rlList"></div></div>
+      <div class="rules-box"><div class="rl-title">Directives appliquées par l'IA</div><div id="rlList"></div></div>
       <div class="ob-nav">
         <button class="btn-s" onclick="prv()">← Retour</button>
-        <button class="btn-launch" onclick="launch()">⚡ Lancer WorkWeek OS</button>
+        <button class="btn-launch" onclick="launch()">⚡ Lancer la Génération</button>
       </div>
     </div>
   </div>
@@ -481,7 +487,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
     </div>
     <div class="db-tabs">
       <button class="db-tab on" onclick="dTab('week',this)">Semaine</button>
-      <button class="db-tab" onclick="dTab('wardrobe',this)">Garde-robe</button>
+      <button class="db-tab" onclick="dTab('wardrobe',this)">Garde-robe dynamique</button>
       <button class="db-tab" onclick="dTab('career',this)">Carrière</button>
     </div>
     <div class="db-usr"><span id="dbUL"></span><div class="db-av" id="dbAv"></div></div>
@@ -490,7 +496,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
     <div class="db-main">
       <div id="t-week">
         <div class="sc-card">
-          <div class="sc-lbl">Indice de Crédibilité Visuelle</div>
+          <div class="sc-lbl">Indice d'Adaptation (Score)</div>
           <div class="sc-top">
             <div class="sc-n" id="scN">—</div>
             <div class="sc-grade" id="scG"></div>
@@ -498,32 +504,36 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
           <div class="sc-axes" id="scAx"></div>
         </div>
         <div class="sec-hd">
-          <div class="sec-ttl">Semaine Optimisée</div>
-          <div class="chips"><div class="chip on">5 jours</div><div class="chip" id="rChip">— réutilisées</div></div>
+          <div class="sec-ttl">Semaines Générées <span id="wkCount" style="font-family:var(--fmono);font-size:12px;color:var(--t3);margin-top:5px;font-weight:normal"></span></div>
+          <div class="chips"><div class="chip on" id="dChip">5 jours</div><div class="chip" id="rChip">— réutilisées</div></div>
         </div>
         <div class="wk-grid" id="wGrid"></div>
+        <button class="btn-loadmore" onclick="generateMoreDays()">
+          <span>+</span> Générer la semaine suivante (Variation inédite)
+        </button>
       </div>
       <div id="t-wardrobe" style="display:none">
         <div class="sec-hd">
-          <div class="sec-ttl">Garde-robe</div>
+          <div class="sec-ttl">Garde-robe extraite</div>
           <div class="chips" id="wrdChips">
             <div class="chip on" onclick="wrdF('all',this)">Tout</div>
             <div class="chip" onclick="wrdF('haut',this)">Hauts</div>
-            <div class="chip" onclick="wrdF('bas',this)">Bas</div>
+            <div class="chip" onclick="wrdF('bas',this)">Bas / Jupes</div>
+            <div class="chip" onclick="wrdF('robe',this)">Robes</div>
             <div class="chip" onclick="wrdF('chaussures',this)">Chaussures</div>
           </div>
         </div>
         <div class="wrd-grid" id="wrdGrid"></div>
       </div>
       <div id="t-career" style="display:none">
-        <div class="sec-ttl" style="margin-bottom:22px">Évolution de Style</div>
+        <div class="sec-ttl" style="margin-bottom:22px">Évolution de Style recommandée</div>
         <div id="careerCont"></div>
       </div>
     </div>
     <div class="db-side">
       <div class="ss-sec"><div class="ss-t">Profil actif</div><div id="ssProf"></div></div>
       <div class="ss-sec"><div class="ss-t">Insights moteur</div><div id="ssIns"></div></div>
-      <div class="ss-sec"><div class="ss-t">Stats garde-robe</div><div id="ssSt"></div></div>
+      <div class="ss-sec"><div class="ss-t">Statistiques globales</div><div id="ssSt"></div></div>
     </div>
   </div>
 </div>
@@ -543,15 +553,20 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 20px var(--goldglow
 
 <script>
 // ════════════════════════════════════════════════════════
-//  STATE
+//  ÉTAT GLOBAL & VARIABLES
 // ════════════════════════════════════════════════════════
-const S = { genre:'M', morpho:'H', teint:'brown', taille:175, hier:1, prof:null, budget:null, climat:null };
+const S = { genre:'M', morpho:'H', teint:'s4', taille:175, hier:1, prof:'finance', budget:35000, climat:'tropical' };
 let curStep = 1;
 const STEPS = 5;
+let GENERATED_WEEK = [];
+let WARDROBE_EXTRACT = [];
+let weekOffset = 0; // Permet de générer à l'infini
 
 // ════════════════════════════════════════════════════════
-//  SKIN PALETTE
+//  HELPERS (Couleurs, Ombres)
 // ════════════════════════════════════════════════════════
+const shade=(hex,n)=>{if(!hex||hex[0]!='#')return hex||'#888';const r=parseInt(hex.slice(1),16);const R=Math.min(255,Math.max(0,(r>>16)+n)),G=Math.min(255,Math.max(0,((r>>8)&255)+n)),B=Math.min(255,Math.max(0,(r&255)+n));return '#'+((R<<16)|(G<<8)|B).toString(16).padStart(6,'0')};
+
 const SKINS = [
   {id:'s1', hex:'#FDDBB4', stroke:'#e8b88a', label:'Clair'},
   {id:'s2', hex:'#E8A87C', stroke:'#d09060', label:'Beige'},
@@ -560,819 +575,562 @@ const SKINS = [
   {id:'s5', hex:'#7A3F1A', stroke:'#60300e', label:'Brun'},
   {id:'s6', hex:'#3E1E0A', stroke:'#2a1406', label:'Foncé'},
 ];
-const skinHex = id => (SKINS.find(s=>s.id===id)||SKINS[4]).hex;
-const skinStroke = id => (SKINS.find(s=>s.id===id)||SKINS[4]).stroke;
-
-// ════════════════════════════════════════════════════════
-//  ██████████  AVATAR ENGINE  ██████████
-//  Cartoon épuré — corps entier
-//  ViewBox: 0 0 80 180, tête grande, proportions stylisées
-// ════════════════════════════════════════════════════════
-
-/*
-  Architecture en couches:
-  1. Jambes / chaussures
-  2. Corps / torse (vêtement bas)
-  3. Bras (skin)
-  4. Torse haut (vêtement)
-  5. Tête + cheveux
-  6. Détails visage
-
-  Morphologie → modifie épaules (sw), hanches (hw), taille (tw)
-*/
-
-const MORPH = {
-  V: {sw:1.28, hw:0.82, tw:0.90},
-  A: {sw:0.82, hw:1.25, tw:0.95},
-  H: {sw:1.05, hw:1.05, tw:1.05},
-  X: {sw:1.18, hw:1.15, tw:0.74},
-  O: {sw:1.00, hw:1.00, tw:1.22},
-};
-
-// Couleur de cheveux selon teint (naturellement foncée pour teints africains)
+const skinHex = id => (SKINS.find(s=>s.id===id)||SKINS[3]).hex;
+const skinStroke = id => (SKINS.find(s=>s.id===id)||SKINS[3]).stroke;
 const HAIR_C = { s1:'#4a2e12', s2:'#2e1808', s3:'#1a0c04', s4:'#120802', s5:'#0a0402', s6:'#080402' };
 
-// Teintes shadow pour vêtements
-const shade=(hex,n)=>{if(!hex||hex[0]!='#')return hex||'#888';const r=parseInt(hex.slice(1),16);const R=Math.min(255,Math.max(0,(r>>16)+n)),G=Math.min(255,Math.max(0,((r>>8)&255)+n)),B=Math.min(255,Math.max(0,(r&255)+n));return '#'+((R<<16)|(G<<8)|B).toString(16).padStart(6,'0')};
-
-/**
- * buildAvatar(morpho, skinId, outfit, genre, pxH)
- * Returns SVG string — cartoon épuré
- */
-function buildAvatar(morpho, skinId, outfit, genre='M', pxH=180) {
-  const m = MORPH[morpho] || MORPH.H;
-  const skin = skinHex(skinId);
-  const sk   = skinStroke(skinId);
-  const hair = HAIR_C[skinId] || '#1a0c04';
-  const o    = OUTFITS[outfit] || OUTFITS.smart_kaki;
-
-  // Viewbox constants — tout est relatif à cela
-  const VW=80, VH=180;
-  const cx=40;
-
-  // Corps — mesures de base
-  const headR=14;      // rayon tête
-  const headCY=18;     // centre tête Y
-  const neckH=8;
-  const neckW=7;
-  const shoulderY=headCY+headR+neckH; // ~40
-
-  // Torse
-  const sw = m.sw*20; // demi-largeur épaule depuis cx
-  const tw = m.tw*12; // demi-largeur taille
-  const hw = m.hw*16; // demi-largeur hanche
-  const torsoB = shoulderY+55; // bas torse/ceinture ~95
-
-  // Jambes
-  const legTop = torsoB;
-  const kneeY  = legTop+38; // ~133
-  const ankleY = legTop+62; // ~157
-  const fH=10; // pied hauteur
-
-  const lLegX = cx-hw+4; // x ext jambe gauche
-  const rLegX = cx+hw-4; // x ext jambe droite
-  const iLeg  = cx-7;    // séparation intérieure jambe gauche
-  const iLegR = cx+7;
-
-  const svgW = Math.round(pxH * VW/VH);
-  const svgH = pxH;
-
-  const layers = [];
-
-  // ── 1. CHAUSSURES ──
-  layers.push(buildShoes(o.shoes, cx, hw, ankleY, fH, VW));
-
-  // ── 2. JAMBES (pantalon) ──
-  layers.push(buildPants(o, cx, hw, tw, legTop, kneeY, ankleY));
-
-  // ── 3. BRAS (derrière torse) ──
-  layers.push(buildArms(skin, sk, o, cx, sw, tw, shoulderY, torsoB, o.type));
-
-  // ── 4. TORSE (chemise/veste) ──
-  layers.push(buildTorso(o, cx, sw, tw, hw, shoulderY, torsoB, neckW, skin));
-
-  // ── 5. TÊTE ──
-  layers.push(buildHead(skin, sk, hair, cx, headCY, headR, genre));
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VW} ${VH}" width="${svgW}" height="${svgH}">
-    ${layers.join('')}
-  </svg>`;
-}
-
-function buildShoes(color, cx, hw, ankleY, fH, VW) {
-  const lx = cx-hw+4;
-  const rx = cx+4;
-  const lw = 16, rw = 16;
-  const sc = shade(color,-15);
-  return `
-  <!-- Chaussures -->
-  <path d="M${lx},${ankleY} L${lx-2},${ankleY+fH} Q${lx+lw/2},${ankleY+fH+3} ${lx+lw},${ankleY+fH} L${lx+lw},${ankleY}Z"
-        fill="${color}" stroke="${sc}" stroke-width=".6"/>
-  <path d="M${rx},${ankleY} L${rx-2},${ankleY+fH} Q${rx+rw/2},${ankleY+fH+3} ${rx+rw},${ankleY+fH} L${rx+rw},${ankleY}Z"
-        fill="${color}" stroke="${sc}" stroke-width=".6"/>
-  <!-- Reflet chaussure -->
-  <path d="M${lx+1},${ankleY+1} Q${lx+lw/2},${ankleY+2} ${lx+lw-2},${ankleY+2}" stroke="rgba(255,255,255,.18)" stroke-width=".8" fill="none" stroke-linecap="round"/>
-  <path d="M${rx+1},${ankleY+1} Q${rx+rw/2},${ankleY+2} ${rx+rw-2},${ankleY+2}" stroke="rgba(255,255,255,.18)" stroke-width=".8" fill="none" stroke-linecap="round"/>`;
-}
-
-function buildPants(o, cx, hw, tw, legTop, kneeY, ankleY) {
-  const pc = o.pants;
-  const ps = shade(pc,-20);
-  // forme pantalon : trapèze hanche→genou→cheville
-  // jambe gauche
-  const llx  = cx-hw+3, llix = cx-7;
-  // jambe droite
-  const rlx  = cx+7,   rrx  = cx+hw-3;
-  // cheville
-  const lavX  = cx-hw+6, lavXi = cx-5;
-  const ravX  = cx+5,   ravXo  = cx+hw-6;
-
-  return `
-  <!-- Pantalon -->
-  <!-- Jambe G -->
-  <path d="M${llx},${legTop} L${lavX},${ankleY} L${lavXi},${ankleY} L${llix},${legTop}Z" fill="${pc}"/>
-  <!-- Jambe D -->
-  <path d="M${rlx},${legTop} L${ravX},${ankleY} L${ravXo},${ankleY} L${rrx},${legTop}Z" fill="${pc}"/>
-  <!-- Entre-jambes -->
-  <path d="M${llix},${legTop} Q${cx},${legTop+10} ${rlx},${legTop}L${llix},${legTop}Z" fill="${shade(pc,-10)}"/>
-  <!-- Pli central -->
-  <line x1="${cx-2}" y1="${legTop+6}" x2="${cx-4}" y2="${ankleY-2}" stroke="${ps}" stroke-width=".7" opacity=".5"/>
-  <line x1="${cx+2}" y1="${legTop+6}" x2="${cx+4}" y2="${ankleY-2}" stroke="${ps}" stroke-width=".7" opacity=".5"/>
-  <!-- Ceinture -->
-  <rect x="${cx-hw+3}" y="${legTop-4}" width="${(hw-3)*2}" height="6" rx="2" fill="${shade(pc,-30)}"/>`;
-}
-
-function buildArms(skin, sk, o, cx, sw, tw, shoulderY, torsoB, type) {
-  // Bras en couche arrière — simplifiés
-  const armC = type==='casual' ? o.shirt : (o.jacket || o.shirt);
-  const armSk= shade(armC,-18);
-
-  // Point épaule G/D
-  const lgSx = cx-sw+2, lgSy = shoulderY+4;
-  const rgSx = cx+sw-2, rgSy = shoulderY+4;
-
-  // Coude
-  const lgEx = cx-sw-7, lgEy = shoulderY+30;
-  const rgEx = cx+sw+7, rgEy = shoulderY+30;
-
-  // Main
-  const lgMx = cx-sw-5, lgMy = torsoB-6;
-  const rgMx = cx+sw+5, rgMy = torsoB-6;
-
-  const sleeveType = type==='casual'?'short':'long';
-
-  if (sleeveType==='short') {
-    // Manche courte : juste jusqu'au coude milieu
-    const lgEsX=cx-sw-4, lgEsY=shoulderY+22;
-    const rgEsX=cx+sw+4, rgEsY=shoulderY+22;
-    const skinC=skin, skinSk=sk;
-    return `
-    <!-- Bras (manches courtes) -->
-    <path d="M${lgSx},${lgSy} L${lgEsX},${lgEsY} L${lgEsX+4},${lgEsY} L${lgSx+6},${lgSy}Z" fill="${armC}" stroke="${armSk}" stroke-width=".6"/>
-    <path d="M${rgSx},${rgSy} L${rgEsX},${rgEsY} L${rgEsX-4},${rgEsY} L${rgSx-6},${rgSy}Z" fill="${armC}" stroke="${armSk}" stroke-width=".6"/>
-    <!-- Avant-bras skin -->
-    <path d="M${lgEsX-1},${lgEsY} L${lgMx-2},${lgMy} L${lgMx+3},${lgMy} L${lgEsX+5},${lgEsY}Z" fill="${skinC}" stroke="${skinSk}" stroke-width=".5"/>
-    <path d="M${rgEsX-5},${rgEsY} L${rgMx-3},${rgMy} L${rgMx+2},${rgMy} L${rgEsX+1},${rgEsY}Z" fill="${skinC}" stroke="${skinSk}" stroke-width=".5"/>
-    <!-- Mains -->
-    <ellipse cx="${lgMx}" cy="${lgMy+4}" rx="5" ry="5.5" fill="${skinC}" stroke="${skinSk}" stroke-width=".5"/>
-    <ellipse cx="${rgMx}" cy="${rgMy+4}" rx="5" ry="5.5" fill="${skinC}" stroke="${skinSk}" stroke-width=".5"/>`;
-  } else {
-    // Manche longue
-    const puC = type==='costume' ? o.shirt : o.shirt; // poignet chemise visible
-    return `
-    <!-- Bras (manches longues) -->
-    <path d="M${lgSx},${lgSy} L${lgMx-4},${lgMy} L${lgMx+2},${lgMy} L${lgSx+6},${lgSy}Z" fill="${armC}" stroke="${armSk}" stroke-width=".7"/>
-    <path d="M${rgSx},${rgSy} L${rgMx-2},${rgMy} L${rgMx+4},${rgMy} L${rgSx-6},${rgSy}Z" fill="${armC}" stroke="${armSk}" stroke-width=".7"/>
-    <!-- Poignets -->
-    <rect x="${lgMx-5}" y="${lgMy-1}" width="9" height="6" rx="2" fill="${puC}" stroke="${shade(puC,-15)}" stroke-width=".5"/>
-    <rect x="${rgMx-4}" y="${rgMy-1}" width="9" height="6" rx="2" fill="${puC}" stroke="${shade(puC,-15)}" stroke-width=".5"/>
-    <!-- Mains skin -->
-    <ellipse cx="${lgMx}" cy="${lgMy+8}" rx="4.5" ry="5" fill="${skin}" stroke="${sk}" stroke-width=".5"/>
-    <ellipse cx="${rgMx}" cy="${rgMy+8}" rx="4.5" ry="5" fill="${skin}" stroke="${sk}" stroke-width=".5"/>`;
-  }
-}
-
-function buildTorso(o, cx, sw, tw, hw, shoulderY, torsoB, neckW, skin) {
-  const hasJacket = !!o.jacket;
-  const nW = neckW, nY = shoulderY-8, nH=10;
-  const layers=[];
-
-  // COL / COU
-  layers.push(`<rect x="${cx-nW/2}" y="${nY}" width="${nW}" height="${nH+2}" rx="2" fill="${skin}"/>`);
-
-  if (hasJacket) {
-    // ─ COSTUME ─
-    const jC = o.jacket, jS=shade(jC,-22);
-    const shC= o.shirt,  shS=shade(shC,-15);
-    const tC = o.tie;
-
-    // Corps veste — forme trapèze
-    layers.push(`
-    <!-- CHEMISE visible (centre) -->
-    <path d="M${cx-nW/2-2},${shoulderY+2} L${cx-tw+2},${torsoB+2} L${cx+tw-2},${torsoB+2} L${cx+nW/2+2},${shoulderY+2}Z" fill="${shC}"/>
-    <!-- VESTE corps G -->
-    <path d="M${cx-sw+2},${shoulderY} L${cx-tw},${torsoB+3} L${cx-6},${torsoB+3} L${cx-8},${shoulderY+18} L${cx-4},${shoulderY+14}Z" fill="${jC}" stroke="${jS}" stroke-width=".5"/>
-    <!-- VESTE corps D -->
-    <path d="M${cx+sw-2},${shoulderY} L${cx+tw},${torsoB+3} L${cx+6},${torsoB+3} L${cx+8},${shoulderY+18} L${cx+4},${shoulderY+14}Z" fill="${jC}" stroke="${jS}" stroke-width=".5"/>
-    <!-- REVERS G -->
-    <path d="M${cx-4},${shoulderY+14} L${cx},${shoulderY+18} L${cx-10},${shoulderY+30} L${cx-12},${shoulderY+28}Z" fill="${shade(jC,-12)}"/>
-    <!-- REVERS D -->
-    <path d="M${cx+4},${shoulderY+14} L${cx},${shoulderY+18} L${cx+10},${shoulderY+30} L${cx+12},${shoulderY+28}Z" fill="${shade(jC,-12)}"/>
-    <!-- CRAVATE -->
-    ${tC?`<path d="M${cx-2},${shoulderY+17} L${cx-3.5},${torsoB-8} L${cx},${torsoB-4} L${cx+3.5},${torsoB-8} L${cx+2},${shoulderY+17}Z" fill="${tC}"/>
-    <polygon points="${cx},${shoulderY+15} ${cx-3},${shoulderY+19} ${cx},${shoulderY+17} ${cx+3},${shoulderY+19}" fill="${shade(tC,-15)}"/>`:''}
-    <!-- Boutton veste -->
-    <circle cx="${cx}" cy="${torsoB-14}" r="1.5" fill="${shade(jC,-28)}"/>
-    <!-- Col chemise visible -->
-    <path d="M${cx-nW/2},${shoulderY+2} L${cx-8},${shoulderY+11} L${cx},${shoulderY+16} L${cx+8},${shoulderY+11} L${cx+nW/2},${shoulderY+2}Z" fill="${shC}" stroke="${shS}" stroke-width=".4"/>
-    <!-- Épaules bombées -->
-    <ellipse cx="${cx-sw+4}" cy="${shoulderY+4}" rx="6" ry="3.5" fill="${shade(jC,-8)}"/>
-    <ellipse cx="${cx+sw-4}" cy="${shoulderY+4}" rx="6" ry="3.5" fill="${shade(jC,-8)}"/>`);
-
-  } else if (o.type==='smart') {
-    // ─ CHEMISE ─
-    const shC=o.shirt, shS=shade(shC,-18);
-    layers.push(`
-    <!-- CHEMISE corps -->
-    <path d="M${cx-sw+3},${shoulderY} L${cx-tw+2},${torsoB+2} L${cx+tw-2},${torsoB+2} L${cx+sw-3},${shoulderY}Z" fill="${shC}" stroke="${shS}" stroke-width=".6"/>
-    <!-- Col -->
-    <path d="M${cx-nW/2},${shoulderY+2} L${cx-9},${shoulderY+11} L${cx},${shoulderY+16} L${cx+9},${shoulderY+11} L${cx+nW/2},${shoulderY+2}Z" fill="${shade(shC,-10)}" stroke="${shS}" stroke-width=".4"/>
-    <!-- Boutonnage -->
-    <line x1="${cx}" y1="${shoulderY+16}" x2="${cx}" y2="${torsoB}" stroke="${shS}" stroke-width=".6" stroke-dasharray="2,2.5"/>
-    ${[shoulderY+20,shoulderY+29,shoulderY+38].map(y=>`<circle cx="${cx}" cy="${y}" r="1.2" fill="${shS}"/>`).join('')}
-    <!-- Épaules -->
-    <ellipse cx="${cx-sw+4}" cy="${shoulderY+4}" rx="5" ry="3" fill="${shade(shC,-16)}"/>
-    <ellipse cx="${cx+sw-4}" cy="${shoulderY+4}" rx="5" ry="3" fill="${shade(shC,-16)}"/>`);
-
-  } else {
-    // ─ POLO / T-SHIRT ─
-    const shC=o.shirt, shS=shade(shC,-18);
-    layers.push(`
-    <!-- POLO corps -->
-    <path d="M${cx-sw+4},${shoulderY} L${cx-tw+3},${torsoB+2} L${cx+tw-3},${torsoB+2} L${cx+sw-4},${shoulderY}Z" fill="${shC}" stroke="${shS}" stroke-width=".6"/>
-    <!-- Col polo rond -->
-    <path d="M${cx-nW/2+1},${shoulderY+3} Q${cx},${shoulderY+14} ${cx+nW/2-1},${shoulderY+3}" stroke="${shS}" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-    <!-- Épaules -->
-    <ellipse cx="${cx-sw+5}" cy="${shoulderY+4}" rx="4.5" ry="2.8" fill="${shade(shC,-20)}"/>
-    <ellipse cx="${cx+sw-5}" cy="${shoulderY+4}" rx="4.5" ry="2.8" fill="${shade(shC,-20)}"/>`);
-  }
-
-  return layers.join('');
-}
-
-function buildHead(skin, sk, hair, cx, headCY, headR, genre) {
-  const HW = headR*1.05; // légèrement ovale
-
-  // Forme tête — légèrement arrondie en bas (menton)
-  const chinY = headCY + headR*1.15;
-
-  const layers=[];
-
-  // Cheveux arrière
-  if (genre==='F') {
-    layers.push(`
-    <!-- Cheveux arrière F -->
-    <path d="M${cx-headR+1},${headCY+2} Q${cx-headR-6},${headCY+20} ${cx-headR-4},${chinY+18}" stroke="${hair}" stroke-width="8" fill="none" stroke-linecap="round" opacity=".9"/>
-    <path d="M${cx+headR-1},${headCY+2} Q${cx+headR+6},${headCY+20} ${cx+headR+4},${chinY+18}" stroke="${hair}" stroke-width="8" fill="none" stroke-linecap="round" opacity=".9"/>
-    <path d="M${cx-headR+3},${headCY+4} Q${cx-headR-4},${headCY+22} ${cx-headR-2},${chinY+20}" stroke="${shade(hair,8)}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".5"/>`);
-  }
-
-  // Tête (forme)
-  layers.push(`
-  <!-- Tête -->
-  <path d="M${cx-HW},${headCY} Q${cx-HW},${headCY+headR} ${cx-headR*0.5},${chinY} Q${cx},${chinY+2} ${cx+headR*0.5},${chinY} Q${cx+HW},${headCY+headR} ${cx+HW},${headCY} Q${cx+HW},${headCY-headR} ${cx},${headCY-headR*1.05} Q${cx-HW},${headCY-headR} ${cx-HW},${headCY}Z" fill="${skin}" stroke="${sk}" stroke-width=".7"/>`);
-
-  // Oreilles
-  layers.push(`
-  <ellipse cx="${cx-HW+1}" cy="${headCY+2}" rx="3" ry="4" fill="${skin}" stroke="${sk}" stroke-width=".5"/>
-  <ellipse cx="${cx+HW-1}" cy="${headCY+2}" rx="3" ry="4" fill="${skin}" stroke="${sk}" stroke-width=".5"/>`);
-
-  // Cheveux dessus
-  if (genre==='M') {
-    layers.push(`
-    <!-- Cheveux M court -->
-    <path d="M${cx-HW+1},${headCY-2} Q${cx-HW+2},${headCY-headR*1.1} ${cx},${headCY-headR*1.1} Q${cx+HW-2},${headCY-headR*1.1} ${cx+HW-1},${headCY-2}Z" fill="${hair}"/>
-    <ellipse cx="${cx}" cy="${headCY-headR*1.05}" rx="${HW-1}" ry="${headR*0.35}" fill="${hair}"/>`);
-  } else {
-    layers.push(`
-    <!-- Cheveux F haut -->
-    <path d="M${cx-HW+1},${headCY-2} Q${cx-HW},${headCY-headR*1.1} ${cx},${headCY-headR*1.12} Q${cx+HW},${headCY-headR*1.1} ${cx+HW-1},${headCY-2}Z" fill="${hair}"/>
-    <ellipse cx="${cx}" cy="${headCY-headR*1.05}" rx="${HW}" ry="${headR*0.42}" fill="${hair}"/>`);
-  }
-
-  // Sourcils
-  layers.push(`
-  <path d="M${cx-9},${headCY-5} Q${cx-6},${headCY-7} ${cx-2},${headCY-5.5}" stroke="${hair}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-  <path d="M${cx+2},${headCY-5.5} Q${cx+6},${headCY-7} ${cx+9},${headCY-5}" stroke="${hair}" stroke-width="1.4" fill="none" stroke-linecap="round"/>`);
-
-  // Yeux
-  layers.push(`
-  <!-- Yeux -->
-  <ellipse cx="${cx-5.5}" cy="${headCY-1.5}" rx="3.2" ry="2.5" fill="white"/>
-  <ellipse cx="${cx+5.5}" cy="${headCY-1.5}" rx="3.2" ry="2.5" fill="white"/>
-  <!-- Iris -->
-  <circle cx="${cx-5.5}" cy="${headCY-1.5}" r="1.8" fill="${shade(skin,-60)}"/>
-  <circle cx="${cx+5.5}" cy="${headCY-1.5}" r="1.8" fill="${shade(skin,-60)}"/>
-  <!-- Pupille -->
-  <circle cx="${cx-5.5}" cy="${headCY-1.5}" r=".8" fill="#0a0805"/>
-  <circle cx="${cx+5.5}" cy="${headCY-1.5}" r=".8" fill="#0a0805"/>
-  <!-- Reflet -->
-  <circle cx="${cx-4.8}" cy="${headCY-2.2}" r=".55" fill="rgba(255,255,255,.9)"/>
-  <circle cx="${cx+6.2}" cy="${headCY-2.2}" r=".55" fill="rgba(255,255,255,.9)"/>
-  <!-- Cils bas -->
-  <path d="M${cx-8},${headCY+.5} Q${cx-5.5},${headCY+1.5} ${cx-3},${headCY+.5}" stroke="${hair}" stroke-width=".7" fill="none" opacity=".5"/>
-  <path d="M${cx+3},${headCY+.5} Q${cx+5.5},${headCY+1.5} ${cx+8},${headCY+.5}" stroke="${hair}" stroke-width=".7" fill="none" opacity=".5"/>`);
-
-  // Nez
-  layers.push(`
-  <path d="M${cx},${headCY+3} L${cx-2.5},${headCY+8} Q${cx},${headCY+9.5} ${cx+2.5},${headCY+8}" stroke="${shade(skin,-25)}" stroke-width="1" fill="none" stroke-linecap="round"/>`);
-
-  // Bouche
-  layers.push(`
-  <path d="M${cx-4},${headCY+12} Q${cx},${headCY+15} ${cx+4},${headCY+12}" stroke="${shade(skin,-40)}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`);
-
-  // Joues légères
-  layers.push(`
-  <circle cx="${cx-8}" cy="${headCY+8}" r="4" fill="rgba(255,100,80,.08)"/>
-  <circle cx="${cx+8}" cy="${headCY+8}" r="4" fill="rgba(255,100,80,.08)"/>`);
-
-  return layers.join('');
-}
-
 // ════════════════════════════════════════════════════════
-//  OUTFIT DEFINITIONS
-// ════════════════════════════════════════════════════════
-const OUTFITS = {
-  costume_bleu:  {shirt:'#d0d8e8',jacket:'#1e3460',pants:'#1e3460',shoes:'#1a1a18',tie:'#8c1f1f',type:'costume'},
-  smart_kaki:    {shirt:'#eae0cc',jacket:null,     pants:'#7a7044',shoes:'#6a4c1e',tie:null,     type:'smart'},
-  costume_vert:  {shirt:'#f2ede0',jacket:'#2e4122',pants:'#2e4122',shoes:'#1a1a18',tie:'#c9973e',type:'costume'},
-  shirt_bold:    {shirt:'#8e1e26',jacket:null,     pants:'#1e3460',shoes:'#8a6320',tie:null,     type:'smart'},
-  casual_friday: {shirt:'#2c4c3e',jacket:null,     pants:'#4c4c40',shoes:'#8a6320',tie:null,     type:'casual'},
-  sc_navy:       {shirt:'#e8dec8',jacket:null,     pants:'#1e2d50',shoes:'#f0eeec',tie:null,     type:'casual'},
-  sc_gold:       {shirt:'#c9973e',jacket:null,     pants:'#2a2a70',shoes:'#4a4a48',tie:null,     type:'casual'},
-  sc_grey:       {shirt:'#e8e4d8',jacket:null,     pants:'#5c5c52',shoes:'#f0eeec',tie:null,     type:'casual'},
-  sc_terra:      {shirt:'#e05c2a',jacket:null,     pants:'#2a2a70',shoes:'#7a5a22',tie:null,     type:'casual'},
-  sc_sage:       {shirt:'#d8e0c8',jacket:null,     pants:'#4c5222',shoes:'#f0eeec',tie:null,     type:'casual'},
-};
-
-// ════════════════════════════════════════════════════════
-//  DATA
+//  BASES DE DONNÉES (Métiers, Niveaux, Budgets, Climats)
 // ════════════════════════════════════════════════════════
 const JOBS=[
-  {id:'finance',ico:'🏦',n:'Finance / Banque',   c:'STRICT — costume obligatoire'},
-  {id:'tech',   ico:'💻',n:'Tech / Startup',     c:'CASUAL — business casual ok'},
-  {id:'conseil',ico:'📊',n:'Consulting',          c:'SMART — smart formal flexible'},
-  {id:'sante',  ico:'🏥',n:'Santé',               c:'FONCTIONNEL — propre & mobile'},
-  {id:'educ',   ico:'🎓',n:'Enseignement',        c:'RESPECTABLE — accessible'},
-  {id:'droit',  ico:'⚖️',n:'Droit / Juridique',  c:'STRICT — formelle uniquement'},
-  {id:'comm',   ico:'📢',n:'Communication',       c:'CRÉATIF — expressif accepté'},
-  {id:'gouv',   ico:'🏛️',n:'Gouvernement',       c:'FORMEL — sobre & stricte'},
-  {id:'commerce',ico:'🛒',n:'Commerce',           c:'MOBILE — présentable'},
+  {id:'finance',ico:'🏦',n:'Finance / Banque',   c:'STRICT — code formel imposé', code:'strict'},
+  {id:'droit',  ico:'⚖️',n:'Droit / Juridique',  c:'STRICT — formelle uniquement', code:'strict'},
+  {id:'gouv',   ico:'🏛️',n:'Gouvernement',       c:'STRICT — sobre & officiel', code:'strict'},
+  {id:'conseil',ico:'📊',n:'Consulting',          c:'SMART — formel et smart', code:'smart'},
+  {id:'sante',  ico:'🏥',n:'Santé',               c:'SMART — fonctionnel propre', code:'smart'},
+  {id:'educ',   ico:'🎓',n:'Enseignement',        c:'SMART — respectable', code:'smart'},
+  {id:'tech',   ico:'💻',n:'Tech / Startup',     c:'CASUAL — créatif et casual', code:'casual'},
+  {id:'comm',   ico:'📢',n:'Communication',       c:'CASUAL — expressif accepté', code:'casual'},
+  {id:'commerce',ico:'🛒',n:'Commerce',           c:'CASUAL — décontracté mobile', code:'casual'},
 ];
 const HIER=[{i:'🌱',l:'Junior'},{i:'📈',l:'Manager'},{i:'💎',l:'Directeur'},{i:'👑',l:'C-Level'}];
 const BUDGETS=[{v:15000,a:'15K',t:'ESSENTIEL',tc:'tg'},{v:35000,a:'35K',t:'SMART',tc:'tg'},{v:75000,a:'75K',t:'PREMIUM',tc:'ta'},{v:150000,a:'150K+',t:'LUXE',tc:'ta'}];
 const CLIMATS=[
-  {id:'tropical', ico:'☀️',n:'Tropical Chaud',  c:'Abidjan · Dakar · Lomé · Accra'},
+  {id:'tropical', ico:'☀️',n:'Tropical Chaud',  c:'Abidjan · Dakar · Lomé'},
   {id:'semiaride',ico:'🌵',n:'Semi-Aride',       c:'Bamako · Niamey · Ouagadougou'},
   {id:'equatorial',ico:'🌧️',n:'Équatorial',     c:'Douala · Kinshasa · Libreville'},
   {id:'altitude', ico:'⛰️',n:'Altitude',         c:'Nairobi · Kigali · Addis-Abeba'},
 ];
 
-const WEEK_F = [
-  {day:'LUN',lbl:'Réunion stratégique',outfit:'costume_bleu',sc:94,cr:94,co:62,cpp:'3 200 FCFA',
-   pcs:[{c:'#1e3460',n:'Costume bleu nuit',r:false},{c:'#d0d8e8',n:'Chemise bleue pâle',r:false},{c:'#8c1f1f',n:'Cravate bordeaux',r:false},{c:'#1a1a18',n:'Derby noirs',r:false}],
-   tags:['HAUTE CRÉDIBILITÉ','FORMELLE']},
-  {day:'MAR',lbl:'Présentation client',outfit:'smart_kaki',sc:88,cr:88,co:72,cpp:'2 100 FCFA',
-   pcs:[{c:'#7a7044',n:'Pantalon kaki',r:false},{c:'#eae0cc',n:'Chemise écru',r:false},{c:'#6a4c1e',n:'Oxford camel',r:false}],
-   tags:['SMART','VARIATION']},
-  {day:'MER',lbl:'Mi-semaine',outfit:'costume_vert',sc:91,cr:91,co:68,cpp:'1 800 FCFA',
-   pcs:[{c:'#2e4122',n:'Costume vert kaki',r:false},{c:'#f2ede0',n:'Chemise blanche',r:true},{c:'#c9973e',n:'Cravate dorée',r:false},{c:'#1a1a18',n:'Derby noirs',r:true}],
-   tags:['RÉUTILISATION','ÉCONOMIQUE']},
-  {day:'JEU',lbl:'Leadership',outfit:'shirt_bold',sc:85,cr:85,co:76,cpp:'2 500 FCFA',
-   pcs:[{c:'#1e3460',n:'Pantalon costume',r:true},{c:'#8e1e26',n:'Chemise bordeaux',r:false},{c:'#8a6320',n:'Mocassins camel',r:false}],
-   tags:['BOLD','AUTORITÉ']},
-  {day:'VEN',lbl:'Casual Friday',outfit:'casual_friday',sc:89,cr:89,co:88,cpp:'1 600 FCFA',
-   pcs:[{c:'#4c4c40',n:'Chino gris foncé',r:false},{c:'#2c4c3e',n:'Polo vert forêt',r:false},{c:'#8a6320',n:'Mocassins camel',r:true}],
-   tags:['CASUAL SMART','BIEN-ÊTRE']},
-];
-const WEEK_C = [
-  {day:'LUN',lbl:'Launch semaine',outfit:'sc_navy',sc:86,cr:86,co:84,cpp:'1 900 FCFA',
-   pcs:[{c:'#1e2d50',n:'Chino marine',r:false},{c:'#e8dec8',n:'Chemise oversize',r:false},{c:'#f0eeec',n:'Sneakers blanches',r:false}],
-   tags:['BUSINESS CASUAL','MODERNE']},
-  {day:'MAR',lbl:'Focus créatif',outfit:'sc_gold',sc:82,cr:82,co:88,cpp:'1 700 FCFA',
-   pcs:[{c:'#2a2a70',n:'Jean indigo',r:false},{c:'#c9973e',n:'Polo oxford doré',r:false},{c:'#4a4a48',n:'Derby brun',r:false}],
-   tags:['SMART','DYNAMIQUE']},
-  {day:'MER',lbl:'Mi-semaine',outfit:'sc_grey',sc:84,cr:84,co:88,cpp:'1 200 FCFA',
-   pcs:[{c:'#5c5c52',n:'Chino gris',r:true},{c:'#e8e4d8',n:'T-shirt premium',r:false},{c:'#f0eeec',n:'Sneakers blanches',r:true}],
-   tags:['RÉUTILISATION','MINIMAL']},
-  {day:'JEU',lbl:'Confiance',outfit:'sc_terra',sc:80,cr:80,co:90,cpp:'1 500 FCFA',
-   pcs:[{c:'#2a2a70',n:'Jean indigo',r:true},{c:'#e05c2a',n:'Shirt terracotta',r:false},{c:'#7a5a22',n:'Loafers camel',r:false}],
-   tags:['EXPRESSION','CONFIANCE']},
-  {day:'VEN',lbl:'Vendredi libre',outfit:'sc_sage',sc:78,cr:78,co:94,cpp:'900 FCFA',
-   pcs:[{c:'#4c5222',n:'Short chino kaki',r:false},{c:'#d8e0c8',n:'Linen shirt sage',r:false},{c:'#f0eeec',n:'Sneakers blanches',r:true}],
-   tags:['DÉCONTRACTÉ','CONFORT']},
-];
-const WARDROBE=[
-  {id:1,ico:'👔',n:'Costume Bleu Nuit',cat:'haut',cpp:'3 200',uses:15},
-  {id:2,ico:'🥼',n:'Pantalon Kaki',cat:'bas',cpp:'1 800',uses:22},
-  {id:3,ico:'👕',n:'Chemise Blanche',cat:'haut',cpp:'900',uses:40},
-  {id:4,ico:'👞',n:'Derby Noirs',cat:'chaussures',cpp:'1 100',uses:18},
-  {id:5,ico:'🥼',n:'Costume Vert Kaki',cat:'haut',cpp:'2 500',uses:12},
-  {id:6,ico:'🩴',n:'Mocassins Camel',cat:'chaussures',cpp:'800',uses:24},
-  {id:7,ico:'👕',n:'Chemise Bordeaux',cat:'haut',cpp:'1 200',uses:8},
-  {id:8,ico:'👕',n:'Polo Oxford',cat:'haut',cpp:'700',uses:30},
-  {id:9,ico:'👖',n:'Chino Gris',cat:'bas',cpp:'1 000',uses:20},
-  {id:10,ico:'👟',n:'Sneakers Blanches',cat:'chaussures',cpp:'600',uses:28},
-  {id:11,ico:'👖',n:'Jean Indigo',cat:'bas',cpp:'950',uses:25},
-  {id:12,ico:'👞',n:'Derby Brun',cat:'chaussures',cpp:'1 400',uses:14},
-];
-const CAREER=[
-  {l:'Stagiaire',ico:'🌱',outfit:'sc_navy', style:'Propre & accessible',  desc:'3 pièces capsule. Chemise simple, chino, chaussures de ville propres. Budget ≤ 15K/mois.'},
-  {l:'Junior',   ico:'📈',outfit:'smart_kaki',style:'Smart casual maîtrisé',desc:'Introduction du costume. 1 blazer minimum. Chemises variées. Budget 25–40K/mois.'},
-  {l:'Manager',  ico:'⭐',outfit:'costume_bleu',style:'Formelle assumée',   desc:'Costume adapté obligatoire. Accessoires soignés. Signal d\'ascension claire.'},
-  {l:'Directeur',ico:'💎',outfit:'costume_vert',style:'Authority dressing', desc:'Costumes premium, matières nobles. Cohérence totale. Signal de pouvoir conscient.'},
-  {l:'C-Level',  ico:'👑',outfit:'shirt_bold', style:'Signature personnelle',desc:'Style affirmé et distinctif. Dashiki premium en contexte africain. Au-dessus des codes.'},
-];
+// ════════════════════════════════════════════════════════
+//  MOTEUR PROCÉDURAL (Palettes drastiquement étendues)
+// ════════════════════════════════════════════════════════
+const PALETTES = {
+  formal_dark: ['#1e293b', '#0f172a', '#171717', '#27272a', '#1c1917', '#111827', '#3f3f46', '#2d3748', '#1a202c', '#2c3e50', '#34495e'],
+  formal_light: ['#cbd5e1', '#e2e8f0', '#e5e7eb', '#d6d3d1', '#f3f4f6', '#f8fafc', '#ecf0f1', '#bdc3c7', '#95a5a6'],
+  smart: ['#7f1d1d', '#14532d', '#451a03', '#3f6212', '#831843', '#1e3a8a', '#2c3e50', '#8e44ad', '#2980b9', '#27ae60', '#16a085', '#d35400', '#c0392b', '#34495e'],
+  casual: ['#ea580c', '#0284c7', '#d97706', '#65a30d', '#0d9488', '#9333ea', '#f39c12', '#e67e22', '#e74c3c', '#3498db', '#9b59b6', '#1abc9c', '#f1c40f'],
+  shirts: ['#ffffff', '#f8fafc', '#fdf8f6', '#f0f9ff', '#fefce8', '#e0f7fa', '#fce4ec', '#f3e5f5', '#fff8e1', '#e8f5e9'],
+  pants_c: ['#1e1b4b', '#171717', '#3f3f46', '#e7e5e4', '#d6d3d1', '#78716c', '#2c3e50', '#7f8c8d', '#95a5a6'],
+  shoes_f: ['#1a1a18', '#3b2818', '#451a03', '#171717', '#2c1e16', '#4a2311'],
+  shoes_c: ['#ffffff', '#f8fafc', '#f3f4f6', '#1a1a18', '#e5e7eb', '#d1d5db']
+};
+
+function generateUniqueOutfit(S, type, temp, dayIndex) {
+  const isHot = temp === 'hot';
+  let o = { id: `gen_${dayIndex}_${Date.now()}_${Math.random()}`, g: S.genre, type: type, short: isHot };
+  let rnd = (arr) => arr[Math.floor(Math.random()*arr.length)]; 
+  
+  // 1. DÉFINITION DES PIÈCES (Structure) : Ajout massif de "Blazer" (Dépareillé)
+  if (S.genre === 'M') {
+      if (type === 'formal') { o.tType = Math.random()>0.3 ? 'suit' : 'blazer'; o.bType = 'pants'; o.sType = 'derby'; o.short = false; }
+      else if (type === 'smart') { o.tType = isHot && Math.random()>0.5 ? 'polo' : (Math.random()>0.4 ? 'shirt' : 'blazer'); o.bType = 'pants'; o.sType = 'derby'; o.short = isHot && o.tType !== 'blazer'; }
+      else { o.tType = isHot ? 'polo' : 'shirt'; o.bType = 'pants'; o.sType = 'sneakers'; o.short = isHot; }
+  } else {
+      if (type === 'formal') {
+          o.tType = Math.random()>0.3 ? 'suit' : (Math.random()>0.5 ? 'dress' : 'blazer');
+          o.bType = o.tType==='suit' ? (Math.random()>0.5?'skirt':'pants') : (o.tType==='dress'?'dress':'pants');
+          o.sType = 'heels'; o.short = isHot && o.tType==='dress';
+      } else if (type === 'smart') {
+          o.tType = Math.random()>0.4 ? 'blouse' : (Math.random()>0.5 ? 'dress' : 'blazer');
+          o.bType = o.tType==='dress' ? 'dress' : (Math.random()>0.5?'skirt':'pants');
+          o.sType = Math.random()>0.5 ? 'heels' : 'flats'; o.short = isHot && o.tType !== 'blazer';
+      } else {
+          o.tType = Math.random()>0.5 ? 'blouse' : 'polo';
+          o.bType = Math.random()>0.5 ? 'pants' : 'skirt';
+          o.sType = 'sneakers'; o.short = isHot;
+      }
+  }
+
+  // 2. PALETTES DE COULEURS SELON TYPE
+  let mainColors = type === 'formal' ? (isHot ? [...PALETTES.formal_dark, ...PALETTES.formal_light] : PALETTES.formal_dark) : 
+                   type === 'smart' ? [...PALETTES.formal_dark, ...PALETTES.smart] : 
+                   [...PALETTES.smart, ...PALETTES.casual, ...PALETTES.formal_dark];
+  let bottomColors = type === 'casual' ? PALETTES.pants_c : mainColors;
+
+  // 3. COLORATION (Génération procédurale pure)
+  if (o.tType === 'suit') {
+      o.jacket = rnd(mainColors); o.pants = o.jacket; o.shirt = rnd(PALETTES.shirts);
+      if (S.genre === 'M') o.tie = rnd(PALETTES.smart);
+  } else if (o.tType === 'blazer') {
+      // Dépareillé ! Multiplie les combinaisons par 100
+      o.jacket = rnd(mainColors);
+      o.pants = rnd(bottomColors.filter(c => c !== o.jacket && c !== shade(o.jacket, -10))); 
+      if (!o.pants) o.pants = '#171717';
+      o.shirt = rnd(PALETTES.shirts);
+  } else if (o.tType === 'dress') {
+      o.shirt = rnd(mainColors); o.pants = o.shirt; 
+  } else {
+      o.shirt = rnd(type === 'casual' ? [...mainColors, ...PALETTES.shirts] : (type === 'smart' && S.genre === 'M' ? PALETTES.shirts : mainColors));
+      o.pants = rnd(bottomColors);
+      if (o.shirt === o.pants) o.pants = '#171717'; 
+  }
+  
+  o.shoes = o.sType === 'sneakers' ? rnd(PALETTES.shoes_c) : rnd(PALETTES.shoes_f);
+
+  // 4. RÉGLES D'ADAPTATION (Styliste IA)
+  if (S.morpho === 'O' && o.tType !== 'blazer') { o.shirt = shade(o.pants, -30); if (o.tType === 'suit') o.jacket = o.pants; } 
+  else if (S.morpho === 'A' && o.tType !== 'dress' && o.tType !== 'suit') { o.shirt = rnd(PALETTES.shirts); o.pants = rnd(PALETTES.formal_dark); } 
+  else if (S.morpho === 'V' && o.tType !== 'dress' && o.tType !== 'suit') { o.shirt = rnd(PALETTES.formal_dark); o.pants = rnd(PALETTES.formal_light); }
+  
+  if (S.hier >= 2 && (o.tType === 'suit' || o.tType === 'dress')) {
+      o.jacket = shade(o.jacket, -20); o.pants = shade(o.pants, -20); o.shirt = shade(o.shirt, -5);
+  }
+
+  // 5. GÉNÉRATION SÉMANTIQUE (Noms)
+  let n = "";
+  if (o.tType === 'suit') n = (S.genre==='M'?'Costume ':'Tailleur ') + (o.bType==='skirt'?'Jupe ':'') + (S.hier>=2?'Couture':'Structuré');
+  else if (o.tType === 'blazer') n = (S.genre==='M'?'Blazer Dépareillé':'Veste Dépareillée');
+  else if (o.tType === 'dress') n = 'Robe ' + (type==='formal'?'Couture':(type==='smart'?'Midi':'Fluide'));
+  else if (o.tType === 'blouse') n = 'Chemisier & ' + (o.bType==='skirt'?'Jupe':'Pantalon');
+  else if (o.tType === 'shirt') n = 'Chemise & ' + (type==='casual'?'Jean/Chino':'Pantalon Tailleur');
+  else if (o.tType === 'polo') n = 'Polo & ' + (o.bType==='skirt'?'Jupe':'Chino');
+  
+  if (S.budget >= 150000) n = 'Premium ' + n;
+  if (isHot) n += ' (Léger)';
+
+  o.n = n;
+  return o;
+}
+
+// ════════════════════════════════════════════════════════
+//  AVATAR ENGINE (SVG Fashion Sketch)
+// ════════════════════════════════════════════════════════
+const MORPH = { V:{sw:1.20,hw:0.85,tw:0.95}, A:{sw:0.85,hw:1.25,tw:1.00}, H:{sw:1.00,hw:1.00,tw:1.05}, X:{sw:1.05,hw:1.05,tw:0.75}, O:{sw:1.00,hw:1.00,tw:1.25} };
+
+function buildAvatar(morpho, skinId, outfitObj, genre='M', pxH=180) {
+  const m = MORPH[morpho] || MORPH.H;
+  const VW = 120, VH = 200;
+  const cx = VW / 2;
+  const u = 22; 
+
+  const y = { top:0.5*u, eye:1.1*u, chin:1.6*u, neckBase:1.9*u, shoulder:2.1*u, chest:3.0*u, waist:3.8*u, hip:4.8*u, crotch:5.1*u, knee:6.8*u, ankle:8.4*u, floor:8.8*u };
+  let bSw = genre === 'M' ? 1.7 * u : 1.35 * u;
+  let bTw = genre === 'M' ? 1.3 * u : 1.0 * u;
+  let bHw = genre === 'M' ? 1.35 * u : 1.5 * u;
+
+  const w = { head:0.75*u, neck:genre==='M'?0.45*u:0.35*u, shoulder:bSw*m.sw, chest:((bSw*m.sw)+(bTw*m.tw))*0.5, waist:bTw*m.tw, hip:bHw*m.hw, arm:genre==='M'?0.35*u:0.28*u, legUp:genre==='M'?0.55*u:0.5*u, legDown:0.3*u };
+  if (genre === 'F') { w.chest *= 1.05; w.waist *= 0.85; }
+
+  const skin = skinHex(skinId); const sk = shade(skin, -20); const hair = HAIR_C[skinId] || '#1a0c04'; const o = outfitObj;
+
+  let layers = [];
+  layers.push(buildExactLegsShoes(o, cx, y, w, skin));
+  layers.push(buildExactTorso(o, cx, y, w, skin, genre));
+  layers.push(buildExactArms(o, cx, y, w, skin, genre));
+  layers.push(buildFashionHead(skin, sk, hair, cx, y, w, genre)); 
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VW} ${VH}" width="${Math.round(pxH * (VW/VH))}" height="${pxH}">${layers.join('')}</svg>`;
+}
+
+function buildExactTorso(o, cx, y, w, skin, genre) {
+  const pc = o.shirt; const sc = shade(pc, -15);
+  const jc = o.jacket; const jsc = shade(jc, -20);
+  const hasJacket = o.tType === 'suit' || o.tType === 'blazer';
+  const isDress = o.tType === 'dress';
+
+  let out = `<rect x="${cx - w.neck/2}" y="${y.chin}" width="${w.neck}" height="${y.neckBase - y.chin + 2}" fill="${skin}"/>`;
+
+  const ox = hasJacket ? 4 : (isDress ? 1 : 2); 
+  const sW = w.shoulder/2 + ox; const cW = w.chest/2 + ox; const tW = w.waist/2 + (hasJacket ? ox+2 : ox); const hW = w.hip/2 + ox;
+
+  const bodyPath = `M ${cx},${y.neckBase} L ${cx - w.neck/2 - 1},${y.neckBase} C ${cx - sW*0.6},${y.neckBase} ${cx - sW},${y.shoulder-2} ${cx - sW},${y.shoulder} C ${cx - cW},${y.chest} ${cx - tW},${y.waist-5} ${cx - tW},${y.waist} C ${cx - tW},${y.waist+5} ${cx - hW},${y.hip-5} ${cx - hW},${y.hip} L ${cx + hW},${y.hip} C ${cx + hW},${y.hip-5} ${cx + tW},${y.waist+5} ${cx + tW},${y.waist} C ${cx + tW},${y.waist-5} ${cx + cW},${y.chest} ${cx + sW},${y.shoulder} C ${cx + sW},${y.shoulder-2} ${cx + sW*0.6},${y.neckBase} ${cx + w.neck/2 + 1},${y.neckBase} Z`;
+  out += `<path d="${bodyPath}" fill="${pc}" stroke="${sc}" stroke-width="0.5"/>`;
+
+  if (hasJacket || o.tType === 'shirt') {
+     out += `<path d="M ${cx - w.neck/2},${y.neckBase} L ${cx - w.neck/2 - 5},${y.neckBase + 6} L ${cx},${y.neckBase + 10} L ${cx + w.neck/2 + 5},${y.neckBase + 6} L ${cx + w.neck/2},${y.neckBase} Z" fill="${shade(pc,-5)}"/>`;
+     if(o.tie) out += `<path d="M ${cx-2},${y.neckBase+8} L ${cx-3.5},${y.waist} L ${cx},${y.waist+5} L ${cx+3.5},${y.waist} L ${cx+2},${y.neckBase+8} Z" fill="${o.tie}"/>`;
+  }
+
+  if (hasJacket) {
+     const jBody = `M ${cx - sW},${y.shoulder} C ${cx - cW - 2},${y.chest} ${cx - tW - 2},${y.waist} ${cx - tW - 2},${y.waist} C ${cx - tW - 2},${y.waist+10} ${cx - hW - 2},${y.crotch} ${cx - hW - 2},${y.crotch+5} L ${cx - 5},${y.crotch+5} L ${cx - 6},${y.waist+15} L ${cx - w.neck/2 - 2},${y.neckBase+4} L ${cx - sW*0.5},${y.neckBase-2} Z`;
+     const jBodyR = `M ${cx + sW},${y.shoulder} C ${cx + cW + 2},${y.chest} ${cx + tW + 2},${y.waist} ${cx + tW + 2},${y.waist} C ${cx + tW + 2},${y.waist+10} ${cx + hW + 2},${y.crotch} ${cx + hW + 2},${y.crotch+5} L ${cx + 5},${y.crotch+5} L ${cx + 6},${y.waist+15} L ${cx + w.neck/2 + 2},${y.neckBase+4} L ${cx + sW*0.5},${y.neckBase-2} Z`;
+     out += `<path d="${jBody}" fill="${jc}" stroke="${jsc}" stroke-width="0.5"/>`;
+     out += `<path d="${jBodyR}" fill="${jc}" stroke="${jsc}" stroke-width="0.5"/>`;
+     out += `<path d="M ${cx - w.neck/2 - 2},${y.neckBase+4} L ${cx - 12},${y.chest} L ${cx - 6},${y.waist+15} L ${cx - 5},${y.chest+5} Z" fill="${shade(jc, -15)}"/>`;
+     out += `<path d="M ${cx + w.neck/2 + 2},${y.neckBase+4} L ${cx + 12},${y.chest} L ${cx + 6},${y.waist+15} L ${cx + 5},${y.chest+5} Z" fill="${shade(jc, -15)}"/>`;
+  }
+
+  if (genre === 'F' && !hasJacket) {
+     out += `<path d="M ${cx - cW + 4},${y.chest+4} Q ${cx - cW/2},${y.chest+12} ${cx},${y.chest+6}" stroke="${sc}" stroke-width="0.6" fill="none" opacity="0.4"/>`;
+     out += `<path d="M ${cx + cW - 4},${y.chest+4} Q ${cx + cW/2},${y.chest+12} ${cx},${y.chest+6}" stroke="${sc}" stroke-width="0.6" fill="none" opacity="0.4"/>`;
+  }
+  return out;
+}
+
+function buildExactArms(o, cx, y, w, skin, genre) {
+  const hasJacket = o.tType === 'suit' || o.tType === 'blazer';
+  const armC = hasJacket ? o.jacket : o.shirt;
+  const armSk = shade(armC,-18);
+  const sW = w.shoulder/2 + (hasJacket ? 4 : 2);
+  const elbowY = y.waist; const wristY = y.crotch + 5; const armW = w.arm;
+
+  let out = "";
+  if (o.short) {
+      const sleeveY = y.chest + 10;
+      out += `<path d="M ${cx - sW + 2},${y.shoulder} Q ${cx - sW - armW/2},${y.chest} ${cx - sW - armW/2},${sleeveY} L ${cx - sW + armW},${sleeveY} Z" fill="${armC}" stroke="${armSk}" stroke-width="0.6"/>`;
+      out += `<path d="M ${cx + sW - 2},${y.shoulder} Q ${cx + sW + armW/2},${y.chest} ${cx + sW + armW/2},${sleeveY} L ${cx + sW - armW},${sleeveY} Z" fill="${armC}" stroke="${armSk}" stroke-width="0.6"/>`;
+      out += `<path d="M ${cx - sW - armW/2},${sleeveY} Q ${cx - sW - armW},${elbowY} ${cx - sW - armW + 2},${wristY} L ${cx - sW + 2},${wristY} Q ${cx - sW},${elbowY} ${cx - sW + armW - 2},${sleeveY} Z" fill="${skin}"/>`;
+      out += `<path d="M ${cx + sW + armW/2},${sleeveY} Q ${cx + sW + armW},${elbowY} ${cx + sW + armW - 2},${wristY} L ${cx + sW - 2},${wristY} Q ${cx + sW},${elbowY} ${cx + sW - armW + 2},${sleeveY} Z" fill="${skin}"/>`;
+  } else {
+      out += `<path d="M ${cx - sW + 2},${y.shoulder} Q ${cx - sW - armW},${elbowY} ${cx - sW - armW + 2},${wristY} L ${cx - sW + 2},${wristY} Q ${cx - sW + 2},${elbowY} ${cx - sW + armW},${y.chest} Z" fill="${armC}" stroke="${armSk}" stroke-width="0.6"/>`;
+      out += `<path d="M ${cx + sW - 2},${y.shoulder} Q ${cx + sW + armW},${elbowY} ${cx + sW + armW - 2},${wristY} L ${cx + sW - 2},${wristY} Q ${cx + sW - 2},${elbowY} ${cx + sW - armW},${y.chest} Z" fill="${armC}" stroke="${armSk}" stroke-width="0.6"/>`;
+  }
+  out += `<ellipse cx="${cx - sW - armW/2 + 2}" cy="${wristY + 6}" rx="4" ry="6" fill="${skin}"/>`;
+  out += `<ellipse cx="${cx + sW + armW/2 - 2}" cy="${wristY + 6}" rx="4" ry="6" fill="${skin}"/>`;
+  return out;
+}
+
+function buildExactLegsShoes(o, cx, y, w, skin) {
+  const isSkirt = o.bType === 'skirt' || o.bType === 'dress';
+  const pC = o.bType === 'dress' ? o.shirt : o.pants; const pSk = shade(pC, -20);
+  const hW = w.hip/2 + 2; const ankW = w.legDown; let out = "";
+
+  if (isSkirt) {
+     out += `<path d="M ${cx - 4},${y.crotch} L ${cx - ankW},${y.ankle} L ${cx - 2},${y.ankle} Z" fill="${shade(skin, -10)}"/>`;
+     out += `<path d="M ${cx + 4},${y.crotch} L ${cx + ankW},${y.ankle} L ${cx + 2},${y.ankle} Z" fill="${shade(skin, -10)}"/>`;
+     const skirtY = y.knee + 10; const skirtW = hW + 10;
+     out += `<path d="M ${cx - hW},${y.hip - 5} C ${cx - skirtW},${y.crotch} ${cx - skirtW},${y.knee} ${cx - skirtW - 5},${skirtY} Q ${cx},${skirtY + 8} ${cx + skirtW + 5},${skirtY} C ${cx + skirtW},${y.knee} ${cx + skirtW},${y.crotch} ${cx + hW},${y.hip - 5} Z" fill="${pC}" stroke="${pSk}" stroke-width="0.5"/>`;
+     out += `<path d="M ${cx - 5},${y.hip} L ${cx - 8},${skirtY + 2} M ${cx + 5},${y.hip} L ${cx + 8},${skirtY + 2}" stroke="${pSk}" stroke-width="0.6" opacity="0.4"/>`;
+  } else {
+     out += `<path d="M ${cx - hW},${y.hip - 5} C ${cx - hW - 2},${y.crotch} ${cx - ankW - 4},${y.knee} ${cx - ankW - 6},${y.ankle+2} L ${cx - 2},${y.ankle+2} L ${cx},${y.crotch} Z" fill="${pC}" stroke="${pSk}" stroke-width="0.5"/>`;
+     out += `<path d="M ${cx + hW},${y.hip - 5} C ${cx + hW + 2},${y.crotch} ${cx + ankW + 4},${y.knee} ${cx + ankW + 6},${y.ankle+2} L ${cx + 2},${y.ankle+2} L ${cx},${y.crotch} Z" fill="${pC}" stroke="${pSk}" stroke-width="0.5"/>`;
+     out += `<path d="M ${cx - ankW/2 - 2},${y.crotch+15} L ${cx - ankW/2 - 4},${y.ankle} M ${cx + ankW/2 + 2},${y.crotch+15} L ${cx + ankW/2 + 4},${y.ankle}" stroke="${pSk}" stroke-width="0.6" opacity="0.4"/>`;
+  }
+
+  const sC = o.shoes; const sSk = shade(sC, -20);
+  const fL = cx - ankW - 6, fLw = ankW + 8; const fR = cx + 2, fRw = ankW + 8;
+
+  if (o.sType === 'heels') {
+     out += `<path d="M ${fL},${y.ankle} Q ${fL - 5},${y.floor} ${fL + fLw - 5},${y.floor} L ${fL + fLw - 2},${y.ankle+5} Z" fill="${sC}" stroke="${sSk}"/><rect x="${fL + fLw - 4}" y="${y.ankle+5}" width="2.5" height="12" fill="${sC}" rx="1"/>`;
+     out += `<path d="M ${fR},${y.ankle+5} Q ${fR + 5},${y.floor} ${fR + fRw + 5},${y.floor} L ${fR + fRw},${y.ankle} Z" fill="${sC}" stroke="${sSk}"/><rect x="${fR + 1}" y="${y.ankle+5}" width="2.5" height="12" fill="${sC}" rx="1"/>`;
+  } else if (o.sType === 'flats') {
+     out += `<path d="M ${fL},${y.ankle} C ${fL - 4},${y.floor+2} ${fL + fLw},${y.floor+2} ${fL + fLw},${y.ankle+2} Q ${fL + fLw/2},${y.ankle+6} ${fL},${y.ankle} Z" fill="${sC}" stroke="${sSk}"/>`;
+     out += `<path d="M ${fR},${y.ankle+2} C ${fR},${y.floor+2} ${fR + fRw + 4},${y.floor+2} ${fR + fRw},${y.ankle} Q ${fR + fRw/2},${y.ankle+6} ${fR},${y.ankle+2} Z" fill="${sC}" stroke="${sSk}"/>`;
+  } else {
+     out += `<path d="M ${fL - 2},${y.ankle} C ${fL - 6},${y.floor} ${fL + fLw},${y.floor} ${fL + fLw},${y.ankle} Z" fill="${sC}" stroke="${sSk}"/>`;
+     out += `<path d="M ${fR},${y.ankle} C ${fR},${y.floor} ${fR + fRw + 6},${y.floor} ${fR + fRw + 2},${y.ankle} Z" fill="${sC}" stroke="${sSk}"/>`;
+     if (o.sType === 'sneakers') {
+        out += `<path d="M ${fL - 4},${y.floor - 3} L ${fL + fLw - 1},${y.floor - 3}" stroke="#ffffff" stroke-width="2.5" opacity="0.8"/>`;
+        out += `<path d="M ${fR + 1},${y.floor - 3} L ${fR + fRw + 4},${y.floor - 3}" stroke="#ffffff" stroke-width="2.5" opacity="0.8"/>`;
+     }
+  }
+  return out;
+}
+
+function buildFashionHead(skin, sk, hair, cx, y, w, genre) {
+  const fW = w.head / 2; const hH = y.chin - y.top; const eyeY = y.top + hH * 0.45; const noseY = y.top + hH * 0.68; const mouthY = y.top + hH * 0.82; let out = "";
+  if (genre === 'F') out += `<path d="M ${cx - fW - 2},${y.top + 5} L ${cx - fW - 8},${y.shoulder + 5} Q ${cx},${y.shoulder + 15} ${cx + fW + 8},${y.shoulder + 5} L ${cx + fW + 2},${y.top + 5} Z" fill="${hair}"/>`;
+  out += `<path d="M ${cx - fW},${eyeY} Q ${cx - fW},${y.chin} ${cx},${y.chin} Q ${cx + fW},${y.chin} ${cx + fW},${eyeY} L ${cx + fW},${y.top} Q ${cx},${y.top - 5} ${cx - fW},${y.top} Z" fill="${skin}" stroke="${sk}" stroke-width="0.5"/>`;
+  out += `<path d="M ${cx-fW},${eyeY} C ${cx-fW-3},${eyeY} ${cx-fW-3},${eyeY+6} ${cx-fW},${eyeY+6} Z" fill="${shade(skin, -10)}"/>`;
+  out += `<path d="M ${cx+fW},${eyeY} C ${cx+fW+3},${eyeY} ${cx+fW+3},${eyeY+6} ${cx+fW},${eyeY+6} Z" fill="${shade(skin, -10)}"/>`;
+  if (genre === 'M') { out += `<path d="M ${cx - fW},${eyeY - 4} C ${cx - fW - 2},${y.top - 8} ${cx + fW + 2},${y.top - 8} ${cx + fW},${eyeY - 4} Q ${cx},${y.top} ${cx - fW},${eyeY - 4} Z" fill="${hair}"/>`; } 
+  else { out += `<path d="M ${cx - fW - 1},${eyeY} Q ${cx - fW - 2},${y.top - 4} ${cx},${y.top - 2} Q ${cx + fW + 2},${y.top - 4} ${cx + fW + 1},${eyeY} Q ${cx + fW/2},${y.top + 4} ${cx},${y.top + 2} Q ${cx - fW/2},${y.top + 4} ${cx - fW - 1},${eyeY} Z" fill="${hair}"/>`; }
+  const eyeDist = fW * 0.45; const eyeW = fW * 0.38;    
+  out += `<line x1="${cx - eyeDist - eyeW/2}" y1="${eyeY - 4}" x2="${cx - eyeDist + eyeW/2}" y2="${eyeY - 4}" stroke="${hair}" stroke-width="${genre==='F'?1:1.5}" stroke-linecap="round"/>`;
+  out += `<line x1="${cx + eyeDist - eyeW/2}" y1="${eyeY - 4}" x2="${cx + eyeDist + eyeW/2}" y2="${eyeY - 4}" stroke="${hair}" stroke-width="${genre==='F'?1:1.5}" stroke-linecap="round"/>`;
+  out += `<line x1="${cx - eyeDist - eyeW/2}" y1="${eyeY}" x2="${cx - eyeDist + eyeW/2}" y2="${eyeY}" stroke="${sk}" stroke-width="1.2" stroke-linecap="round"/>`;
+  out += `<line x1="${cx + eyeDist - eyeW/2}" y1="${eyeY}" x2="${cx + eyeDist + eyeW/2}" y2="${eyeY}" stroke="${sk}" stroke-width="1.2" stroke-linecap="round"/>`;
+  out += `<polyline points="${cx},${eyeY+2} ${cx},${noseY} ${cx + 1.5},${noseY}" fill="none" stroke="${shade(skin, -25)}" stroke-width="0.8" stroke-linejoin="round"/>`;
+  out += `<path d="M ${cx - 3.5},${mouthY} Q ${cx},${mouthY + 1.5} ${cx + 3.5},${mouthY}" stroke="${genre === 'F' ? '#c95a4a' : shade(skin, -30)}" stroke-width="${genre === 'F' ? '1.5' : '1'}" fill="none" stroke-linecap="round"/>`;
+  return out;
+}
+
+// ════════════════════════════════════════════════════════
+//  DYNAMIC GENERATOR (Semaine et Garde-Robe Unifiée)
+// ════════════════════════════════════════════════════════
+function generateDays(numDays = 5, isAppending = false) {
+  const job = JOBS.find(j => j.id === S.prof) || JOBS[0];
+  const temp = ['tropical', 'equatorial', 'semiaride'].includes(S.climat) ? 'hot' : 'cold';
+  const bMult = S.budget ? Math.max(0.4, S.budget / 35000) : 1;
+  
+  let weekStructure = [];
+  if (job.code === 'strict') { weekStructure = S.hier >= 2 ? ['formal', 'formal', 'formal', 'formal', 'smart'] : ['formal', 'formal', 'smart', 'formal', 'smart']; } 
+  else if (job.code === 'smart') { weekStructure = S.hier >= 2 ? ['formal', 'smart', 'smart', 'formal', 'smart'] : ['smart', 'smart', 'smart', 'smart', 'casual']; } 
+  else { weekStructure = S.hier >= 2 ? ['smart', 'casual', 'smart', 'smart', 'casual'] : ['casual', 'casual', 'casual', 'casual', 'casual']; }
+
+  const days = ['LUN', 'MAR', 'MER', 'JEU', 'VEN'];
+  
+  if (!isAppending) { GENERATED_WEEK = []; WARDROBE_EXTRACT = []; weekOffset = 0; }
+  let wid = WARDROBE_EXTRACT.length + 1;
+
+  for (let i=0; i<numDays; i++) {
+    const dayOfWeek = i % 5;
+    const currentWeekNum = Math.floor((GENERATED_WEEK.length) / 5) + 1;
+    const targetType = weekStructure[dayOfWeek];
+    
+    const o = generateUniqueOutfit(S, targetType, temp, GENERATED_WEEK.length);
+    
+    const pMain = Math.floor((Math.random() * 6000 + 4000) * bMult / 500) * 500;
+    const pAcc  = Math.floor((Math.random() * 2500 + 1500) * bMult / 500) * 500;
+    const pShoe = Math.floor((Math.random() * 5000 + 3500) * bMult / 500) * 500;
+
+    const pieces = [];
+    
+    // Le secret de la non-répétition : la CLÉ UNIQUE basée sur la couleur hexadécimale !
+    if (o.tType === 'suit') {
+      pieces.push({c:o.jacket, idKey:`v_${o.jacket}`, n:`Veste ${o.n.split(' ')[1]||''}`, p: pMain});
+      pieces.push({c:o.pants, idKey:`p_${o.pants}`, n:o.bType==='skirt'?'Jupe tailleur':'Pantalon tailleur', p: pMain});
+      pieces.push({c:o.shirt, idKey:`c_${o.shirt}`, n:'Chemise/Blouse', p: pAcc});
+    } else if (o.tType === 'blazer') {
+      pieces.push({c:o.jacket, idKey:`b_${o.jacket}`, n:`Blazer Dépareillé`, p: pMain});
+      pieces.push({c:o.pants, idKey:`p_${o.pants}`, n:o.bType==='skirt'?'Jupe':'Pantalon/Chino', p: pMain});
+      pieces.push({c:o.shirt, idKey:`c_${o.shirt}`, n:'Chemise/Blouse', p: pAcc});
+    } else if (o.tType === 'dress') {
+      pieces.push({c:o.shirt, idKey:`r_${o.shirt}`, n:o.n, p: pMain * 2});
+    } else {
+      pieces.push({c:o.shirt, idKey:`h_${o.shirt}`, n:o.tType==='blouse'?'Blouse fluide':o.tType==='polo'?'Polo':'Chemise', p: pMain});
+      pieces.push({c:o.pants, idKey:`b_${o.pants}`, n:o.bType==='skirt'?'Jupe':'Pantalon/Chino', p: pMain});
+    }
+    pieces.push({c:o.shoes, idKey:`s_${o.shoes}_${o.sType}`, n:o.sType==='heels'?'Talons':o.sType==='flats'?'Ballerines':'Chaussures', p: pShoe});
+
+    let totalDayCost = 0;
+
+    // Détection de réutilisation RÉELLE (même coupe + même couleur exacte)
+    pieces.forEach(p => {
+      let existingPiece = WARDROBE_EXTRACT.find(w => w.idKey === p.idKey);
+      if(existingPiece) {
+        p.r = true; // Réutilisée !
+        existingPiece.uses += 1;
+      } else {
+        p.r = false; // Neuf !
+        totalDayCost += p.p;
+        WARDROBE_EXTRACT.push({ id:wid++, idKey:p.idKey, ico:getPieceIcon(p.n), n:p.n, cat:getCatFromName(p.n, o), cpp: p.p, uses: 1 });
+      }
+    });
+
+    GENERATED_WEEK.push({
+      day: days[dayOfWeek],
+      lbl: currentWeekNum > 1 ? `Semaine ${currentWeekNum} - Jour ${dayOfWeek+1}` : ['Lancement', 'Opérationnel', 'Mi-semaine', 'Focus', 'Friday Casual'][dayOfWeek],
+      outfitObj: o,
+      sc: Math.floor(Math.random() * 10) + 90, 
+      cr: Math.floor(Math.random() * 15) + 85,
+      co: Math.floor(Math.random() * 15) + 85,
+      cpp: totalDayCost.toLocaleString('fr') + ' FCFA',
+      pcs: pieces,
+      tags: [o.type.toUpperCase(), (o.tType==='suit'||o.tType==='blazer')?'AUTHORITY':o.tType==='dress'?'ELEGANT':'CONFORT', temp.toUpperCase()]
+    });
+  }
+}
+
+function generateMoreDays() {
+    generateDays(5, true);
+    renderDB();
+    toast('⚡ 5 nouveaux jours générés (Garde-robe étendue !)');
+}
+
+function getPieceIcon(name) {
+  name = name.toLowerCase();
+  if (name.includes('robe')) return '👗';
+  if (name.includes('jupe')) return '🥻';
+  if (name.includes('talon')) return '👠';
+  if (name.includes('veste') || name.includes('blazer')) return '🧥';
+  if (name.includes('chemise') || name.includes('blouse')) return '👚';
+  if (name.includes('pantalon') || name.includes('chino')) return '👖';
+  return '👞';
+}
+function getCatFromName(name, o) {
+  name = name.toLowerCase();
+  if (name.includes('robe')) return 'robe';
+  if (name.includes('jupe') || name.includes('pantalon') || name.includes('chino')) return 'bas';
+  if (name.includes('talon') || name.includes('chaussure') || name.includes('ballerine')) return 'chaussures';
+  return 'haut';
+}
 
 // ════════════════════════════════════════════════════════
 //  SCORING ENGINE
 // ════════════════════════════════════════════════════════
 function score(){
-  const mS=S.morpho?84:50;
+  const mS=S.morpho?90:50;
   const pS={finance:95,droit:92,gouv:90,conseil:88,sante:82,educ:80,commerce:76,comm:78,tech:72}[S.prof]||70;
-  const cS={tropical:76,semiaride:70,equatorial:73,altitude:88}[S.climat]||70;
-  const bS=S.budget?Math.min(95,48+S.budget/3200):50;
-  const eS=S.teint?84:60;
-  const hB=S.hier*3;
+  const cS={tropical:88,semiaride:85,equatorial:87,altitude:88}[S.climat]||70;
+  const bS=S.budget?Math.min(98,55+S.budget/3000):50;
+  const eS=S.teint?90:60; const hB=S.hier*4;
   return{total:Math.min(99,Math.round(mS*.3+pS*.25+cS*.2+bS*.15+eS*.1+hB)),m:mS,p:pS,c:cS,b:bS,e:eS};
 }
-
 function rules(){
   const r=[];
-  if(S.morpho==='V') r.push({i:'⚠️',t:'Morphologie V → Éviter épaules structurées excessives'});
-  if(S.morpho==='A') r.push({i:'✓',t:'Morphologie A → Valoriser le haut, pantalons droits conseillés'});
-  if(S.morpho==='X') r.push({i:'✓',t:'Morphologie X → Toutes coupes valorisantes, ceinture recommandée'});
-  if(S.morpho==='O') r.push({i:'✓',t:'Morphologie O → Coupes droites, longueurs intermédiaires'});
-  if(S.climat==='tropical') r.push({i:'🌡️',t:'Climat chaud → Lin et coton exclusivement, coupes aérées'});
-  if(S.climat==='equatorial') r.push({i:'🌧️',t:'Équatorial → Prévoir imperméable léger en rotation'});
-  if(['finance','droit'].includes(S.prof)) r.push({i:'🏦',t:S.prof==='finance'?'Finance → Sneakers exclues, costume+chemise obligatoire':'Droit → Costume complet, couleurs sobres uniquement'});
-  if(S.prof==='tech') r.push({i:'💻',t:'Tech → Business casual autorisé, cravate non imposée'});
-  if(S.hier>=3) r.push({i:'👑',t:'C-Level → Style signature, dashiki premium en contexte africain'});
-  if(S.budget&&S.budget<=15000) r.push({i:'💡',t:'Budget serré → Capsule 5 pièces, maximiser réutilisation'});
-  if(['s5','s6'].includes(S.teint)) r.push({i:'🎨',t:'Teint foncé → Couleurs vives et contrastes nets avantageux'});
-  if(['s1','s2'].includes(S.teint)) r.push({i:'🎨',t:'Teint clair → Neutres et pastels clairs valorisants'});
+  if(S.morpho==='A') r.push({i:'📐',t:'Morpho A : Hauts clairs et bas foncés pour rééquilibrer la silhouette.'});
+  if(S.morpho==='V') r.push({i:'📐',t:'Morpho V : Hauts foncés pour minimiser la carrure visuellement.'});
+  if(S.morpho==='O') r.push({i:'📐',t:'Morpho O : Favorisation des looks monochromes amincissants.'});
+  if(S.hier>=2) r.push({i:'👑',t:'Niveau Dirigeant : Contraste rehaussé et couleurs assombries.'});
+  if(S.budget>=75000) r.push({i:'💎',t:'Budget Premium/Luxe simulé (Soie/Laine Froide).'});
   return r;
-}
-
-function getWeek(){
-  return(['finance','droit','gouv','conseil'].includes(S.prof)||S.hier>=2)?WEEK_F:WEEK_C;
 }
 
 // ════════════════════════════════════════════════════════
 //  INIT UI
 // ════════════════════════════════════════════════════════
 function initUI(){
-  // Splash avatars
-  const combos=[{m:'V',s:'s5',o:'costume_bleu',g:'M'},{m:'X',s:'s3',o:'smart_kaki',g:'F'},{m:'H',s:'s6',o:'sc_navy',g:'M'}];
-  const labels=['Morphologie V · Formel','Morphologie X · Smart','Morphologie H · Casual'];
+  const combos=[
+    {m:'A',s:'s5',o:generateUniqueOutfit({genre:'F', morpho:'A', hier:1, budget:150000}, 'formal', 'cold', 1),g:'F', l:'Robe Couture · Femme'},
+    {m:'H',s:'s3',o:generateUniqueOutfit({genre:'M', morpho:'H', hier:3, budget:150000}, 'formal', 'cold', 2),g:'M', l:'Costume Nuit · Homme'},
+    {m:'X',s:'s6',o:generateUniqueOutfit({genre:'F', morpho:'X', hier:1, budget:35000}, 'smart', 'hot', 3),g:'F', l:'Chemisier & Jupe · Femme'}
+  ];
   document.getElementById('spAv').innerHTML=combos.map((c,i)=>
     `<div class="sp-av-wrap" style="animation:rise .7s ${.7+i*.15}s both">
       ${buildAvatar(c.m,c.s,c.o,c.g,138)}
-      <div class="sp-av-lbl">${labels[i]}</div>
+      <div class="sp-av-lbl">${c.l}</div>
     </div>`).join('');
 
-  // Steps
   const stpLbls=['Genre & Morphologie','Teint & Stature','Profession','Budget & Climat','Confirmation'];
   document.getElementById('obStps').innerHTML=stpLbls.map((l,i)=>
-    `<div class="ob-stp ${i===0?'cur':''}" id="os${i+1}" onclick="jumpStep(${i+1})" title="${i===0?'':i+1+'ère étape — cliquer pour y retourner'}">
-      <div class="ob-stp-n">${i+1}</div>
-      <div class="ob-stp-l">${l}</div>
+    `<div class="ob-stp ${i===0?'cur':''}" id="os${i+1}" onclick="jumpStep(${i+1})">
+      <div class="ob-stp-n">${i+1}</div><div class="ob-stp-l">${l}</div>
     </div>`).join('');
 
-  // Morpho grid
   buildMGrid();
-
-  // Skin
-  document.getElementById('skRow').innerHTML=SKINS.map(sk=>
-    `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-      <div class="sk-sw${sk.id==='s5'?' sel':''}" style="background:${sk.hex}"
-           onclick="setSkin('${sk.id}',this)" title="${sk.label}"></div>
-      <div class="sk-lbl">${sk.label}</div>
-    </div>`).join('');
-
-  // Hier
-  document.getElementById('hiGrid').innerHTML=HIER.map((h,i)=>
-    `<div class="hi-item${i===1?' sel':''}" onclick="setHier(${i},this)">
-      <div class="hi-ico">${h.i}</div>
-      <div class="hi-lbl">${h.l}</div>
-    </div>`).join('');
-
-  // Jobs
-  document.getElementById('jGrid').innerHTML=JOBS.map(j=>
-    `<div class="job-card" onclick="setJob('${j.id}',this)">
-      <div class="job-ico">${j.ico}</div>
-      <div><div class="job-n">${j.n}</div><div class="job-c">${j.c}</div></div>
-    </div>`).join('');
-
-  // Budget
-  document.getElementById('bGrid').innerHTML=BUDGETS.map(b=>
-    `<div class="bud-card" onclick="setBud(${b.v},this)">
-      <div class="bud-amt">${b.a}</div>
-      <div class="bud-unit">FCFA / mois</div>
-      <div class="bud-tag ${b.tc}">${b.t}</div>
-    </div>`).join('');
-
-  // Climat
-  document.getElementById('cGrid').innerHTML=CLIMATS.map(c=>
-    `<div class="cl-card" onclick="setCl('${c.id}',this)">
-      <div class="cl-ico">${c.ico}</div>
-      <div><div class="cl-n">${c.n}</div><div class="cl-c">${c.c}</div></div>
-    </div>`).join('');
+  document.getElementById('skRow').innerHTML=SKINS.map(sk=>`<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="sk-sw${sk.id===S.teint?' sel':''}" style="background:${sk.hex}" onclick="setSkin('${sk.id}',this)"></div><div class="sk-lbl">${sk.label}</div></div>`).join('');
+  document.getElementById('hiGrid').innerHTML=HIER.map((h,i)=>`<div class="hi-item${i===S.hier?' sel':''}" onclick="setHier(${i},this)"><div class="hi-ico">${h.i}</div><div class="hi-lbl">${h.l}</div></div>`).join('');
+  document.getElementById('jGrid').innerHTML=JOBS.map(j=>`<div class="job-card${j.id===S.prof?' sel':''}" onclick="setJob('${j.id}',this)"><div class="job-ico">${j.ico}</div><div><div class="job-n">${j.n}</div><div class="job-c">${j.c}</div></div></div>`).join('');
+  document.getElementById('bGrid').innerHTML=BUDGETS.map(b=>`<div class="bud-card${b.v===S.budget?' sel':''}" onclick="setBud(${b.v},this)"><div class="bud-amt">${b.a}</div><div class="bud-unit">FCFA / mois</div><div class="bud-tag ${b.tc}">${b.t}</div></div>`).join('');
+  document.getElementById('cGrid').innerHTML=CLIMATS.map(c=>`<div class="cl-card${c.id===S.climat?' sel':''}" onclick="setCl('${c.id}',this)"><div class="cl-ico">${c.ico}</div><div><div class="cl-n">${c.n}</div><div class="cl-c">${c.c}</div></div></div>`).join('');
 }
 
 function buildMGrid(){
   const descs={V:'Épaules larges\nHanches étroites',A:'Hanches larges\nÉpaules étroites',H:'Épaules & hanches\nSimilaires',X:'Sablier\nTaille marquée',O:'Silhouette ronde\nBien répartie'};
-  document.getElementById('mGrid').innerHTML=Object.keys(MORPH).map(k=>
-    `<div class="m-card${S.morpho===k?' sel':''}" onclick="setMorpho('${k}',this)">
-      <div class="m-av">${buildAvatar(k,'s4','smart_kaki',S.genre,138)}</div>
-      <div class="m-letter">${k}</div>
-      <div class="m-desc">${descs[k].replace('\n','<br>')}</div>
-    </div>`).join('');
+  const demoOutfit = generateUniqueOutfit(S, 'smart', 'cold', 99);
+  document.getElementById('mGrid').innerHTML=Object.keys(MORPH).map(k=>`<div class="m-card${S.morpho===k?' sel':''}" onclick="setMorpho('${k}',this)"><div class="m-av">${buildAvatar(k,S.teint,demoOutfit,S.genre,138)}</div><div class="m-letter">${k}</div><div class="m-desc">${descs[k].replace('\n','<br>')}</div></div>`).join('');
 }
 
-// ════════════════════════════════════════════════════════
-//  SELECTORS
-// ════════════════════════════════════════════════════════
-function setG(g,btn){
-  S.genre=g;
-  document.querySelectorAll('.g-btn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  buildMGrid();
-}
-function setMorpho(k,el){
-  document.querySelectorAll('.m-card').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel'); S.morpho=k;
-}
-function setSkin(id,el){
-  document.querySelectorAll('.sk-sw').forEach(s=>s.classList.remove('sel'));
-  el.classList.add('sel'); S.teint=id;
-}
-function setHier(i,el){
-  document.querySelectorAll('.hi-item').forEach(h=>h.classList.remove('sel'));
-  el.classList.add('sel'); S.hier=i;
-}
-function setJob(id,el){
-  document.querySelectorAll('.job-card').forEach(j=>j.classList.remove('sel'));
-  el.classList.add('sel'); S.prof=id;
-}
-function setBud(v,el){
-  document.querySelectorAll('.bud-card').forEach(b=>b.classList.remove('sel'));
-  el.classList.add('sel'); S.budget=v;
-}
-function setCl(id,el){
-  document.querySelectorAll('.cl-card').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel'); S.climat=id;
-}
+function setG(g,btn){ S.genre=g; document.querySelectorAll('.g-btn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); buildMGrid(); }
+function setMorpho(k,el){ document.querySelectorAll('.m-card').forEach(c=>c.classList.remove('sel')); el.classList.add('sel'); S.morpho=k; }
+function setSkin(id,el){ document.querySelectorAll('.sk-sw').forEach(s=>s.classList.remove('sel')); el.classList.add('sel'); S.teint=id; buildMGrid();}
+function setHier(i,el){ document.querySelectorAll('.hi-item').forEach(h=>h.classList.remove('sel')); el.classList.add('sel'); S.hier=i; }
+function setJob(id,el){ document.querySelectorAll('.job-card').forEach(j=>j.classList.remove('sel')); el.classList.add('sel'); S.prof=id; }
+function setBud(v,el){ document.querySelectorAll('.bud-card').forEach(b=>b.classList.remove('sel')); el.classList.add('sel'); S.budget=v; }
+function setCl(id,el){ document.querySelectorAll('.cl-card').forEach(c=>c.classList.remove('sel')); el.classList.add('sel'); S.climat=id; }
 
-// ════════════════════════════════════════════════════════
-//  NAVIGATION
-// ════════════════════════════════════════════════════════
-function go(id){
-  document.querySelectorAll('.scr').forEach(s=>{s.classList.remove('on');s.style.display='';});
-  const el=document.getElementById(id);
-  if(id==='ob'){el.classList.add('on');}
-  else if(id==='db'){el.classList.add('on');}
-  else el.classList.add('on');
-  updProgress();
-}
-
+function go(id){ document.querySelectorAll('.scr').forEach(s=>{s.classList.remove('on');s.style.display='';}); document.getElementById(id).classList.add('on'); updProgress(); }
 function nxt(){if(curStep<STEPS){if(curStep===STEPS-1)buildRecap();showStep(curStep+1);}}
 function prv(){if(curStep>1)showStep(curStep-1);}
-
-// Clic sur un step de la sidebar — retour arrière seulement
-function jumpStep(n){
-  if(n < curStep) showStep(n);
-}
-
-// Retour splash depuis onboarding
-function backToSplash(){
-  go('splash');
-  curStep=1;
-  showStep(1);
-}
-
-// Retour onboarding depuis dashboard (modifier profil)
-function backToOnboarding(){
-  go('ob');
-  buildRecap(); // rafraîchit le récap avec l'état actuel
-  showStep(curStep); // revient à la dernière étape (5 = recap par défaut)
-}
+function jumpStep(n){if(n<curStep)showStep(n);}
+function backToSplash(){go('splash');curStep=1;showStep(1);}
+function backToOnboarding(){go('ob');buildRecap();showStep(curStep);}
 
 function showStep(n){
   document.querySelectorAll('.ob-panel').forEach(p=>p.classList.remove('on'));
   document.getElementById(`p${n}`).classList.add('on');
   document.querySelectorAll('.ob-stp').forEach((s,i)=>{
-    s.classList.remove('cur','done');
-    const num=s.querySelector('.ob-stp-n');
+    s.classList.remove('cur','done'); const num=s.querySelector('.ob-stp-n');
     if(i+1===n){s.classList.add('cur');num.textContent=i+1;}
     else if(i+1<n){s.classList.add('done');num.textContent='✓';}
     else num.textContent=i+1;
   });
   curStep=n; updProgress();
 }
-
 function updProgress(){
   const pct=Math.round(((curStep-1)/(STEPS-1))*100);
-  const fill=document.getElementById('obFill');
-  const pctEl=document.getElementById('obPct');
-  if(fill) fill.style.width=pct+'%';
-  if(pctEl) pctEl.textContent=pct+'%';
+  const fill=document.getElementById('obFill'); const pctEl=document.getElementById('obPct');
+  if(fill) fill.style.width=pct+'%'; if(pctEl) pctEl.textContent=pct+'%';
 }
 
 function buildRecap(){
   const rls=rules();
-  const pL=JOBS.find(j=>j.id===S.prof)?.n||'—';
-  const cL=CLIMATS.find(c=>c.id===S.climat)?.n||'—';
+  const pL=JOBS.find(j=>j.id===S.prof)?.n||'—'; const cL=CLIMATS.find(c=>c.id===S.climat)?.n||'—';
   document.getElementById('rcGrid').innerHTML=[
     {l:'Morphologie',v:S.morpho||'—'},{l:'Genre',v:S.genre==='M'?'Masculin':'Féminin'},
-    {l:'Profession',v:pL},{l:'Budget/mois',v:S.budget?S.budget.toLocaleString('fr')+' FCFA':'—'},
+    {l:'Profession',v:pL},{l:'Budget',v:S.budget?S.budget.toLocaleString('fr')+' FCFA':'—'},
     {l:'Climat',v:cL},{l:'Niveau',v:HIER[S.hier]?.l||'—'},
   ].map(r=>`<div class="rc-item"><div class="rc-lbl">${r.l}</div><div class="rc-val">${r.v}</div></div>`).join('');
-  document.getElementById('rlList').innerHTML=rls.length
-    ?rls.map(r=>`<div class="rl-row"><span class="rl-i">${r.i}</span>${r.t}</div>`).join('')
-    :'<div class="rl-row"><span class="rl-i">ℹ️</span>Complète ton profil pour activer les règles</div>';
+  document.getElementById('rlList').innerHTML=rls.length?rls.map(r=>`<div class="rl-row"><span class="rl-i">${r.i}</span>${r.t}</div>`).join(''):'<div class="rl-row"><span class="rl-i">ℹ️</span>Complète ton profil</div>';
 }
 
 function launch(){
+  generateDays(5, false); // Génère les 5 premiers jours sans append
   document.getElementById('ob').classList.remove('on');
   document.getElementById('db').classList.add('on');
-  renderDB(); toast('⚡ Système initialisé — Semaine générée');
+  renderDB(); toast('⚡ Système initialisé — Première semaine prête');
 }
 
 // ════════════════════════════════════════════════════════
 //  DASHBOARD RENDER
 // ════════════════════════════════════════════════════════
 function renderDB(){
-  const sc=score();
-  const pL=JOBS.find(j=>j.id===S.prof)?.n?.split('/')[0]?.trim()||'Pro';
-  document.getElementById('dbUL').textContent=pL;
-  document.getElementById('dbAv').textContent=pL[0];
+  const sc=score(); const pL=JOBS.find(j=>j.id===S.prof)?.n?.split('/')[0]?.trim()||'Pro';
+  document.getElementById('dbUL').textContent=pL; document.getElementById('dbAv').textContent=pL[0];
   
-  // Score
   animN('scN',sc.total);
   const gr=sc.total>=88?'A+':sc.total>=80?'A':sc.total>=72?'B+':'B';
-  const gc=sc.total>=88?'sga':sc.total>=75?'sgb':'sgc';
-  document.getElementById('scG').textContent=`GRADE ${gr}`;
-  document.getElementById('scG').className=`sc-grade ${gc}`;
-  document.getElementById('scAx').innerHTML=[
-    {n:'Morphologie',v:sc.m,c:'#d4a843'},{n:'Profession',v:sc.p,c:'#79b554'},
-    {n:'Climat',v:sc.c,c:'#5191c9'},{n:'Budget',v:sc.b,c:'#c95a4a'},{n:'Esthétique',v:sc.e,c:'#b08830'},
-  ].map(a=>`<div class="ax"><div class="ax-top"><span class="ax-n">${a.n}</span><span class="ax-v">${Math.round(a.v)}</span></div>
-    <div class="ax-track"><div class="ax-fill" style="width:${a.v}%;background:${a.c}"></div></div></div>`).join('');
+  document.getElementById('scG').textContent=`GRADE ${gr}`; document.getElementById('scG').className=`sc-grade ${sc.total>=88?'sga':sc.total>=75?'sgb':'sgc'}`;
+  document.getElementById('scAx').innerHTML=[{n:'Morphologie',v:sc.m,c:'#d4a843'},{n:'Profession',v:sc.p,c:'#79b554'},{n:'Climat',v:sc.c,c:'#5191c9'},{n:'Budget',v:sc.b,c:'#c95a4a'},{n:'Esthétique',v:sc.e,c:'#b08830'}].map(a=>`<div class="ax"><div class="ax-top"><span class="ax-n">${a.n}</span><span class="ax-v">${Math.round(a.v)}</span></div><div class="ax-track"><div class="ax-fill" style="width:${a.v}%;background:${a.c}"></div></div></div>`).join('');
 
-  // Week
-  const week=getWeek();
-  const rc=week.flatMap(d=>d.pcs).filter(p=>p.r).length;
-  document.getElementById('rChip').textContent=`${rc} pièces réutilisées`;
-  document.getElementById('wGrid').innerHTML=week.map((d,i)=>
+  const rc = GENERATED_WEEK.flatMap(d=>d.pcs).filter(p=>p.r).length;
+  document.getElementById('dChip').textContent=`${GENERATED_WEEK.length} jours`;
+  document.getElementById('rChip').textContent=`${rc} réutilisations fluides`;
+  document.getElementById('wkCount').textContent=`(${GENERATED_WEEK.length} Jours cumulés)`;
+  
+  document.getElementById('wGrid').innerHTML=GENERATED_WEEK.map((d,i)=>
     `<div class="day-card" onclick="openD(${i})">
-      <div class="dc-head">
-        <div class="dc-day">${d.day}</div>
-        <div class="dc-score ${d.sc>=88?'dca':'dcg'}">${d.sc}</div>
-      </div>
-      <div class="av-stage">${buildAvatar(S.morpho||'H',S.teint,d.outfit,S.genre,193)}</div>
+      <div class="dc-head"><div class="dc-day">${d.day}</div><div class="dc-score ${d.sc>=88?'dca':'dcg'}">${d.sc}</div></div>
+      <div class="av-stage">${buildAvatar(S.morpho||'H',S.teint,d.outfitObj,S.genre,193)}</div>
       <div class="dc-body">
-        <div class="dc-outfit-name">${d.lbl}</div>
+        <div class="dc-outfit-name" title="${d.lbl}">${d.lbl}</div>
         <div class="dc-pieces">
-          ${d.pcs.map(p=>`<div class="dc-piece">
-            <div class="dc-dot" style="background:${p.c}"></div>
-            <div class="dc-txt">${p.n}</div>
-            ${p.r?'<span class="dc-r">↩ RÉUTIL.</span>':''}
-          </div>`).join('')}
+          ${d.pcs.map(p=>`<div class="dc-piece"><div class="dc-dot" style="background:${p.c}"></div><div class="dc-txt" title="${p.n}">${p.n}</div>${p.r?'<span class="dc-r">RÉUTIL.</span>':''}</div>`).join('')}
         </div>
         <div class="dc-tags">${d.tags.map(t=>`<div class="dc-tag">${t}</div>`).join('')}</div>
       </div>
     </div>`).join('');
 
-  // Wardrobe
-  document.getElementById('wrdGrid').innerHTML=WARDROBE.map(w=>
+  document.getElementById('wrdGrid').innerHTML=WARDROBE_EXTRACT.map(w=>
     `<div class="wrd-card" data-cat="${w.cat}">
-      <div class="wrd-img">${w.ico}</div>
+      <div class="wrd-img" style="background:${shade(w.idKey.split('_')[1], -80)}">${w.ico}</div>
       <div class="wrd-info">
-        <div class="wrd-n">${w.n}</div>
-        <div class="wrd-t">${w.cat}</div>
-        <div class="wrd-st"><div class="wrd-cpp">${w.cpp} FCFA/port</div><div class="wrd-uses">×${w.uses}</div></div>
+        <div class="wrd-n" title="${w.n}">${w.n}</div>
+        <div class="wrd-t">${w.cat.toUpperCase()} - <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${w.idKey.split('_')[1]};vertical-align:middle;border:1px solid rgba(255,255,255,0.2)"></span></div>
+        <div class="wrd-st"><div class="wrd-cpp">${w.cpp} FCFA/p</div><div class="wrd-uses">×${w.uses} porté</div></div>
       </div>
     </div>`).join('');
 
-  // Career
-  document.getElementById('careerCont').innerHTML=CAREER.map((c,i)=>
-    `<div style="display:grid;grid-template-columns:88px 1fr;gap:18px;align-items:start;
-          padding:18px;background:var(--s1);border:1.5px solid ${S.hier===i?'var(--gold)':'var(--b1)'};
-          border-radius:var(--r2);margin-bottom:10px;cursor:pointer;
-          background:${S.hier===i?'rgba(212,168,67,.07)':'var(--s1)'};"
-          onclick="highlightCareer(this)">
-      <div style="background:var(--s2);border-radius:var(--r2);padding:8px 4px;
-                  border:1px solid var(--b1);text-align:center">
-        ${buildAvatar(S.morpho||'H',S.teint,c.outfit,S.genre,96)}
-      </div>
-      <div>
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:5px">
-          <span style="font-size:16px">${c.ico}</span>
-          <span style="font-family:var(--ftitle);font-size:21px;letter-spacing:.05em">${c.l}</span>
-          ${S.hier===i?'<span style="font-size:8px;font-family:var(--fmono);padding:2px 8px;background:var(--golddim);color:var(--gold);border-radius:99px">ACTUEL</span>':''}
-        </div>
-        <div style="color:var(--gold);font-family:var(--fmono);font-size:9px;letter-spacing:.1em;margin-bottom:7px">${c.style}</div>
-        <div style="font-size:12px;color:var(--t2);font-weight:300;line-height:1.65">${c.desc}</div>
-      </div>
-    </div>`).join('');
+  const careerData = S.genre === 'F' ? [
+    {l:'Junior', ico:'🌱', outfit:generateUniqueOutfit({genre:'F', morpho:S.morpho, hier:0, budget:15000}, 'casual', 'cold', 10), style:'Propre & Accessible', desc:'Tenues simples, blouses fluides. Idéal pour débuter.'},
+    {l:'Manager', ico:'⭐', outfit:generateUniqueOutfit({genre:'F', morpho:S.morpho, hier:1, budget:35000}, 'smart', 'cold', 11), style:'Smart Assumé', desc:'Jupes structurées, talons modérés. Marque l\'ascension.'},
+    {l:'Directeur',ico:'💎', outfit:generateUniqueOutfit({genre:'F', morpho:S.morpho, hier:3, budget:150000}, 'formal', 'cold', 12), style:'Authority Dressing', desc:'Tailleur strict. Signaux de leadership forts.'}
+  ] : [
+    {l:'Junior', ico:'🌱', outfit:generateUniqueOutfit({genre:'M', morpho:S.morpho, hier:0, budget:15000}, 'casual', 'cold', 13), style:'Propre & Accessible', desc:'Polo/Chemise, Chino. Net et confortable.'},
+    {l:'Manager', ico:'⭐', outfit:generateUniqueOutfit({genre:'M', morpho:S.morpho, hier:1, budget:35000}, 'smart', 'cold', 14), style:'Smart Assumé', desc:'Costumes dépareillés, chemises impeccables.'},
+    {l:'Directeur',ico:'💎', outfit:generateUniqueOutfit({genre:'M', morpho:S.morpho, hier:3, budget:150000}, 'formal', 'cold', 15), style:'Authority Dressing', desc:'Costume structuré inspirant la confiance.'}
+  ];
 
-  // Side
-  const pL2=JOBS.find(j=>j.id===S.prof)?.n||'—';
-  const cL=CLIMATS.find(c=>c.id===S.climat)?.n||'—';
-  document.getElementById('ssProf').innerHTML=[
-    {k:'Morphologie',v:S.morpho||'—'},{k:'Profession',v:pL2},
-    {k:'Niveau',v:HIER[S.hier]?.l||'—'},{k:'Budget/mois',v:S.budget?S.budget.toLocaleString('fr')+' FCFA':'—'},
-    {k:'Climat',v:cL},{k:'Genre',v:S.genre==='M'?'Masculin':'Féminin'},
-  ].map(s=>`<div class="ss-row"><div class="ss-k">${s.k}</div><div class="ss-v">${s.v}</div></div>`).join('');
-
-  const rls=rules();
-  document.getElementById('ssIns').innerHTML=rls.slice(0,4).map(r=>
-    `<div class="insight"><div class="in-i">${r.i}</div>${r.t}</div>`).join('')
-    ||'<div class="insight"><div class="in-i">📌</div>Complète ton profil</div>';
-
-  document.getElementById('ssSt').innerHTML=[
-    {k:'Pièces réutilisées',v:`${rc}/semaine`},{k:'Coût moyen/jour',v:'2 100 FCFA'},
-    {k:'Total garde-robe',v:`${WARDROBE.length} pièces`},{k:'Score global',v:`${sc.total}/100`},
-  ].map(s=>`<div class="ss-row"><div class="ss-k">${s.k}</div><div class="ss-v">${s.v}</div></div>`).join('');
+  document.getElementById('careerCont').innerHTML=careerData.map((c,i)=>`<div style="display:grid;grid-template-columns:88px 1fr;gap:18px;align-items:start;padding:18px;background:var(--s1);border:1.5px solid ${S.hier===i?'var(--gold)':'var(--b1)'};border-radius:var(--r2);margin-bottom:10px;cursor:pointer;background:${S.hier===i?'rgba(212,168,67,.07)':'var(--s1)'};" onclick="highlightCareer(this)"><div style="background:var(--s2);border-radius:var(--r2);padding:8px 4px;border:1px solid var(--b1);text-align:center">${buildAvatar(S.morpho||'H',S.teint,c.outfit,S.genre,96)}</div><div><div style="display:flex;align-items:center;gap:9px;margin-bottom:5px"><span style="font-size:16px">${c.ico}</span><span style="font-family:var(--ftitle);font-size:21px;letter-spacing:.05em">${c.l}</span>${S.hier===i?'<span style="font-size:8px;font-family:var(--fmono);padding:2px 8px;background:var(--golddim);color:var(--gold);border-radius:99px">ACTUEL</span>':''}</div><div style="color:var(--gold);font-family:var(--fmono);font-size:9px;letter-spacing:.1em;margin-bottom:7px">${c.style}</div><div style="font-size:12px;color:var(--t2);font-weight:300;line-height:1.65">${c.desc}</div></div></div>`).join('');
+  document.getElementById('ssProf').innerHTML=[{k:'Morphologie',v:S.morpho||'—'},{k:'Profession',v:pL},{k:'Niveau',v:HIER[S.hier]?.l||'—'},{k:'Budget/mois',v:S.budget?S.budget.toLocaleString('fr')+' FCFA':'—'},{k:'Climat',v:CLIMATS.find(c=>c.id===S.climat)?.n||'—'},{k:'Genre',v:S.genre==='M'?'Masculin':'Féminin'}].map(s=>`<div class="ss-row"><div class="ss-k">${s.k}</div><div class="ss-v">${s.v}</div></div>`).join('');
+  document.getElementById('ssIns').innerHTML=rules().slice(0,4).map(r=>`<div class="insight"><div class="in-i">${r.i}</div>${r.t}</div>`).join('');
+  document.getElementById('ssSt').innerHTML=[{k:'Total Jours Générés',v:`${GENERATED_WEEK.length} j.`},{k:'Taille Garde-Robe',v:`${WARDROBE_EXTRACT.length} pièces distinctes`},{k:'Score Profil Global',v:`${sc.total}/100`}].map(s=>`<div class="ss-row"><div class="ss-k">${s.k}</div><div class="ss-v">${s.v}</div></div>`).join('');
 }
 
-function highlightCareer(el){
-  document.querySelectorAll('#careerCont>div').forEach(d=>{d.style.border='1.5px solid var(--b1)';d.style.background='var(--s1)'});
-  el.style.border='1.5px solid var(--gold)'; el.style.background='rgba(212,168,67,.07)';
-}
+function highlightCareer(el){ document.querySelectorAll('#careerCont>div').forEach(d=>{d.style.border='1.5px solid var(--b1)';d.style.background='var(--s1)'}); el.style.border='1.5px solid var(--gold)'; el.style.background='rgba(212,168,67,.07)'; }
 
 // ════════════════════════════════════════════════════════
-//  DRAWER
+//  DRAWER & UTILITAIRES
 // ════════════════════════════════════════════════════════
 function openD(idx){
-  const week=getWeek(); const d=week[idx];
-  document.getElementById('drDay').textContent=`${d.day}NDAY`;
-  document.getElementById('drTitle').textContent=d.lbl;
+  const d=GENERATED_WEEK[idx];
+  document.getElementById('drDay').textContent=`JOUR ${idx+1} — ${d.day}`; document.getElementById('drTitle').textContent=d.lbl;
   document.getElementById('drBody').innerHTML=`
-    <div class="dr-av-stage">${buildAvatar(S.morpho||'H',S.teint,d.outfit,S.genre,272)}</div>
+    <div class="dr-av-stage">${buildAvatar(S.morpho||'H',S.teint,d.outfitObj,S.genre,272)}</div>
     <div class="dr-metrics">
       <div class="dr-metric"><div class="dr-mv" style="color:var(--gold)">${d.cr}</div><div class="dr-ml">CRÉDIBILITÉ</div></div>
       <div class="dr-metric"><div class="dr-mv" style="color:var(--green)">${d.co}</div><div class="dr-ml">CONFORT CLIM.</div></div>
-      <div class="dr-metric" style="grid-column:span 2"><div class="dr-mv" style="color:var(--blue);font-size:24px">${d.cpp}</div><div class="dr-ml">COÛT PAR PORT</div></div>
     </div>
     <div>
-      <div style="font-family:var(--fmono);font-size:8px;letter-spacing:.3em;color:var(--t3);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--b1);margin-bottom:12px">Composition</div>
+      <div style="font-family:var(--fmono);font-size:8px;letter-spacing:.3em;color:var(--t3);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--b1);margin-bottom:12px">Composition exacte</div>
       ${d.pcs.map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--s2);border-radius:var(--r);border:1px solid var(--b1);margin-bottom:6px">
-        <div style="width:11px;height:11px;border-radius:3px;background:${p.c};flex-shrink:0"></div>
+        <div style="width:14px;height:14px;border-radius:4px;background:${p.c};flex-shrink:0;border:1px solid rgba(255,255,255,0.1)"></div>
         <div style="flex:1;font-size:12px">${p.n}</div>
-        ${p.r?'<span style="font-size:8px;font-family:var(--fmono);padding:2px 7px;background:var(--golddim);color:var(--gold);border-radius:4px">↩ RÉUTIL.</span>':'<span style="font-size:8px;color:var(--t3);font-family:var(--fmono)">NEUF</span>'}
+        ${p.r?'<span style="font-size:8px;font-family:var(--fmono);padding:2px 7px;background:var(--golddim);color:var(--gold);border-radius:4px">DÉJÀ PORTÉE</span>':'<span style="font-size:8px;color:var(--t3);font-family:var(--fmono)">NOUVELLE PIÈCE</span>'}
       </div>`).join('')}
     </div>
-    <div>
-      <div style="font-family:var(--fmono);font-size:8px;letter-spacing:.3em;color:var(--t3);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--b1);margin-bottom:12px">Règles moteur</div>
-      ${rules().slice(0,3).map(r=>`<div class="insight"><div class="in-i">${r.i}</div>${r.t}</div>`).join('')}
-    </div>
     <div class="chips">${d.tags.map(t=>`<div class="chip on">${t}</div>`).join('')}</div>`;
-  document.getElementById('ov').classList.add('on');
-  document.getElementById('drw').classList.add('on');
+  document.getElementById('ov').classList.add('on'); document.getElementById('drw').classList.add('on');
 }
 
-function closeD(){
-  document.getElementById('ov').classList.remove('on');
-  document.getElementById('drw').classList.remove('on');
-}
+function closeD(){ document.getElementById('ov').classList.remove('on'); document.getElementById('drw').classList.remove('on'); }
+function dTab(t,el){ document.querySelectorAll('.db-tab').forEach(b=>b.classList.remove('on')); el.classList.add('on'); ['week','wardrobe','career'].forEach(n=>document.getElementById(`t-${n}`).style.display=n===t?'block':'none'); }
+function wrdF(cat,el){ document.querySelectorAll('#wrdChips .chip').forEach(c=>c.classList.remove('on')); el.classList.add('on'); document.querySelectorAll('.wrd-card').forEach(c=>c.style.display=cat==='all'||c.dataset.cat===cat?'':'none'); }
+function animN(id,target){ let v=0;const el=document.getElementById(id);const s=target/55; const t=setInterval(()=>{v=Math.min(v+s,target);el.textContent=Math.round(v);if(v>=target)clearInterval(t)},16); }
+function toast(msg){ const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),3000); }
 
-// ════════════════════════════════════════════════════════
-//  TABS & FILTERS
-// ════════════════════════════════════════════════════════
-function dTab(t,el){
-  document.querySelectorAll('.db-tab').forEach(b=>b.classList.remove('on')); el.classList.add('on');
-  ['week','wardrobe','career'].forEach(n=>document.getElementById(`t-${n}`).style.display=n===t?'block':'none');
-}
-function wrdF(cat,el){
-  document.querySelectorAll('#wrdChips .chip').forEach(c=>c.classList.remove('on')); el.classList.add('on');
-  document.querySelectorAll('.wrd-card').forEach(c=>c.style.display=cat==='all'||c.dataset.cat===cat?'':'none');
-}
-
-// ════════════════════════════════════════════════════════
-//  UTILS
-// ════════════════════════════════════════════════════════
-function animN(id,target){
-  let v=0;const el=document.getElementById(id);const s=target/55;
-  const t=setInterval(()=>{v=Math.min(v+s,target);el.textContent=Math.round(v);if(v>=target)clearInterval(t)},16);
-}
-function toast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');
-  setTimeout(()=>t.classList.remove('on'),3000);
-}
-
-// Boot
 initUI();
 </script>
 </body>
